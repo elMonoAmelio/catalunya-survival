@@ -1,5 +1,5 @@
 // Catalunya Survival · MonkiSoft · service worker
-const VERSION = 'cs-2026-10-21e';
+const VERSION = 'cs-2026-10-21f';
 const APP = 'app-' + VERSION, TILES = 'tiles-v1', DATA = 'data-v1';
 const CORE = ['./', './index.html', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/maskable-512.png', './icons/apple-touch-icon.png'];
 const MAX_TILES = 12000;
@@ -21,7 +21,7 @@ self.addEventListener('fetch', e => {
   const req = e.request; if (req.method !== 'GET') return;
   const url = new URL(req.url);
   // Teselas del ICGC: primero la caché del teléfono; si no está, red y se guarda.
-  if (url.hostname === 'geoserveis.icgc.cat' || url.pathname.includes('/mapa-base/wmts/')) {
+  if (url.hostname === 'geoserveis.icgc.cat' || url.hostname === 'servicios.idee.es' || url.pathname.includes('/mapa-base/wmts/')) {
     e.respondWith(caches.open(TILES).then(async c => {
       const hit = await c.match(req, { ignoreVary: true });
       if (hit) return hit;
