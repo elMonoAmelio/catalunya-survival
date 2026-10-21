@@ -1178,7 +1178,7 @@ const TB = (() => { try { return localStorage.getItem('cs_tilebase'); } catch (e
 const ICGC = l => `${TB}/servei/catalunya/mapa-base/wmts/${l}/MON3857NW/{z}/{x}/{y}.png`;
 const bases = {
   topo: L.tileLayer(ICGC('topografic'), { maxZoom: 19, crossOrigin: true }),
-  orto: L.tileLayer(ICGC('orto-hibrida'), { maxZoom: 19, crossOrigin: true }),
+  orto: L.tileLayer(ICGC('orto-hibrida'), { maxZoom: 19, maxNativeZoom: 18, crossOrigin: true }),  // el ICGC no tiene satélite en zoom 19 en muchas zonas
   none: null
 };
 let baseKey = store.get('base', 'topo');
