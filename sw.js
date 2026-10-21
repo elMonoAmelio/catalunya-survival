@@ -1,5 +1,5 @@
 // Catalunya Survival · MonkiSoft · service worker
-const VERSION = 'cs-2026-10-21l';
+const VERSION = 'cs-2026-10-21m';
 const APP = 'app-' + VERSION, TILES = 'tiles-v1', DATA = 'data-v1';
 const CORE = ['./', './index.html', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/maskable-512.png', './icons/apple-touch-icon.png'];
 const MAX_TILES = 12000;
