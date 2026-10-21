@@ -760,6 +760,7 @@ button{font:inherit;color:inherit}
 .dh h2{margin:0;font-size:19px;line-height:1.2;text-wrap:balance}
 .dist{margin:12px 0 8px;font-size:14px}.dist b{font-family:var(--f-num);font-size:18px}
 .warn{margin:8px 0;padding:9px 11px;border-radius:10px;background:var(--warn-bg);color:var(--warn-ink);font-size:13px}
+.h2o{margin:8px 0;padding:9px 11px;border-radius:10px;background:color-mix(in srgb,#2f7fd6 14%,transparent);font-size:13px}.h2o small{display:block;margin-top:4px;opacity:.85;line-height:1.35}.h2o .src a{color:inherit}
 .warn.bad{background:var(--bad-bg);color:var(--bad-ink)}
 dl{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;margin:10px 0;font-size:14px}dt{color:var(--muted)}dd{margin:0;min-width:0;overflow-wrap:anywhere}
 .ph a{color:var(--signal);font-weight:700}
@@ -1030,7 +1031,7 @@ progress{width:100%;height:10px;accent-color:var(--signal)}#dlbar{padding:6px 0 
     <div class="grab"><div><h3>Lluvia fuerte</h3><p class="sub">Rieras en rojo, zonas inundables y lugares altos donde ir.</p></div><button class="x" type="button" data-close aria-label="Cerrar">×</button></div>
     <p class="warn bad" id="rainnear">Calculando…</p>
     <ul>
-      <li><b>Línea roja</b>: riera o torrente, también donde va cubierta bajo la calle. <b>Línea roja oscura y gruesa</b>: río. <b>Franja roja discontinua</b>: calle que lleva nombre de riera o torrente; muchas se construyeron sobre el cauce y con tormenta baja agua por ellas.</li>
+      <li><b>Línea roja con borde blanco</b>: riera o torrente (las líneas rojas sin borde blanco son carreteras del mapa base), también donde va cubierta bajo la calle. <b>Línea roja oscura y gruesa</b>: río. <b>Franja roja discontinua</b>: calle que lleva nombre de riera o torrente; muchas se construyeron sobre el cauce y con tormenta baja agua por ellas.</li>
       <li><b>Manchas azules</b>: zonas inundables oficiales, para avenidas frecuentes (10 años) y de 100 años; donde se solapan, el azul es más intenso. Tardan unos segundos en cargar con red y quedan guardadas en el móvil al verlas.</li>
       <li>No cruces rieras ni calles inundadas, ni a pie ni en coche: con 20 cm de agua un coche puede empezar a flotar.</li>
       <li>Busca un lugar alto y lejos de la riera. Los pabellones, centros cívicos y ayuntamientos del mapa pueden servir como punto de acogida si el ayuntamiento los habilita.</li>
@@ -1269,13 +1270,13 @@ function syncBuckets() {
   const b = map.getBounds().pad(0.3), x0 = Math.floor(b.getWest() / BK) - 1, x1 = Math.floor(b.getEast() / BK) + 1, y0 = Math.floor(b.getSouth() / BK) - 1, y1 = Math.floor(b.getNorth() / BK) + 1, w = rw();
   for (const [k, bk] of Object.entries(buckets)) {
     const [kx, ky] = k.replace('r', '').split(':').map(Number), vis = kx >= x0 && kx <= x1 && ky >= y0 && ky <= y1;
-    if (vis && !bk.layer) { bk.layer = L.polyline(bk.ls.map(dec), { renderer: riskR, color: bk.river ? '#b3001b' : '#e0182d', weight: bk.river ? w + 1.5 : w, opacity: 0.85, interactive: false, smoothFactor: 1.5 }); g.addLayer(bk.layer); }
+    if (vis && !bk.layer) { const ll = bk.ls.map(dec), lw = bk.river ? w + 1.5 : w; bk.cas = L.polyline(ll, { renderer: riskR, color: '#fff', weight: lw + 3, opacity: 0.95, interactive: false, smoothFactor: 1.5 }); bk.ln = L.polyline(ll, { renderer: riskR, color: bk.river ? '#b3001b' : '#e0182d', weight: lw, opacity: 1, interactive: false, smoothFactor: 1.5 }); bk.layer = L.layerGroup([bk.cas, bk.ln]); g.addLayer(bk.layer); }
     else if (vis && !g.hasLayer(bk.layer)) g.addLayer(bk.layer);
     else if (!vis && bk.layer && g.hasLayer(bk.layer)) g.removeLayer(bk.layer);
   }
 }
 map.on('moveend', syncBuckets);
-map.on('zoomend', () => { applyRisk(); const w = rw(); if (buckets) Object.values(buckets).forEach(b => b.layer && b.layer.setStyle({ weight: b.river ? w + 1.5 : w })); if (riskLayers.r_calles) riskLayers.r_calles.eachLayer(l => l.setStyle({ weight: w + 4 })); });
+map.on('zoomend', () => { applyRisk(); const w = rw(); if (buckets) Object.values(buckets).forEach(b => { if (!b.layer) return; const lw = b.river ? w + 1.5 : w; b.ln.setStyle({ weight: lw }); b.cas.setStyle({ weight: lw + 3 }); }); if (riskLayers.r_calles) riskLayers.r_calles.eachLayer(l => l.setStyle({ weight: w + 4 })); });
 function nearestRiera(lat, lon) {
   let best = 1e18, bi = -1; const c = Math.cos(lat * Math.PI / 180), X = lon * 1e5, Y = lat * 1e5;
   const scan = (a, idx) => { let x = a[0], y = a[1]; for (let i = 0; i < a.length; i += 2) { if (i) { x += a[i]; y += a[i + 1]; } const dx = (x - X) * c, dy = y - Y, d = dx * dx + dy * dy; if (d < best) { best = d; bi = idx; } } };
@@ -1498,6 +1499,12 @@ function waterNote(p) {
   if (dw === 'yes' || dw === 'treated') return '<p class="warn">Marcada como potable en OpenStreetMap, sin verificación oficial. Si dudas, hiérvela o trátala.</p>';
   return '<p class="warn">Potabilidad desconocida. Hierve o trata el agua antes de beberla.</p>';
 }
+function waterNeed(d) {
+  const h = d / 4000, f = v => Math.max(0.1, Math.round(v * 10) / 10).toLocaleString('es-ES');
+  return `<div class="h2o"><b>💧 Agua para llegar a pie: ≈ ${f(h * 0.5)}–${f(h * 1)} L</b>
+    <small>${walk(d)} en línea recta (el camino real es más largo). Media de una persona caminando con menos de 14 kg de carga: ½ L/h con calor moderado, hasta 1 L/h con calor extremo; con fresco, menos. Bebe a sorbos: no más de 1,4 L por hora ni 11 L al día. Referencia diaria: la Generalitat pide guardar 1,5 L de agua por persona y día en el kit; la EFSA fija 2–2,5 L de agua total al día, contando la de la comida.</small>
+    <small class="src">Fuentes: <a href="https://home.army.mil/wood/application/files/8416/2765/1794/Heat_Illness_Pocket_Guide.pdf" target="_blank" rel="noopener">Ejército de EE. UU., guía de calor</a> · <a href="https://www.efsa.europa.eu/es/press/news/nda100326" target="_blank" rel="noopener">EFSA</a> · Generalitat (ver Mochila)</small></div>`;
+}
 function openDetail(p) {
   highlight(p);
   const k = CATS[p.c], t = p.t, o = origin(), d = hav(o.lat, o.lon, p.y, p.x), b = bearing(o.lat, o.lon, p.y, p.x);
@@ -1522,7 +1529,7 @@ function openDetail(p) {
     <button class="x" type="button" data-close aria-label="Cerrar">×</button>
     <div class="dh"><span class="ic big" style="--g:${GROUPS[k.g].c}">${k.e}</span><div><h2>${esc(t.name || k.l)}</h2><p class="sub">${t.name ? esc(k.l) : ''}${p.m >= 0 ? (t.name ? ' · ' : '') + esc(D.munis[p.m].n) + ' (' + esc(({ '08': 'Barcelona', '17': 'Girona', '25': 'Lleida', '43': 'Tarragona' })[D.munis[p.m].pr]) + ')' : (t.name ? ' · ' : '') + 'fuera de Cataluña'}</p></div></div>
     <p class="dist"><b>${fmtD(d)}</b> <i class="ar" data-b="${Math.round(b)}" style="transform:rotate(${Math.round(b)}deg)">↑</i> ${DIRS[Math.round(b / 45) % 8]} ${fromTxt(o)} · ≈ ${walk(d)} a pie en línea recta</p>
-    ${p.c === 'fuente' || p.c === 'manantial' ? waterNote(p) : ''}
+    ${p.c === 'fuente' || p.c === 'manantial' ? waterNeed(d) + waterNote(p) : ''}
     ${p.c === 'militar' ? '<p class="warn">Zona militar: acceso restringido. Sirve como referencia; no entres sin autorización.</p>' : ''}
     ${p.c === 'refugio' ? '<p class="warn">Refugio guardado: puede estar cerrado fuera de temporada.</p>' : ''}
     ${['pabellon', 'civico', 'ayto'].includes(p.c) ? '<p class="warn">No es un refugio oficial. En una emergencia, los ayuntamientos pueden habilitar equipamientos como este para acoger o informar a la población: confírmalo con el 112 o con el ayuntamiento.</p>' : ''}
