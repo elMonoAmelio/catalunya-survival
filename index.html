@@ -819,7 +819,7 @@ input[type=checkbox]{width:20px;height:20px;accent-color:var(--signal)}
 body.pinning #map{cursor:crosshair}body.pinning #pinb{outline:3px solid #f25c19}
 .lnk{border:0;background:none;padding:0;color:var(--signal);font-weight:700;text-decoration:underline;cursor:pointer;font-size:inherit}
 .cat.pot{border-top:1px dashed var(--line);margin-top:2px}
-.zone{display:flex;align-items:center;gap:10px;padding:10px 0}.zone>div{flex:1;min-width:0}.zone small{display:block;color:var(--muted);font-size:12px}.zone .btn{flex:none;min-height:38px}.zone .btn[disabled]{opacity:.5}
+.zone{display:flex;align-items:center;gap:10px;padding:10px 0}.zone>div{flex:1;min-width:0}.zone small{display:block;color:var(--muted);font-size:12px}.zone .btn{flex:none;min-height:38px}.zone .btn[disabled]{opacity:.5}.zone em{font-style:normal;font-weight:700;color:var(--ink)}.zone em.ok{color:#1d8a4a}
 progress{width:100%;height:10px;accent-color:var(--signal)}#dlbar{padding:6px 0 10px}
 #compb[aria-pressed="true"]{background:#1f6fd1;color:#fff}
 .info ol{padding-left:20px;margin:6px 0}
@@ -1740,11 +1740,18 @@ async function renderReady() {
   if (ps) ps.textContent = standalone && n ? `Instalada ✓ · ${fmtN(n)} teselas guardadas` : 'Instalar, mapa sin red y mochila';
   const ch = $('#offchip'); if (ch) ch.textContent = !PWA ? 'Sin red: solo puntos' : ctl ? `Sin red: listo · ${fmtN(n)} teselas` : 'Preparando modo sin red…';
 }
-function renderZones() {
+async function renderZones() {
   const box = $('#zones'); if (!box) return;
   if (!PWA || !window.caches) { box.innerHTML = '<li class="empty">Guardar mapa sin red solo funciona en la versión instalable (web https). Este archivo local guarda los puntos, no el mapa.</li>'; return; }
-  const zs = zones();
-  box.innerHTML = zs.map((zn, i) => { const n = zn.tiles.length, big = n > TMAX; return `<li class="zone"><div><b>${esc(zn.t)}</b><small>${esc(zn.s)} · ${fmtN(n)} teselas · ≈ ${Math.round(n * MB_TILE)} MB</small></div><button type="button" class="btn ${big ? 'ghost' : ''}" data-zone="${i}" ${big || dlJob ? 'disabled' : ''}>${big ? 'Demasiado grande' : 'Guardar'}</button></li>`; }).join('');
+  const zs = zones(), lay = baseKey === 'orto' ? 'orto-hibrida' : 'topografic', have = new Set();
+  try { (await (await caches.open('tiles-v1')).keys()).forEach(r => { const m = r.url.match(/wmts\/([a-z-]+)\/MON3857NW\/(\d+\/\d+\/\d+)\.png/); if (m && m[1] === lay) have.add(m[2]); }); } catch (e) {}
+  const lbl = lay === 'topografic' ? 'mapa topográfico' : 'satélite';
+  box.innerHTML = `<li class="empty">Se guarda el <b>${lbl}</b>, el mapa que tienes puesto ahora. Para guardar el otro, cámbialo en Capas.</li>` + zs.map((zn, i) => {
+    const n = zn.tiles.length, big = n > TMAX, got = zn.tiles.filter(([z, x, y]) => have.has(z + '/' + x + '/' + y)).length, pc = n ? Math.floor(got / n * 100) : 0, done = n && got / n >= 0.98;
+    const st = done ? '<em class="ok">✓ Guardada</em>' : pc ? `<em>${pc} % guardado</em>` : '';
+    const bt = big ? 'Demasiado grande' : done ? 'Repasar' : pc ? 'Completar' : 'Guardar';
+    return `<li class="zone${done ? ' saved' : ''}"><div><b>${esc(zn.t)}</b><small>${esc(zn.s)} · ≈ ${Math.round(n * MB_TILE)} MB${st ? ' · ' + st : ''}</small></div><button type="button" class="btn ${big || done ? 'ghost' : ''}" data-zone="${i}" ${big || dlJob ? 'disabled' : ''}>${bt}</button></li>`;
+  }).join('');
   $$('[data-zone]').forEach(b => b.onclick = () => downloadZone(zs[+b.dataset.zone]));
 }
 async function downloadZone(zn) {
@@ -1776,7 +1783,7 @@ $('#dlstop').onclick = () => { if (dlJob) dlJob.stop = true; };
 let clearArm = 0;
 $('#dlclear').onclick = async () => {
   if (!clearArm) { clearArm = 1; $('#dlclear').textContent = 'Pulsa otra vez para borrar'; setTimeout(() => { clearArm = 0; $('#dlclear').textContent = 'Borrar mapas guardados'; }, 4000); return; }
-  clearArm = 0; try { await caches.delete('tiles-v1'); } catch (e) {} $('#dlclear').textContent = 'Borrar mapas guardados'; toast('Mapas guardados borrados'); renderReady();
+  clearArm = 0; try { await caches.delete('tiles-v1'); } catch (e) {} $('#dlclear').textContent = 'Borrar mapas guardados'; toast('Mapas guardados borrados'); renderReady(); renderZones();
 };
 $('#offbtn').onclick = () => openSheet('dl');
 renderInstall(); renderReady();
