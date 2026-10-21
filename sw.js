@@ -1,11 +1,11 @@
 // Catalunya Survival · MonkiSoft · service worker
-const VERSION = 'cs-2026-10-21f';
+const VERSION = 'cs-2026-10-21g';
 const APP = 'app-' + VERSION, TILES = 'tiles-v1', DATA = 'data-v1';
 const CORE = ['./', './index.html', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/maskable-512.png', './icons/apple-touch-icon.png'];
 const MAX_TILES = 12000;
 
 self.addEventListener('install', e => {
-  e.waitUntil(caches.open(APP).then(c => c.addAll(CORE)).then(() => self.skipWaiting()));
+  e.waitUntil(caches.open(APP).then(c => c.addAll(CORE.map(u => new Request(u, { cache: 'reload' })))).then(() => self.skipWaiting()));
 });
 self.addEventListener('activate', e => {
   e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k.startsWith('app-') && k !== APP).map(k => caches.delete(k)))).then(() => self.clients.claim()));
@@ -43,7 +43,7 @@ self.addEventListener('fetch', e => {
     e.respondWith(caches.open(APP).then(async c => {
       const key = req.mode === 'navigate' ? './index.html' : req;
       const hit = await c.match(key, { ignoreSearch: true });
-      const net = fetch(req).then(res => { if (res.ok) c.put(key, res.clone()); return res; }).catch(() => null);
+      const net = fetch(req, { cache: 'no-cache' }).then(res => { if (res.ok) c.put(key, res.clone()); return res; }).catch(() => null);
       return hit || (await net) || new Response('Sin conexión', { status: 503 });
     }));
   }
