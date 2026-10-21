@@ -748,7 +748,7 @@ button{font:inherit;color:inherit}
 .empty{padding:14px 4px;color:var(--muted)}
 
 /* hojas inferiores */
-#sheets{position:fixed;z-index:800;left:0;right:0;bottom:0;max-height:max(46%,min(72%,calc(100% - 350px)));display:flex}
+#sheets{position:fixed;z-index:800;left:0;right:0;bottom:0;max-height:max(40%,min(72%,calc(100% - 370px)));display:flex}
 @media (pointer:coarse){#side .zm{display:none}}
 .sheet{width:100%;max-width:640px;margin:0 auto;background:var(--panel);border-radius:18px 18px 0 0;box-shadow:0 -4px 24px rgba(10,20,30,.25);padding:6px max(16px,env(safe-area-inset-right,0px)) calc(env(safe-area-inset-bottom,0px) + 14px) max(16px,env(safe-area-inset-left,0px));overflow:auto;-webkit-overflow-scrolling:touch}
 .grab{display:flex;align-items:center;justify-content:space-between;gap:10px;position:sticky;top:-6px;background:var(--panel);padding:8px 0 6px;z-index:1}
@@ -820,6 +820,7 @@ body.pinning #map{cursor:crosshair}body.pinning #pinb{outline:3px solid #f25c19}
 .lnk{border:0;background:none;padding:0;color:var(--signal);font-weight:700;text-decoration:underline;cursor:pointer;font-size:inherit}
 .cat.pot{border-top:1px dashed var(--line);margin-top:2px}
 .zone{display:flex;align-items:center;gap:10px;padding:10px 0}.zone>div{flex:1;min-width:0}.zone small{display:block;color:var(--muted);font-size:12px}.zone .btn{flex:none;min-height:38px}.zone .btn[disabled]{opacity:.5}.ver{margin:6px 0 0;font-size:12px;color:var(--muted)}.ver summary{cursor:pointer;padding:4px 0}.ver ul{margin:4px 0 0;padding-left:16px}.ver li{margin:3px 0}.ver li b{color:var(--ink);font-weight:600}
+.lnk{border:0;background:none;padding:0;font:inherit;color:var(--signal);font-weight:700;text-decoration:underline;cursor:pointer}.btn.sm{min-height:36px;padding:4px 10px;font-size:13px;display:inline-flex}
 .zone em{font-style:normal;font-weight:700;color:var(--ink)}.zone em.ok{color:#1d8a4a}
 progress{width:100%;height:10px;accent-color:var(--signal)}#dlbar{padding:6px 0 10px}
 #compb[aria-pressed="true"]{background:#1f6fd1;color:#fff}
@@ -1024,9 +1025,21 @@ progress{width:100%;height:10px;accent-color:var(--signal)}#dlbar{padding:6px 0 
     <ol class="steps">
       <li><button type="button" data-info="inst"><b>Instala la app en el móvil</b><small id="pstep1">Para abrirla sin red, con GPS y brújula</small></button></li>
       <li><button type="button" data-info="dl"><b>Guarda el mapa de tus zonas</b><small id="pstep2">Toda Cataluña y los alrededores de donde estés</small></button></li>
-      <li><div><b>Ten una copia en Organic Maps</b><small>Importa el paquete KML de Catalunya Survival: mapa y GPS sin red aunque esta app falle</small></div></li>
+      <li><button type="button" data-info="copia"><b>Ten una copia en Catalunya Offline</b><small>App oficial del ICGC: toda Cataluña a cualquier zoom sin red, con los puntos de Survival</small></button></li>
       <li><button type="button" data-info="kit"><b>Prepara la mochila</b><small>Lo que recomienda la Generalitat para 72 horas</small></button></li>
     </ol>
+  </section>
+  <section class="sheet info" id="copia" hidden>
+    <div class="grab"><div><h3>Copia en Catalunya Offline</h3><p class="sub">Mapa oficial de toda Cataluña sin red, con tus puntos</p></div><button class="x" type="button" data-close aria-label="Cerrar">×</button></div>
+    <ol>
+      <li>Instala <b>Catalunya Offline</b>, la app del ICGC: <a href="http://apple.co/2n8Wmra" target="_blank" rel="noopener">iPhone</a> · <a href="http://bit.ly/2lZgOuZ" target="_blank" rel="noopener">Android</a>.</li>
+      <li>Ábrela con wifi: la primera vez descarga el mapa topográfico de toda Cataluña (necesita unos <b>900 MB</b> libres).</li>
+      <li>Descarga el <a class="btn ghost sm" href="https://elmonoamelio.github.io/catalunya-survival/catalunya-survival-offline.zip" download>paquete de puntos (zip, 1,4 MB)</a> y ábrelo en la app Archivos: salen 5 KML (Agua, Refugio, Salud, Seguridad, Salir) y un GPX con todo.</li>
+      <li>En Catalunya Offline, usa la opción de cargar archivos <b>.kml / .gpx</b>. Empieza por Agua y Refugio. Si no la ves, en Archivos mantén pulsado el KML → Compartir → Catalunya Offline.</li>
+      <li>Pruébala en modo avión antes de salir.</li>
+    </ol>
+    <p>Las fotos de satélite de Catalunya Offline necesitan red. Alternativas que también abren el paquete: Organic Maps u OsmAnd.</p>
+    <p class="src">Fuente: <a href="https://www.icgc.cat/en/Tools-and-viewers/Apps/Catalunya-Offline" target="_blank" rel="noopener">ICGC – Catalunya Offline</a> y su <a href="https://www.icgc.cat/ca/content/download/81549/709753/version/1/file/CatalunyaOffline.pdf" target="_blank" rel="noopener">manual</a>.</p>
   </section>
   <section class="sheet info" id="lluvia" hidden>
     <div class="grab"><div><h3>Lluvia fuerte</h3><p class="sub">Rieras en rojo, zonas inundables y lugares altos donde ir.</p></div><button class="x" type="button" data-close aria-label="Cerrar">×</button></div>
@@ -1070,14 +1083,14 @@ progress{width:100%;height:10px;accent-color:var(--signal)}#dlbar{padding:6px 0 
     <p>Los puntos, la búsqueda, las fichas y "lo más cercano" ya funcionan sin red. El mapa topográfico se guarda en el móvil de dos formas: todo lo que ves con conexión queda guardado solo, y además puedes guardar zonas enteras antes de salir.</p>
     <ul class="lst" id="zones"></ul>
     <div id="dlbar" hidden><p class="lbl" id="dlname"></p><progress id="dlprog" max="1" value="0"></progress><p class="sub" id="dltxt"></p><button type="button" class="btn ghost" id="dlstop">Detener</button></div>
-    <p class="src">Cada tesela pesa de media unos 0,2 MB; el tamaño real varía. Guarda solo lo que necesites: descargas muy grandes cargan el servidor del ICGC y llenan el móvil.</p>
+    <p class="src">Cada tesela del topográfico pesa entre 15 y 80 KB según el zoom (medido en el servidor del ICGC); el tamaño mostrado es aproximado. Guarda solo lo que necesites: descargas muy grandes cargan el servidor del ICGC y llenan el móvil.</p>
     <button type="button" class="btn ghost" id="dlclear">Borrar mapas guardados</button>
-    <p class="src">Copia de seguridad: importa también el paquete KML de Catalunya Survival en Organic Maps u OsmAnd, que guardan su propio mapa sin red.</p>
+    <p class="src">¿Quieres toda Cataluña con detalle? Pesaría varios GB aquí. Usa la <button type="button" class="lnk" data-info="copia">copia en Catalunya Offline</button> (unos 900 MB).</p>
   </section>
   <section class="sheet info" id="inst" hidden>
     <div class="grab"><div><h3>Instalar en el móvil</h3><p class="sub" id="instst"></p></div><button class="x" type="button" data-close aria-label="Cerrar">×</button></div>
     <button type="button" class="btn" id="instgo" hidden>Instalar Catalunya Survival</button>
-    <div id="instios"><p><b>iPhone o iPad (Safari):</b></p><ol><li>Pulsa el botón Compartir (cuadrado con flecha).</li><li>Elige <b>Añadir a pantalla de inicio</b>.</li><li>Abre Survival desde el icono: así funciona sin red, con GPS y brújula.</li></ol></div>
+    <div id="instios"><p><b>iPhone o iPad (Safari):</b></p><ol><li>Pulsa el botón Compartir (cuadrado con flecha).</li><li>Desliza la lista hacia arriba y elige <b>Añadir a pantalla de inicio</b>. Si no aparece, al final pulsa <b>Editar acciones</b> y actívala.</li><li>Abre Survival desde el icono: así funciona sin red, con GPS y brújula.</li></ol></div>
     <div id="instand"><p><b>Android (Chrome):</b> menú ⋮ → <b>Instalar aplicación</b> o <b>Añadir a pantalla de inicio</b>.</p></div>
     <p id="instfile" class="warn">Estás usando el archivo local. Para instalarla, abre la dirección web de Catalunya Survival en el navegador del móvil.</p>
     <p>Después de instalarla, ábrela una vez con conexión y guarda las zonas que vayas a recorrer en <b>Mapa sin red</b>.</p>
@@ -1106,7 +1119,7 @@ progress{width:100%;height:10px;accent-color:var(--signal)}#dlbar{padding:6px 0 
     </div>
     <div class="mini"><button type="button" class="chip" data-info="favs">★ Guardados <span id="favn">0</span></button><button type="button" class="chip" id="popbtn">📊 Población 3D</button><button type="button" class="chip" data-info="tips">⚠️ Límites de los datos</button></div>
     <p class="foot">Datos: © colaboradores de OpenStreetMap (ODbL), extracto de Geofabrik a <span>20/10/2026</span>. Mapa base: © ICGC (CC BY). Límites municipales: CNIG. Población: Idescat. Información orientativa; no sustituye las indicaciones de Protecció Civil ni del 112. MonkiSoft.</p>
-    <details class="ver"><summary>Versión <b id="appver">1.10</b> · 21/10/2026 17:27 · Novedades</summary><ul><li><b>1.10 · 21/10/2026</b> Número de versión y novedades en el menú</li><li><b>1.9 · 21/10/2026</b> Mapa sin red: estado guardado por zona</li><li><b>1.8 · 21/10/2026</b> Población 3D adaptada a móvil: barra de volver sin tapar el buscador y paneles sin solaparse</li><li><b>1.7 · 21/10/2026</b> Apeaderos de Rodalies, Renfe y FGC; metro como capa aparte</li><li><b>1.6 · 21/10/2026</b> Agua necesaria para llegar a cada fuente; rieras con borde blanco</li><li><b>1.5 · 21/10/2026</b> Satélite: ampliar la última imagen disponible a partir del zoom 18</li><li><b>1.4 · 21/10/2026</b> Recorrido completo del agua: ríos, tramos cubiertos y calles-riera; zonas inundables más fiables</li><li><b>1.3 · 21/10/2026</b> Leyenda de zonas inundables</li><li><b>1.2 · 21/10/2026</b> Rieras visibles al acercar, textos y actualización fiable de la app</li></ul></details>
+    <details class="ver"><summary>Versión <b id="appver">1.11</b> · 21/10/2026 17:53 · Novedades</summary><ul><li><b>1.11 · 21/10/2026</b> Revisión general: copia en Catalunya Offline, zona de 10 km, pesos reales de descarga, luz hasta el anochecer, agua en rutas de varios días</li><li><b>1.10 · 21/10/2026</b> v1.10: Número de versión y novedades en el menú</li><li><b>1.9 · 21/10/2026</b> Mapa sin red: estado guardado por zona</li><li><b>1.8 · 21/10/2026</b> Población 3D adaptada a móvil: barra de volver sin tapar el buscador y paneles sin solaparse</li><li><b>1.7 · 21/10/2026</b> Apeaderos de Rodalies, Renfe y FGC; metro como capa aparte</li><li><b>1.6 · 21/10/2026</b> Agua necesaria para llegar a cada fuente; rieras con borde blanco</li><li><b>1.5 · 21/10/2026</b> Satélite: ampliar la última imagen disponible a partir del zoom 18</li><li><b>1.4 · 21/10/2026</b> Recorrido completo del agua: ríos, tramos cubiertos y calles-riera; zonas inundables más fiables</li><li><b>1.3 · 21/10/2026</b> Leyenda de zonas inundables</li></ul></details>
   </div>
 </div>
 <div id="pop" hidden><div id="popbar"><button class="fab" id="popx" type="button" aria-label="Volver a Catalunya Survival">← Volver a Survival</button></div><iframe id="popf" title="Población 3D por municipio"></iframe></div>
@@ -1202,7 +1215,7 @@ function styleMuni() {
   muniLayer.eachLayer(l => l.setStyle({ color: dark ? '#7f8b99' : '#8b95a3' }));
 }
 function setBase(k) {
-  baseKey = k; store.set('base', k);
+  baseKey = k; store.set('base', k); if (!$('#dl').hidden) setTimeout(renderZones, 0);
   Object.values(bases).forEach(b => b && map.removeLayer(b));
   if (bases[k]) bases[k].addTo(map).bringToBack();
   const offline = k === 'none' || isOffline();
@@ -1444,13 +1457,13 @@ function renderMyPos() {
 }
 
 // ---------- horas de sol (cálculo offline) ----------
-function sunTimes(lat, lon, date) {
+function sunTimes(lat, lon, date, alt = -0.833) {
   const noon = new Date(date); noon.setHours(12, 0, 0, 0);
   const r = Math.PI / 180, J = noon.getTime() / 864e5 + 2440587.5, n = Math.round(J - 2451545.0 + 0.0008), Js = n - lon / 360;
   const M = (357.5291 + 0.98560028 * Js) % 360, C = 1.9148 * Math.sin(M * r) + 0.02 * Math.sin(2 * M * r) + 0.0003 * Math.sin(3 * M * r);
   const lam = (M + C + 180 + 102.9372) % 360, Jt = 2451545.0 + Js + 0.0053 * Math.sin(M * r) - 0.0069 * Math.sin(2 * lam * r);
   const sd = Math.sin(lam * r) * Math.sin(23.4397 * r), cd = Math.cos(Math.asin(sd));
-  const cw = (Math.sin(-0.833 * r) - Math.sin(lat * r) * sd) / (Math.cos(lat * r) * cd);
+  const cw = (Math.sin(alt * r) - Math.sin(lat * r) * sd) / (Math.cos(lat * r) * cd);
   if (cw < -1 || cw > 1) return null;
   const w = Math.acos(cw) / r, toD = j => new Date((j - 2440587.5) * 864e5);
   return { rise: toD(Jt - w / 360), set: toD(Jt + w / 360) };
@@ -1460,8 +1473,9 @@ function renderSun() {
   if (!s) { el.hidden = true; return; }
   const f = d => d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }), mins = Math.round((s.set - s.rise) / 6e4), now = Date.now();
   const hm = ms => { const m = Math.floor(ms / 6e4); return m >= 60 ? `${Math.floor(m / 60)} h ${m % 60} min` : `${m} min`; };
-  const left = s.set - now, txt = now < s.rise ? `amanece en ${hm(s.rise - now)}` : left > 0 ? `quedan ${hm(left)} de luz` : 'ya es de noche';
-  el.hidden = false; el.textContent = `☀ ${f(s.rise)} – ${f(s.set)} · ${txt}`; el.title = `Luz total: ${Math.floor(mins / 60)} h ${mins % 60} min (cálculo aproximado, sin relieve)`;
+  const tw = sunTimes(o.lat, o.lon, new Date(), -6), left = s.set - now, dusk = tw && now > s.set && now < tw.set;
+  const txt = now < s.rise ? `amanece en ${hm(s.rise - now)}` : left > 0 ? `quedan ${hm(left)} de sol` : dusk ? `anochece: luz hasta ${f(tw.set)}` : 'ya es de noche';
+  el.hidden = false; el.textContent = `☀ ${f(s.rise)} – ${f(s.set)} · ${txt}${left > 0 && tw ? ` · luz hasta ${f(tw.set)}` : ''}`; el.title = `Luz total: ${Math.floor(mins / 60)} h ${mins % 60} min (cálculo aproximado, sin relieve)`;
 }
 
 
@@ -1506,6 +1520,7 @@ function waterNeed(d) {
   const h = d / 4000, f = v => Math.max(0.1, Math.round(v * 10) / 10).toLocaleString('es-ES');
   return `<div class="h2o"><b>💧 Agua para llegar a pie: ≈ ${f(h * 0.5)}–${f(h * 1)} L</b>
     <small>${walk(d)} en línea recta (el camino real es más largo). Media de una persona caminando con menos de 14 kg de carga: ½ L/h con calor moderado, hasta 1 L/h con calor extremo; con fresco, menos. Bebe a sorbos: no más de 1,4 L por hora ni 11 L al día. Referencia diaria: la Generalitat pide guardar 1,5 L de agua por persona y día en el kit; la EFSA fija 2–2,5 L de agua total al día, contando la de la comida.</small>
+    ${h > 8 ? `<small><b>Son unas ${Math.ceil(h / 8)} jornadas</b> contando 8 h de marcha al día: no cargues todo, rellena en fuentes del camino.</small>` : ''}
     <small class="src">Fuentes: <a href="https://home.army.mil/wood/application/files/8416/2765/1794/Heat_Illness_Pocket_Guide.pdf" target="_blank" rel="noopener">Ejército de EE. UU., guía de calor</a> · <a href="https://www.efsa.europa.eu/es/press/news/nda100326" target="_blank" rel="noopener">EFSA</a> · Generalitat (ver Mochila)</small></div>`;
 }
 function openDetail(p) {
@@ -1570,8 +1585,7 @@ function openSheet(id) {
   if (id === 'favs') renderFavs(); if (id === 'tel') renderMyPos(); if (id === 'dl') { renderZones(); renderReady(); } if (id === 'inst') renderInstall();
   $$('.sheet').forEach(s => (s.hidden = s.id !== id));
   $('#sheets').hidden = false; $('#sheets').dataset.open = id;
-  $('#sheets').classList.toggle('full', ['guia', 'kit', 'tips', 'prep', 'dl', 'inst'].includes(id));
-  $('#sheets').classList.toggle('full', ['guia', 'kit', 'tips', 'prep', 'dl', 'inst'].includes(id));
+  $('#sheets').classList.toggle('full', ['guia', 'kit', 'tips', 'prep', 'dl', 'inst', 'copia'].includes(id));
 }
 function closeSheet() { if ($('#sheets').dataset.open === 'dt') clearSel(); $('#sheets').hidden = true; }
 $('#sheets').addEventListener('click', e => { if (e.target.closest('[data-close]')) closeSheet(); });
@@ -1713,7 +1727,7 @@ function renderInstall() {
   $('#instios').hidden = !ios; $('#instand').hidden = ios;
   $('#instfile').hidden = PWA;
 }
-const TMAX = 4000, MB_TILE = 0.3;
+const TMAX = 6000, KB_Z = z => (z <= 11 ? 60 : z === 12 ? 78 : z === 13 ? 50 : z <= 15 ? 38 : 15), zoneMB = ts => ts.reduce((a, [z]) => a + KB_Z(z), 0) / 1024, fmtMB = m => m < 1 ? '< 1 MB' : '≈ ' + Math.round(m) + ' MB';
 const lon2x = (lon, z) => Math.floor((lon + 180) / 360 * 2 ** z);
 const lat2y = (lat, z) => { const r = lat * Math.PI / 180; return Math.floor((1 - Math.log(Math.tan(r) + 1 / Math.cos(r)) / Math.PI) / 2 * 2 ** z); };
 function tilesFor(b, z0, z1) { const out = []; for (let z = z0; z <= z1; z++) { const x0 = lon2x(b[1], z), x1 = lon2x(b[3], z), y0 = lat2y(b[2], z), y1 = lat2y(b[0], z); for (let x = x0; x <= x1; x++) for (let y = y0; y <= y1; y++) out.push([z, x, y]); } return out; }
@@ -1725,6 +1739,7 @@ function zones() {
   return [
     { id: 'cat', t: 'Toda Cataluña, vista general', s: 'Zoom 7 a 10: para orientarte entre comarcas', b: [40.5, 0.15, 42.9, 3.35], z: [7, 10] },
     { id: 'near3', t: '3 km alrededor de ' + here, s: 'Zoom 12 a 16: calles, senderos y fuentes', b: around(o.lat, o.lon, 3), z: [12, 16] },
+    { id: 'near10', t: '10 km alrededor de ' + here, s: 'Zoom 12 a 16: senderos y fuentes de toda la zona, un día de marcha', b: around(o.lat, o.lon, 10), z: [12, 16] },
     { id: 'near15', t: '15 km alrededor de ' + here, s: 'Zoom 11 a 14: caminos y pueblos', b: around(o.lat, o.lon, 15), z: [11, 14] },
     { id: 'view', t: 'Lo que ves ahora en pantalla', s: `Zoom ${vz0} a ${vz1}`, b: [bb.getSouth(), bb.getWest(), bb.getNorth(), bb.getEast()], z: [vz0, vz1] }
   ].map(zn => { zn.tiles = tilesFor(zn.b, zn.z[0], zn.z[1]); return zn; });
@@ -1752,7 +1767,7 @@ async function renderZones() {
     const n = zn.tiles.length, big = n > TMAX, got = zn.tiles.filter(([z, x, y]) => have.has(z + '/' + x + '/' + y)).length, pc = n ? Math.floor(got / n * 100) : 0, done = n && got / n >= 0.98;
     const st = done ? '<em class="ok">✓ Guardada</em>' : pc ? `<em>${pc} % guardado</em>` : '';
     const bt = big ? 'Demasiado grande' : done ? 'Repasar' : pc ? 'Completar' : 'Guardar';
-    return `<li class="zone${done ? ' saved' : ''}"><div><b>${esc(zn.t)}</b><small>${esc(zn.s)} · ≈ ${Math.round(n * MB_TILE)} MB${st ? ' · ' + st : ''}</small></div><button type="button" class="btn ${big || done ? 'ghost' : ''}" data-zone="${i}" ${big || dlJob ? 'disabled' : ''}>${bt}</button></li>`;
+    return `<li class="zone${done ? ' saved' : ''}"><div><b>${esc(zn.t)}</b><small>${esc(zn.s)} · ${fmtMB(zoneMB(zn.tiles))}${st ? ' · ' + st : ''}</small></div><button type="button" class="btn ${big || done ? 'ghost' : ''}" data-zone="${i}" ${big || dlJob ? 'disabled' : ''}>${bt}</button></li>`;
   }).join('');
   $$('[data-zone]').forEach(b => b.onclick = () => downloadZone(zs[+b.dataset.zone]));
 }
@@ -1790,7 +1805,7 @@ $('#dlclear').onclick = async () => {
 $('#offbtn').onclick = () => openSheet('dl');
 renderInstall(); renderReady();
 drawPin(); renderSun(); renderFavs();
-window.__cs = { sunTimes, setPin, clearPin, origin, closeSheet, showMenu, map, layers, enabled, D, showNeed, openDetail };
+window.__cs = { sunTimes, setPin, clearPin, origin, closeSheet, showMenu, hideMenu, openSheet, map, layers, enabled, D, showNeed, openDetail };
 window.__ready = true;
 })();
 </script>
