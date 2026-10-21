@@ -733,6 +733,7 @@ button{font:inherit;color:inherit}
 #gps{background:#1f6fd1;color:#fff}
 #net{position:fixed;z-index:500;left:50%;transform:translateX(-50%);top:calc(env(safe-area-inset-top,0px) + 64px);padding:4px 10px;border-radius:20px;font-size:12px;background:var(--panel);box-shadow:var(--shadow);color:var(--muted);white-space:nowrap}
 #net[data-state="on"]{display:none}
+#riskhint{position:fixed;z-index:500;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom,0px) + 30px);padding:6px 12px;border-radius:20px;font-size:12px;font-weight:600;background:#e0182d;color:#fff;box-shadow:var(--shadow);white-space:nowrap}
 #net[data-state="off"]{background:var(--warn-bg);color:var(--warn-ink)}
 
 /* listas */
@@ -862,6 +863,7 @@ progress{width:100%;height:10px;accent-color:var(--signal)}#dlbar{padding:6px 0 
   <div class="zm"><button class="fab" id="zin" type="button" aria-label="Acercar">+</button><button class="fab" id="zout" type="button" aria-label="Alejar">−</button></div>
 </div>
 <div id="net" data-state="on">Con conexión</div>
+<div id="riskhint" hidden>Acerca el mapa para ver las rieras en rojo</div>
 
 <div id="sheets" hidden>
   <section class="sheet" id="near" hidden>
@@ -1238,12 +1240,15 @@ function riskLayer(k) {
   else riskLayers[k] = new FloodLayer('', { lay: RISK[k].lay, opacity: 0.6, maxZoom: 19, maxNativeZoom: 16, crossOrigin: true, zIndex: 5, attribution: 'Zonas inundables © MITECO / IDEE' });
   return riskLayers[k];
 }
+const LINE_MINZ = 11;
 function applyRisk() {
-  Object.keys(RISK).forEach(k => { if (riskOn.has(k)) riskLayer(k).addTo(map); else if (riskLayers[k]) map.removeLayer(riskLayers[k]); });
+  const zOk = map.getZoom() >= LINE_MINZ;
+  Object.keys(RISK).forEach(k => { const line = k === 'r_rieras' || k === 'r_calles'; if (riskOn.has(k) && (!line || zOk)) riskLayer(k).addTo(map); else if (riskLayers[k]) map.removeLayer(riskLayers[k]); });
+  const hint = $('#riskhint'); if (hint) hint.hidden = zOk || !(riskOn.has('r_rieras') || riskOn.has('r_calles'));
   store.set('risk', [...riskOn]);
   $$('.risk input').forEach(i => (i.checked = riskOn.has(i.value)));
 }
-map.on('zoomend', () => { const w = rw(); if (riskLayers.r_rieras) riskLayers.r_rieras.setStyle({ weight: w }); if (riskLayers.r_calles) riskLayers.r_calles.eachLayer(l => l.setStyle({ weight: w + 4 })); });
+map.on('zoomend', () => { applyRisk(); const w = rw(); if (riskLayers.r_rieras) riskLayers.r_rieras.setStyle({ weight: w }); if (riskLayers.r_calles) riskLayers.r_calles.eachLayer(l => l.setStyle({ weight: w + 4 })); });
 function nearestRiera(lat, lon) {
   let best = 1e18, bi = -1; const c = Math.cos(lat * Math.PI / 180), X = lon * 1e5, Y = lat * 1e5;
   const scan = (a, idx) => { let x = a[0], y = a[1]; for (let i = 0; i < a.length; i += 2) { if (i) { x += a[i]; y += a[i + 1]; } const dx = (x - X) * c, dy = y - Y, d = dx * dx + dy * dy; if (d < best) { best = d; bi = idx; } } };
@@ -1258,7 +1263,7 @@ function showRain() {
 }
 function renderRain() {
   const el = $('#rainnear'); if (!el) return; const o = origin(), r = nearestRiera(o.lat, o.lon);
-  el.innerHTML = `<b>${fmtD(r.m)}</b> ${fromTxt(o)} hasta la riera o torrente más cercano${r.calle ? ` (la calle <b>${esc(r.calle)}</b> va sobre una riera)` : ''}.`;
+  el.innerHTML = `La riera o torrente más cercano está a <b>${fmtD(r.m)}</b> ${fromTxt(o)}${r.calle ? `: la calle <b>${esc(r.calle)}</b> va sobre una riera` : ''}.`;
 }
 
 // ---------- marcadores ----------
