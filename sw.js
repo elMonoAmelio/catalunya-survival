@@ -1,7 +1,7 @@
 // Catalunya Survival · MonkiSoft · service worker
-const VERSION = 'cs-1.38';
+const VERSION = 'cs-1.39';
 const APP = 'app-' + VERSION, TILES = 'tiles-v1', DATA = 'data-v1';
-const CORE = ['./', './index.html', './rodalies.html', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/maskable-512.png', './icons/apple-touch-icon.png'];
+const CORE = ['./', './index.html', './rodalies.html', './manifest.webmanifest', './rodalies.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/maskable-512.png', './icons/apple-touch-icon.png'];
 const MAX_TILES = 25000;
 
 self.addEventListener('install', e => {
@@ -49,3 +49,19 @@ self.addEventListener('fetch', e => {
   }
 });
 self.addEventListener('message', e => { if (e.data === 'skip') self.skipWaiting(); });
+
+// Avisos de Rodalies en el móvil: el puente despierta al teléfono y aquí se piden los avisos pendientes
+const PUENTE = 'https://rodalies.erathegameoftime.com';
+self.addEventListener('push', e => {
+  e.waitUntil((async () => {
+    let items = [];
+    try { const s = await self.registration.pushManager.getSubscription(); if (s) items = ((await (await fetch(PUENTE + '/push/inbox?e=' + encodeURIComponent(s.endpoint), { cache: 'no-store' })).json()).items) || []; } catch (err) {}
+    if (!items.length) items = [{ title: 'Rodalies', body: 'Hay novedades en tus líneas. Toca para verlas.', url: './rodalies.html' }];
+    for (const it of items) await self.registration.showNotification(it.title, { body: it.body, icon: './icons/icon-192.png', badge: './icons/icon-192.png', tag: 'rod-' + (it.n || Date.now()), data: { url: it.url || './rodalies.html' } });
+  })());
+});
+self.addEventListener('notificationclick', e => {
+  e.notification.close();
+  const url = (e.notification.data && e.notification.data.url) || './rodalies.html';
+  e.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(cs => { const c = cs.find(x => /rodalies\.html/.test(x.url)) || cs[0]; return c ? c.focus().then(() => c.navigate ? c.navigate(url).catch(() => c) : c) : self.clients.openWindow(url); }));
+});
