@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
+<link rel="manifest" href="rodalies.webmanifest"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Rodalies"><link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <title>Rodalies en vivo</title>
 <meta name="author" content="MonkiSoft">
 <meta name="creator" content="MonkiSoft">
@@ -173,6 +174,11 @@ u{text-decoration:none;color:var(--acc);font-size:10px;font-weight:600;opacity:.
 .hcol li.go,.hv.go{cursor:pointer}.hcol li.go:hover{background:rgba(29,35,48,.06)}.hv.go:active,.hcol li.go:active{transform:scale(.98)}
 .sfc{display:flex;flex-wrap:wrap;gap:5px;margin-top:4px}.sfc button{font:inherit;font-size:12px;font-weight:700;border:0;border-radius:7px;padding:3px 9px;cursor:pointer;background:#e8ebf1;color:#1d2330}.sfc button.ln{background:var(--c);color:#fff}.sfc button.on{background:#1d2330;color:#fff}.sfc button.off{opacity:.3}.sfc button.hid{opacity:.25;text-decoration:line-through}.tc li.go{cursor:pointer}.tc li.go:hover{background:rgba(29,35,48,.05)}
 .hplace+.hplace{margin-top:6px}.hhead.hnew{background:#eef1f6;color:var(--ink);border:1px dashed #b8c0cf}#inf .hhead.hnew b{color:var(--ink)}.hhead.hnew small{color:var(--mut)}.hplace.open .hchev{transform:rotate(180deg)}.rtb.two{display:flex;gap:6px}.rtb.two button{flex:1}
+.crowd{margin-top:8px;border-top:1px solid var(--line);padding-top:6px}.crowd>small{color:var(--mut)}.crowd p{display:flex;align-items:center;gap:6px;margin:4px 0;font-size:12.5px}.crowd p span{flex:1}.crowd p button{border:0;background:#eef1f6;border-radius:8px;padding:3px 7px;cursor:pointer;font-size:13px}
+.crowd details{margin-top:4px}.crowd summary{cursor:pointer;font-weight:700;font-size:12.5px;color:#1d4ed8;padding:4px 0}.ckb{display:flex;flex-wrap:wrap;gap:5px;margin:6px 0}.ckb button{font:inherit;font-size:12px;border:1px solid var(--line);background:#fff;border-radius:16px;padding:5px 10px;cursor:pointer}.ckb button:disabled{opacity:.4}
+.hcr{font-size:12px;background:#eef3ff;border-radius:9px;padding:6px 8px;margin-bottom:6px}.hcr small{color:var(--mut)}.hcol li .cr{font-style:normal;font-size:11px}
+.hpush{display:flex;align-items:center;gap:8px;margin-top:6px;padding:7px 9px;border-radius:10px;background:#f3f5f9;font-size:12px;color:var(--ink)}.hpush span{flex:1}.hpush small{display:block;color:var(--mut);font-size:10.5px}.hpush button{border:0;border-radius:9px;padding:6px 11px;font:inherit;font-weight:700;background:#1d4ed8;color:#fff;cursor:pointer}.hpush button.on{background:#e8ebf1;color:#1d2330}
+#toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);background:#1d2330;color:#fff;padding:10px 14px;border-radius:12px;font-size:13px;z-index:20;opacity:0;pointer-events:none;transition:.2s;max-width:calc(100vw - 32px);text-align:center}#toast.on{opacity:1;transform:translate(-50%,0)}
 </style>
 </head>
 <body>
@@ -197,19 +203,80 @@ u{text-decoration:none;color:var(--acc);font-size:10px;font-weight:600;opacity:.
   <details class="how"><summary>Cómo crear tu puente gratis (5 min)</summary><ol>
     <li>Crea una cuenta gratuita en <a href="https://dash.cloudflare.com/sign-up" target="_blank" rel="noopener">Cloudflare</a> (solo correo y contraseña; no pide tarjeta para Workers).</li>
     <li>En el panel ve a <b>Workers &amp; Pages</b> → <b>Create application</b> → <b>Create Worker</b>. Ponle de nombre <b>rodalies</b> y pulsa <b>Deploy</b>.</li>
-    <li>Pulsa <b>Edit code</b>, borra lo que hay, pega este código y pulsa <b>Deploy</b>:<button type="button" id="wcopy">Copiar código</button><pre id="wcode">// Puente Rodalies (MonkiSoft): deja leer a la web los datos públicos en directo de Renfe y de Rodalies de Catalunya.
+    <li>Pulsa <b>Edit code</b>, borra lo que hay, pega este código y pulsa <b>Deploy</b>:<button type="button" id="wcopy">Copiar código</button><pre id="wcode">// Puente Rodalies (MonkiSoft): datos públicos en directo de Renfe, Rodalies de Catalunya y Adif,
+// avisos en el móvil (Web Push) y avisos de los propios viajeros.
+// Necesita: base de datos D1 enlazada con el nombre DB y una tarea programada (cron) cada 2 minutos.
 const RENFE = 'https://gtfsrt.renfe.com', GRS = 'https://serveisgrs.rodalies.gencat.cat/api';
 const ADIF = 'https://www.adif.es/viajeros/estado-de-la-red/-/categories/53897344?p_r_p_categoryId=53897344&amp;resetCur=true';   // Adif · estado de la red · Cataluña
+const NOTICES = GRS + '/notices?limit=500&amp;sort=date,desc&amp;sort=time,desc';
 const PERMITIDOS = ['https://elmonoamelio.github.io', 'null'];
+const APP = 'https://elmonoamelio.github.io/catalunya-survival/rodalies.html';
+// tipos de aviso de viajeros (solo botones, sin texto libre)
+const TIPOS = { vacio: 'Va con sitio', lleno: 'Va lleno', petado: 'Muy lleno, cuesta subir', parado: 'Parado sin moverse', calor: 'Sin aire acondicionado', abordo: 'Incidencia a bordo',
+  gente: 'Mucha gente esperando', retraso: 'Anuncian retraso por megafonía', cancel: 'Anuncian tren cancelado', ascensor: 'Ascensor o escalera averiados', via: 'Incidencia en la estación' };
+const AVISAN = new Set(['parado', 'abordo', 'cancel', 'via']);   // con 2 viajeros distintos se manda aviso al móvil
+
 function destino(url) {
   const p = url.pathname, q = url.searchParams;
   if (['/trip_updates.json', '/vehicle_positions.json', '/alerts.json'].includes(p)) return [RENFE + p, 15];
-  if (p === '/notices.json') return [GRS + '/notices?limit=500&amp;sort=date,desc&amp;sort=time,desc', 60];
-  if (p === '/adif.json') return [ADIF, 120];
+  if (p === '/notices.json') return [NOTICES, 60];
   if (p === '/departures.json' &amp;&amp; /^\d{4,6}$/.test(q.get('stationId') || '')) return [GRS + '/departures?lang=ca&amp;fullResponse=true&amp;stationId=' + q.get('stationId'), 30];
   return null;
 }
-// Adif no publica un JSON: se lee su página de incidencias de Cataluña y se pasan a JSON las tarjetas de aviso
+const J = (o, h, st = 200) =&gt; new Response(JSON.stringify(o), { status: st, headers: { ...h, 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' } });
+const b64u = b =&gt; btoa(String.fromCharCode(...new Uint8Array(b))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+const unb64u = s =&gt; Uint8Array.from(atob(s.replace(/-/g, '+').replace(/_/g, '/') + '==='.slice((s.length + 3) % 4)), c =&gt; c.charCodeAt(0));
+async function sha(s) { return b64u(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s))).slice(0, 22); }
+
+// ---------- base de datos ----------
+let listo = false;
+async function db(env) {
+  if (!env.DB) throw new Error('Falta enlazar la base de datos D1 con el nombre DB');
+  if (!listo) {
+    await env.DB.batch([
+      env.DB.prepare('CREATE TABLE IF NOT EXISTS kv (k TEXT PRIMARY KEY, v TEXT)'),
+      env.DB.prepare('CREATE TABLE IF NOT EXISTS subs (id TEXT PRIMARY KEY, ep TEXT, lines TEXT, sts TEXT, at INTEGER)'),
+      env.DB.prepare('CREATE TABLE IF NOT EXISTS seen (id TEXT PRIMARY KEY, at INTEGER)'),
+      env.DB.prepare('CREATE TABLE IF NOT EXISTS inbox (n INTEGER PRIMARY KEY AUTOINCREMENT, sub TEXT, title TEXT, body TEXT, url TEXT, at INTEGER)'),
+      env.DB.prepare('CREATE TABLE IF NOT EXISTS reports (id INTEGER PRIMARY KEY AUTOINCREMENT, kind TEXT, sid TEXT, num TEXT, line TEXT, iph TEXT, up INTEGER DEFAULT 1, down INTEGER DEFAULT 0, at INTEGER)'),
+      env.DB.prepare('CREATE TABLE IF NOT EXISTS votes (rid INTEGER, iph TEXT, PRIMARY KEY (rid, iph))'),
+    ]);
+    listo = true;
+  }
+  return env.DB;
+}
+// claves VAPID: se crean solas la primera vez y se guardan en la base de datos (no hace falta configurar nada)
+async function vapid(env) {
+  const D = await db(env), r = await D.prepare("SELECT v FROM kv WHERE k='vapid'").first();
+  if (r) return JSON.parse(r.v);
+  const kp = await crypto.subtle.generateKey({ name: 'ECDSA', namedCurve: 'P-256' }, true, ['sign', 'verify']);
+  const jwk = await crypto.subtle.exportKey('jwk', kp.privateKey), raw = await crypto.subtle.exportKey('raw', kp.publicKey);
+  const v = { jwk, pub: b64u(raw) };
+  await D.prepare("INSERT OR IGNORE INTO kv (k, v) VALUES ('vapid', ?)").bind(JSON.stringify(v)).run();
+  return JSON.parse((await D.prepare("SELECT v FROM kv WHERE k='vapid'").first()).v);
+}
+// envío Web Push sin contenido: el móvil se despierta y pide sus avisos a /push/inbox
+async function push(env, ep) {
+  const V = await vapid(env), aud = new URL(ep).origin, enc = o =&gt; b64u(new TextEncoder().encode(JSON.stringify(o)));
+  const un = enc({ typ: 'JWT', alg: 'ES256' }) + '.' + enc({ aud, exp: Math.floor(Date.now() / 1000) + 12 * 3600, sub: 'https://elmonoamelio.github.io' });
+  const key = await crypto.subtle.importKey('jwk', V.jwk, { name: 'ECDSA', namedCurve: 'P-256' }, false, ['sign']);
+  const sig = await crypto.subtle.sign({ name: 'ECDSA', hash: 'SHA-256' }, key, new TextEncoder().encode(un));
+  const r = await fetch(ep, { method: 'POST', headers: { Authorization: `vapid t=${un}.${b64u(sig)}, k=${V.pub}`, TTL: '1800', Urgency: 'high', 'Content-Length': '0' } });
+  return r.status;
+}
+async function avisar(env, { lines = [], sts = [], all = false, title, body, url }) {
+  const D = await db(env), subs = (await D.prepare('SELECT id, ep, lines, sts FROM subs').all()).results || [], now = Date.now();
+  const L = new Set(lines), S = new Set(sts);
+  for (const s of subs) {
+    const sl = (s.lines || '').split(',').filter(Boolean), ss = (s.sts || '').split(',').filter(Boolean);
+    if (!(all || sl.some(x =&gt; L.has(x)) || ss.some(x =&gt; S.has(x)))) continue;
+    await D.prepare('INSERT INTO inbox (sub, title, body, url, at) VALUES (?, ?, ?, ?, ?)').bind(s.id, title, body, url || APP, now).run();
+    const st = await push(env, s.ep).catch(() =&gt; 0);
+    if (st === 404 || st === 410) await D.batch([D.prepare('DELETE FROM subs WHERE id=?').bind(s.id), D.prepare('DELETE FROM inbox WHERE sub=?').bind(s.id)]);
+  }
+}
+
+// ---------- Adif: su página de incidencias de Cataluña pasada a JSON ----------
 async function adif() {
   try {
     const h = await (await fetch(ADIF, { headers: { 'User-Agent': 'Mozilla/5.0', Accept: 'text/html' }, cf: { cacheTtl: 120, cacheEverything: true } })).text();
@@ -219,17 +286,91 @@ async function adif() {
     return { ok: true, upd: u ? `${u[3]}-${u[2]}-${u[1]}T${u[4]}:${u[5]}` : '', items };
   } catch (e) { return { ok: false, err: String(e), items: [] }; }
 }
-export default {
-  async fetch(req) {
-    const o = req.headers.get('Origin') || '';
-    const cors = { 'Access-Control-Allow-Origin': PERMITIDOS.includes(o) ? o : PERMITIDOS[0], 'Access-Control-Allow-Methods': 'GET, OPTIONS', 'Vary': 'Origin' };
-    if (req.method === 'OPTIONS') return new Response(null, { headers: cors });
-    const d = destino(new URL(req.url));
-    if (!d) return new Response('Puente Rodalies: /trip_updates.json, /vehicle_positions.json, /alerts.json, /notices.json, /adif.json, /departures.json?stationId=', { status: 404, headers: cors });
-    if (d[0] === ADIF) return new Response(JSON.stringify(await adif()), { headers: { ...cors, 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'public, max-age=120' } });
-    const r = await fetch(d[0], { headers: { Accept: 'application/json' }, cf: { cacheTtl: d[1], cacheEverything: true } });
-    return new Response(r.body, { status: r.status, headers: { ...cors, 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'public, max-age=' + d[1] } });
+
+// ---------- tarea programada: avisos nuevos de Rodalies y Adif → móviles suscritos ----------
+async function revisar(env) {
+  const D = await db(env), now = Date.now(), nuevos = [];
+  const first = !(await D.prepare('SELECT id FROM seen LIMIT 1').first());
+  try {
+    const n = await (await fetch(NOTICES, { headers: { Accept: 'application/json' } })).json();
+    for (const x of n.included || []) { const t = x.title || x.description || {}, tx = (t.es || t.ca || '').trim(); if (tx) nuevos.push({ id: 'N' + x.externalId, lines: (x.lines || []).map(l =&gt; l.id), txt: tx }); }
+  } catch (e) {}
+  const a = await adif();
+  for (const it of a.items) { const tx = (it.t ? it.t + '. ' : '') + it.txt; nuevos.push({ id: 'A' + (await sha(tx)), lines: [...new Set(tx.match(/\b(R\d{1,2}[NS]?|R3a|RG1|RL\d|RT\d)\b/g) || [])], txt: tx, adif: true }); }
+  for (const x of nuevos) {
+    const r = await D.prepare('INSERT OR IGNORE INTO seen (id, at) VALUES (?, ?)').bind(x.id, now).run();
+    if (first || !r.meta.changes) continue;   // la primera vez solo se apunta lo que ya había
+    if (!x.lines.length &amp;&amp; !x.adif) continue;   // aviso sin línea: solo los de Adif van a todos (afectan a la vía en Cataluña)
+    await avisar(env, { lines: x.lines, all: !x.lines.length, title: (x.adif ? 'Adif · vía' : 'Rodalies') + (x.lines.length ? ' · ' + x.lines.join(' ') : ''), body: x.txt.slice(0, 240) });
   }
+  await D.batch([
+    D.prepare('DELETE FROM seen WHERE at &lt; ?').bind(now - 7 * 864e5),
+    D.prepare('DELETE FROM inbox WHERE at &lt; ?').bind(now - 864e5),
+    D.prepare('DELETE FROM reports WHERE at &lt; ?').bind(now - 3 * 3600e3),
+    D.prepare('DELETE FROM votes WHERE rid NOT IN (SELECT id FROM reports)'),
+  ]);
+}
+
+export default {
+  async fetch(req, env) {
+    const o = req.headers.get('Origin') || '';
+    const cors = { 'Access-Control-Allow-Origin': PERMITIDOS.includes(o) ? o : PERMITIDOS[0], 'Access-Control-Allow-Methods': 'GET, POST, OPTIONS', 'Access-Control-Allow-Headers': 'Content-Type', 'Vary': 'Origin' };
+    if (req.method === 'OPTIONS') return new Response(null, { headers: cors });
+    const url = new URL(req.url), p = url.pathname;
+    try {
+      if (p === '/adif.json') return new Response(JSON.stringify(await adif()), { headers: { ...cors, 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'public, max-age=120' } });
+      // --- avisos en el móvil ---
+      if (p === '/push/key') return J({ key: (await vapid(env)).pub }, cors);
+      if (p === '/push/subscribe' &amp;&amp; req.method === 'POST') {
+        const b = await req.json(), ep = b.sub &amp;&amp; b.sub.endpoint; if (!/^https:\/\//.test(ep || '')) return J({ ok: false }, cors, 400);
+        const clean = a =&gt; (Array.isArray(a) ? a : []).map(String).filter(x =&gt; /^[\w]{1,8}$/.test(x)).slice(0, 40).join(',');
+        await (await db(env)).prepare('INSERT OR REPLACE INTO subs (id, ep, lines, sts, at) VALUES (?, ?, ?, ?, ?)').bind(await sha(ep), ep, clean(b.lines), clean(b.stations), Date.now()).run();
+        return J({ ok: true }, cors);
+      }
+      if (p === '/push/unsubscribe' &amp;&amp; req.method === 'POST') { const b = await req.json(); const id = await sha(b.endpoint || ''); const D = await db(env); await D.batch([D.prepare('DELETE FROM subs WHERE id=?').bind(id), D.prepare('DELETE FROM inbox WHERE sub=?').bind(id)]); return J({ ok: true }, cors); }
+      if (p === '/push/inbox') {
+        const id = await sha(url.searchParams.get('e') || ''), D = await db(env);
+        const r = (await D.prepare('SELECT n, title, body, url FROM inbox WHERE sub=? ORDER BY n LIMIT 5').bind(id).all()).results || [];
+        if (r.length) await D.prepare('DELETE FROM inbox WHERE sub=? AND n&lt;=?').bind(id, r[r.length - 1].n).run();
+        return J({ items: r }, cors);
+      }
+      // --- avisos de viajeros ---
+      if (p === '/reports.json') {
+        const r = (await (await db(env)).prepare('SELECT id, kind, sid, num, line, up, down, at FROM reports WHERE at &gt; ? AND up &gt; down ORDER BY at DESC LIMIT 300').bind(Date.now() - 90 * 60e3).all()).results || [];
+        return J({ now: Date.now(), tipos: TIPOS, items: r }, cors);
+      }
+      if ((p === '/report' || p === '/vote') &amp;&amp; req.method === 'POST') {
+        const ip = req.headers.get('CF-Connecting-IP') || '', iph = await sha('rod|' + ip + '|' + new Date().toISOString().slice(0, 10)), b = await req.json(), D = await db(env), now = Date.now();
+        if (p === '/vote') {
+          const rid = +b.id, v = b.v &gt; 0 ? 'up' : 'down'; if (!rid) return J({ ok: false }, cors, 400);
+          const r = await D.prepare('INSERT OR IGNORE INTO votes (rid, iph) VALUES (?, ?)').bind(rid, iph).run();
+          if (r.meta.changes) await D.prepare(`UPDATE reports SET ${v} = ${v} + 1 WHERE id=?`).bind(rid).run();
+          return J({ ok: true, dup: !r.meta.changes }, cors);
+        }
+        const kind = String(b.kind || ''), sid = /^\d{4,6}$/.test(b.sid || '') ? b.sid : '', num = /^\w{1,8}$/.test(b.num || '') ? b.num : '', line = /^\w{1,4}$/.test(b.line || '') ? b.line : '';
+        if (!TIPOS[kind] || !(sid || num)) return J({ ok: false, err: 'aviso no válido' }, cors, 400);
+        if (await D.prepare('SELECT id FROM reports WHERE iph=? AND at &gt; ?').bind(iph, now - 90e3).first()) return J({ ok: false, err: 'Espera un momento antes de enviar otro aviso' }, cors, 429);
+        // si otro viajero ya avisó de lo mismo hace poco, se suma a su aviso
+        const same = await D.prepare('SELECT id, up FROM reports WHERE kind=? AND sid=? AND num=? AND at &gt; ? ORDER BY at DESC LIMIT 1').bind(kind, sid, num, now - 20 * 60e3).first();
+        let id, n = 1;
+        if (same) {
+          const v = await D.prepare('INSERT OR IGNORE INTO votes (rid, iph) VALUES (?, ?)').bind(same.id, iph).run();
+          if (v.meta.changes) await D.prepare('UPDATE reports SET up = up + 1, at = ? WHERE id=?').bind(now, same.id).run();
+          id = same.id; n = same.up + (v.meta.changes ? 1 : 0);
+        } else {
+          id = (await D.prepare('INSERT INTO reports (kind, sid, num, line, iph, at) VALUES (?, ?, ?, ?, ?, ?)').bind(kind, sid, num, line, iph, now).run()).meta.last_row_id;
+          await D.prepare('INSERT OR IGNORE INTO votes (rid, iph) VALUES (?, ?)').bind(id, iph).run();
+        }
+        if (AVISAN.has(kind) &amp;&amp; n === 2) await avisar(env, { lines: line ? [line] : [], sts: sid ? [sid] : [], title: 'Viajeros' + (line ? ' · ' + line : ''), body: TIPOS[kind] + (num ? ' · tren ' + num : '') + ' (lo confirman 2 viajeros)' });
+        return J({ ok: true, id, n }, cors);
+      }
+      const d = destino(url);
+      if (!d) return new Response('Puente Rodalies: /trip_updates.json, /vehicle_positions.json, /alerts.json, /notices.json, /adif.json, /departures.json?stationId=, /reports.json, /push/*', { status: 404, headers: cors });
+      const r = await fetch(d[0], { headers: { Accept: 'application/json' }, cf: { cacheTtl: d[1], cacheEverything: true } });
+      return new Response(r.body, { status: r.status, headers: { ...cors, 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'public, max-age=' + d[1] } });
+    } catch (e) { return J({ ok: false, err: String(e.message || e) }, cors, 500); }
+  },
+  async scheduled(ev, env, ctx) { ctx.waitUntil(revisar(env)); }
 };
 </pre></li>
     <li>Copia la dirección que te da (acaba en <b>.workers.dev</b>), pégala arriba y pulsa <b>Conectar</b>.</li></ol>

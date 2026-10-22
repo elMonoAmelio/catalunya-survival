@@ -1,0 +1,31 @@
+{
+  "name": "Rodalies en vivo",
+  "short_name": "Rodalies",
+  "description": "Trenes de Rodalies en directo, avisos y salidas de tu estación. MonkiSoft.",
+  "lang": "es",
+  "start_url": "./rodalies.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#1d2330",
+  "theme_color": "#1d2330",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "id": "./rodalies.html"
+}
