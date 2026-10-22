@@ -130,6 +130,30 @@ u{text-decoration:none;color:var(--acc);font-size:10px;font-weight:600;opacity:.
   .hint br{display:none}
 }
 @media(min-width:641px) and (min-height:501px) and (max-width:900px){#rc{width:280px}#s,#sel{width:min(280px,calc(100vw - 316px))}#mcs{width:min(290px,calc(100vw - 316px))!important}}
+
+/* --- interfaz moderna --- */
+:root{--glass:rgba(255,255,255,.86)}
+.box{background:var(--glass);-webkit-backdrop-filter:blur(14px) saturate(1.5);backdrop-filter:blur(14px) saturate(1.5);border:1px solid rgba(255,255,255,.6);border-radius:14px;box-shadow:0 8px 28px rgba(20,30,50,.14),0 1px 2px rgba(20,30,50,.08)}
+.tc{border-radius:14px;box-shadow:0 8px 28px rgba(20,30,50,.14)}
+.slab{pointer-events:auto!important;cursor:pointer;padding:1px 4px;border-radius:5px}.slab:hover{background:#1d2330;color:#fff;text-shadow:none}
+#home{margin:-1px -3px 6px}
+.hhead{display:flex;align-items:center;gap:8px;width:100%;border:0;background:linear-gradient(135deg,#1d2330,#2c3546);color:#fff;border-radius:11px;padding:8px 10px;cursor:pointer;text-align:left;font:inherit}
+.hico{font-size:18px}.htit{flex:1;min-width:0}.htit b{display:block;font-size:14px}.htit small{display:block;font-size:12px;opacity:.92;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#inf .hhead b{color:#fff}#inf .htit small b{color:inherit}.htit small b{display:inline}.htit small.cok{color:#86efac}.htit small.cwarn{color:#fcd34d}.htit small.cbad{color:#fca5a5}#inf .hv b{color:#fff}
+.hchev{transition:transform .2s;opacity:.8}#home.open .hchev{transform:rotate(180deg)}
+.hbody{padding:8px 2px 2px;color:var(--ink)}
+.hst{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:6px}.hst button{border:1px solid var(--line);background:#fff;border-radius:16px;padding:4px 10px;font:inherit;font-size:11px;cursor:pointer}.hst button.on{background:#1d2330;color:#fff;border-color:#1d2330}
+.hwalk{font-size:12px;display:flex;align-items:center;gap:6px;margin:4px 0 6px}.hwalk button{width:26px;height:26px;border-radius:50%;border:0;background:#e8ebf1;font-size:15px;cursor:pointer}
+.hal{font-size:12px;background:#fff4e5;color:#7a3d00;border-radius:9px;padding:6px 8px;margin-bottom:6px}.hal.bad{background:#fde2e2;color:#991b1b}.hal a,.hsrc a{color:inherit;text-decoration:underline;cursor:pointer;font-weight:700}
+.hok{font-size:12px;color:#0c8a3e;font-weight:600;margin-bottom:6px}
+.hcols{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.hcol{min-width:0}.hdir{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--mut);margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hv{border-radius:11px;padding:8px 9px;color:#fff;margin-bottom:4px}.hv b{display:block;font-size:22px;line-height:1.05;letter-spacing:-.01em}.hv small{display:block;font-size:11px;opacity:.95;margin-top:3px}
+.v-ok{background:linear-gradient(135deg,#0c8a3e,#16a34a)}.v-warn{background:linear-gradient(135deg,#b45309,#f59e0b)}.v-bad{background:linear-gradient(135deg,#991b1b,#dc2626)}.v-no{background:#6b7385}
+.hcol ol{list-style:none;margin:0;padding:0;font-size:11.5px}.hcol li{display:flex;gap:5px;align-items:center;padding:3px 0;border-top:1px solid var(--line)}.hcol li .cd{min-width:42px;font-size:13px;font-variant-numeric:tabular-nums}.hcol li span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.hcol li em{font-style:normal;color:#c2410c;font-weight:700}.hcol li.cx{opacity:.55;text-decoration:line-through}.hcol li .ln{font-size:9.5px;padding:0 3px}
+.hsrc{display:block;margin-top:6px;font-size:10px;color:var(--mut)}
+@media(min-width:641px){#inf{width:380px;max-width:calc(100vw - 340px)!important}}
+@media(max-width:640px){.hv b{font-size:19px}#home.open~.more{display:none}}
 </style>
 </head>
 <body>
@@ -182,7 +206,7 @@ export default {
 <button class="box" id="north" title="Norte · toca para orientar el mapa al norte" aria-label="Norte: orientar al norte"><span id="northr"><svg viewBox="0 0 40 40" width="100%" height="100%" aria-hidden="true"><path d="M20 4 27 21H13z" fill="#e0182d"/><path d="M20 36 13 21h14z" fill="#c9d0d9"/><circle cx="20" cy="21" r="2.2" fill="#14202b"/><text x="20" y="13.5" text-anchor="middle" font-size="7.5" font-weight="800" fill="#fff" font-family="system-ui,sans-serif">N</text></svg></span></button>
 <div class="box" id="z"><button id="zin" title="Acercar">+</button><button id="zout" title="Alejar">−</button><button id="rst" title="Restablecer vista">⌂</button></div>
 <div class="box" id="leg"><div id="bar"></div><div id="tk"><span id="lmin">menos</span><span id="lname">habitantes</span><span id="lmax">más</span></div></div>
-<div class="box" id="inf"><div class="l1"><b><span id="ntr">…</span> <span id="ntrl">trenes</span></b> <button type="button" id="alr" hidden></button><button type="button" id="inft" aria-label="Plegar o desplegar la información" title="Plegar / desplegar">▾</button></div><div class="more"><span id="src">Conectando…</span><button type="button" id="ver">@@VER@@ · novedades</button><span class="hint"><br>Rueda: inclinar · Option+rueda o Option+arrastrar: girar · Ctrl+rueda/pellizco: zoom · Arrastrar: mover · Doble clic: restablecer</span><span class="thint"><br>Arrastra: mover · Pellizca: zoom · 2 dedos: inclinar y girar · Toca: datos</span></div></div><template id="chg">@@CHANGES@@</template>
+<div class="box" id="inf"><div id="home"></div><div class="l1"><b><span id="ntr">…</span> <span id="ntrl">trenes</span></b> <button type="button" id="alr" hidden></button><button type="button" id="inft" aria-label="Plegar o desplegar la información" title="Plegar / desplegar">▾</button></div><div class="more"><span id="src">Conectando…</span><button type="button" id="ver">@@VER@@ · novedades</button><span class="hint"><br>Rueda: inclinar · Option+rueda o Option+arrastrar: girar · Ctrl+rueda/pellizco: zoom · Arrastrar: mover · Doble clic: restablecer</span><span class="thint"><br>Arrastra: mover · Pellizca: zoom · 2 dedos: inclinar y girar · Toca: datos</span></div></div><template id="chg">@@CHANGES@@</template>
 <script>window.__DATA__=@@DATA@@;window.__ROD__=@@ROD@@;</script>
 <script>@@BUNDLE@@</script>
 </body>
