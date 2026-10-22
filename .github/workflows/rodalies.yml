@@ -1,0 +1,42 @@
+name: Actualizar horarios de Rodalies
+on:
+  schedule:
+    - cron: '17 2 * * *'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: rodalies
+  cancel-in-progress: false
+jobs:
+  horarios:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Dependencias
+        run: pip install numpy scipy
+      - name: Descargar el GTFS oficial de Renfe (Cercanías y Rodalies)
+        working-directory: rodalies-build
+        run: |
+          curl -fsSL --retry 3 --max-time 300 -o gtfs.zip https://ssl.renfe.com/ftransit/Fichero_CER_FOMENTO/fomento_transit.zip \
+          || curl -fsSL --retry 3 --max-time 300 -o gtfs.zip https://files.mobilitydatabase.org/mdb-2653/latest.zip
+          mkdir -p gtfs && unzip -o -q gtfs.zip -d gtfs && ls -la gtfs
+      - name: Construir rodalies.html (hoy + 9 días)
+        working-directory: rodalies-build
+        run: |
+          python build.py "$(TZ=Europe/Madrid date +%F)" 9
+          python route.py
+          python pack.py
+          python assemble.py ../rodalies.html
+      - name: Publicar si ha cambiado
+        run: |
+          git config user.name "MonkiSoft"
+          git config user.email "elMonoAmelio@users.noreply.github.com"
+          git add rodalies.html
+          if git diff --cached --quiet; then echo "Sin cambios"; exit 0; fi
+          git commit -m "Horarios de Rodalies $(TZ=Europe/Madrid date +%d/%m/%Y)"
+          git push
