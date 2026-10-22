@@ -100,7 +100,7 @@ u{text-decoration:none;color:var(--acc);font-size:10px;font-weight:600;opacity:.
 
 #leg{display:none!important}
 #clock{display:flex;align-items:center;gap:8px;flex-wrap:wrap}#clock b{font-size:20px;font-variant-numeric:tabular-nums}#cdate{color:var(--mut);font-size:11px}
-#mode{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding:3px 7px;border-radius:10px;background:#e8ebf1;color:#4a5263}#mode.on{background:#0c8a3e;color:#fff}#mode.on::before{content:"● "}
+#mode{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding:3px 7px;border-radius:10px;background:#e8ebf1;color:#4a5263}#mode.on{background:#0c8a3e;color:#fff}#mode.on::before{content:"● "}#mode.pre{background:#fde7d6;color:#9a3412}#alr{border:0;border-radius:8px;padding:2px 7px;margin-left:4px;font:inherit;font-size:11px;font-weight:700;background:#fde7d6;color:#9a3412;cursor:pointer}.al{margin-top:8px;padding:7px 8px;border-radius:8px;background:#fff4e5;font-size:12px}.al p{margin:2px 0}.al .ln{font-size:10px;padding:0 4px}.lv{color:#0c8a3e;font-weight:700;font-size:11px}.pv{color:#9a3412;font-weight:700;font-size:11px;text-transform:uppercase}.lvd{color:#0c8a3e;font-style:normal;font-size:12px}.nos{font-style:normal;font-size:10px;color:#9a3412;white-space:nowrap}
 #clock .sp{margin-left:auto;min-width:150px}
 #lines{display:flex;flex-wrap:wrap;gap:4px}#lines button{border:0;border-radius:6px;padding:4px 7px;font:inherit;font-size:11px;font-weight:700;color:#fff;background:var(--c);cursor:pointer;opacity:1}#lines button.off{opacity:.25}
 #lines button.all{background:#1d2330}
@@ -141,7 +141,7 @@ u{text-decoration:none;color:var(--acc);font-size:10px;font-weight:600;opacity:.
     <li>En el panel ve a <b>Workers &amp; Pages</b> → <b>Create application</b> → <b>Create Worker</b>. Ponle de nombre <b>rodalies</b> y pulsa <b>Deploy</b>.</li>
     <li>Pulsa <b>Edit code</b>, borra lo que hay, pega este código y pulsa <b>Deploy</b>:<button type="button" id="wcopy">Copiar código</button><pre id="wcode">// Puente Rodalies (MonkiSoft): lee el tiempo real público de Renfe y lo deja leer a la web.
 const ORIGEN = &#x27;https://gtfsrt.renfe.com&#x27;;
-const RUTAS = [&#x27;/trip_updates.json&#x27;, &#x27;/vehicle_positions.json&#x27;];
+const RUTAS = [&#x27;/trip_updates.json&#x27;, &#x27;/vehicle_positions.json&#x27;, &#x27;/alerts.json&#x27;];
 const PERMITIDOS = [&#x27;https://elmonoamelio.github.io&#x27;, &#x27;null&#x27;];
 export default {
   async fetch(req) {
@@ -149,7 +149,7 @@ export default {
     const cors = { &#x27;Access-Control-Allow-Origin&#x27;: PERMITIDOS.includes(o) ? o : PERMITIDOS[0], &#x27;Access-Control-Allow-Methods&#x27;: &#x27;GET, OPTIONS&#x27;, &#x27;Vary&#x27;: &#x27;Origin&#x27; };
     if (req.method === &#x27;OPTIONS&#x27;) return new Response(null, { headers: cors });
     const ruta = new URL(req.url).pathname;
-    if (!RUTAS.includes(ruta)) return new Response(&#x27;Puente Rodalies: usa /trip_updates.json o /vehicle_positions.json&#x27;, { status: 404, headers: cors });
+    if (!RUTAS.includes(ruta)) return new Response(&#x27;Puente Rodalies: usa /trip_updates.json, /vehicle_positions.json o /alerts.json&#x27;, { status: 404, headers: cors });
     const r = await fetch(ORIGEN + ruta, { cf: { cacheTtl: 15, cacheEverything: true } });
     return new Response(r.body, { status: r.status, headers: { ...cors, &#x27;Content-Type&#x27;: &#x27;application/json; charset=utf-8&#x27;, &#x27;Cache-Control&#x27;: &#x27;public, max-age=15&#x27; } });
   }
@@ -161,7 +161,7 @@ export default {
 <button class="box" id="north" title="Norte · toca para orientar el mapa al norte" aria-label="Norte: orientar al norte"><span id="northr"><svg viewBox="0 0 40 40" width="100%" height="100%" aria-hidden="true"><path d="M20 4 27 21H13z" fill="#e0182d"/><path d="M20 36 13 21h14z" fill="#c9d0d9"/><circle cx="20" cy="21" r="2.2" fill="#14202b"/><text x="20" y="13.5" text-anchor="middle" font-size="7.5" font-weight="800" fill="#fff" font-family="system-ui,sans-serif">N</text></svg></span></button>
 <div class="box" id="z"><button id="zin" title="Acercar">+</button><button id="zout" title="Alejar">−</button><button id="rst" title="Restablecer vista">⌂</button></div>
 <div class="box" id="leg"><div id="bar"></div><div id="tk"><span id="lmin">menos</span><span id="lname">habitantes</span><span id="lmax">más</span></div></div>
-<div class="box" id="inf"><b><span id="ntr">…</span> trenes de Rodalies circulando</b><br><span id="src">Horario oficial de Renfe</span><span class="hint"><br>Rueda: inclinar · Option+rueda o Option+arrastrar: girar · Ctrl+rueda/pellizco: zoom · Arrastrar: mover · Doble clic: restablecer</span><span class="thint"><br>Arrastra: mover · Pellizca: zoom · 2 dedos: inclinar y girar · Toca: datos</span></div>
+<div class="box" id="inf"><b><span id="ntr">…</span> <span id="ntrl">trenes</span></b> <button type="button" id="alr" hidden></button><br><span id="src">Conectando…</span><span class="hint"><br>Rueda: inclinar · Option+rueda o Option+arrastrar: girar · Ctrl+rueda/pellizco: zoom · Arrastrar: mover · Doble clic: restablecer</span><span class="thint"><br>Arrastra: mover · Pellizca: zoom · 2 dedos: inclinar y girar · Toca: datos</span></div>
 <script>window.__DATA__=@@DATA@@;window.__ROD__=@@ROD@@;</script>
 <script>@@BUNDLE@@</script>
 </body>
