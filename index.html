@@ -1123,7 +1123,7 @@ progress{width:100%;height:10px;accent-color:var(--signal)}#dlbar{padding:6px 0 
     </div>
     <div class="mini"><button type="button" class="chip" data-info="favs">★ Guardados <span id="favn">0</span></button><button type="button" class="chip" id="popbtn">📊 Población 3D</button><button type="button" class="chip" data-info="tips">⚠️ Límites de los datos</button></div>
     <p class="foot">Datos: © colaboradores de OpenStreetMap (ODbL), extracto de Geofabrik a <span>20/10/2026</span>. Mapa base: © ICGC (CC BY). Límites municipales: CNIG. Población: Idescat. Información orientativa; no sustituye las indicaciones de Protecció Civil ni del 112. MonkiSoft.</p>
-    <details class="ver"><summary>Versión <b id="appver">1.19</b> · 22/10/2026 09:45 · Novedades</summary><ul><li><b>1.19 · 22/10/2026</b> Ver todo el mapa se abre directamente en tu zona si hay GPS o chincheta</li><li><b>1.18 · 22/10/2026</b> v1.18: Capa Comida: supermercados, tiendas, mercados y bancos de alimentos</li><li><b>1.17 · 21/10/2026</b> v1.17: Mapa 3D: tocar un municipio lo selecciona sin mover la vista</li><li><b>1.16 · 21/10/2026</b> v1.16: Mapa 3D: apartar controles deslizando hacia abajo y fichas hacia la izquierda</li><li><b>1.15 · 21/10/2026</b> v1.15: Mapa 3D en móvil: datos, rankings y leyenda accesibles; diseño propio en horizontal</li><li><b>1.14 · 21/10/2026</b> v1.14: Mapa 3D: relieve a 0 deja el mapa totalmente plano</li><li><b>1.13 · 21/10/2026</b> v1.13: Mapa 3D: pellizcar solo amplía; girar e inclinar solo con gesto claro</li><li><b>1.12 · 21/10/2026</b> v1.12: Norte en rojo en ambos mapas; mapa 3D táctil: tocar para seleccionar, dos dedos para inclinar y girar</li><li><b>1.11 · 21/10/2026</b> v1.11: Revisión general: copia en Catalunya Offline, zona de 10 km, pesos reales de descarga, luz hasta el anochecer, agua en rutas de varios días</li></ul></details>
+    <details class="ver"><summary>Versión <b id="appver">1.20</b> · 22/10/2026 09:51 · Novedades</summary><ul><li><b>1.20 · 22/10/2026</b> Farmacias en morado, distinto del rojo de los desfibriladores</li><li><b>1.19 · 22/10/2026</b> v1.19: Ver todo el mapa se abre directamente en tu zona si hay GPS o chincheta</li><li><b>1.18 · 22/10/2026</b> v1.18: Capa Comida: supermercados, tiendas, mercados y bancos de alimentos</li><li><b>1.17 · 21/10/2026</b> v1.17: Mapa 3D: tocar un municipio lo selecciona sin mover la vista</li><li><b>1.16 · 21/10/2026</b> v1.16: Mapa 3D: apartar controles deslizando hacia abajo y fichas hacia la izquierda</li><li><b>1.15 · 21/10/2026</b> v1.15: Mapa 3D en móvil: datos, rankings y leyenda accesibles; diseño propio en horizontal</li><li><b>1.14 · 21/10/2026</b> v1.14: Mapa 3D: relieve a 0 deja el mapa totalmente plano</li><li><b>1.13 · 21/10/2026</b> v1.13: Mapa 3D: pellizcar solo amplía; girar e inclinar solo con gesto claro</li><li><b>1.12 · 21/10/2026</b> v1.12: Norte en rojo en ambos mapas; mapa 3D táctil: tocar para seleccionar, dos dedos para inclinar y girar</li></ul></details>
   </div>
 </div>
 <div id="pop" hidden><div id="popbar"><button class="fab" id="popx" type="button" aria-label="Volver a Catalunya Survival">← Volver a Survival</button></div><iframe id="popf" title="Población 3D por municipio"></iframe></div>
@@ -1181,7 +1181,7 @@ const CATS = {
   albergue: { g: 'refugio', l: 'Centro de acogida social', e: '🛏️' },
   hospital: { g: 'salud', l: 'Hospital', e: '🏥' },
   cap: { g: 'salud', l: 'Centro de salud o clínica', e: '🩺' },
-  farmacia: { g: 'salud', l: 'Farmacia', e: '💊' },
+  farmacia: { g: 'salud', l: 'Farmacia', e: '💊', c: '#8a3fb5' },
   dea: { g: 'salud', l: 'Desfibrilador (DEA)', e: '⚡' },
   policia: { g: 'seguridad', l: 'Policía', e: '👮' },
   bomberos: { g: 'seguridad', l: 'Bomberos', e: '🚒' },
@@ -1321,11 +1321,12 @@ function renderRain() {
 
 // ---------- marcadores ----------
 const layers = {};
+const catColor = k => k.c || GROUPS[k.g].c;
 const MAIN = () => Object.keys(CATS).filter(c => !CATS[c].minor);
 const enabled = new Set(store.get('cats', MAIN()));
 function icon(c) {
   const k = CATS[c];
-  return L.divIcon({ className: 'pin', html: `<span style="--g:${GROUPS[k.g].c}">${k.e}</span>`, iconSize: [28, 28], iconAnchor: [14, 14] });
+  return L.divIcon({ className: 'pin', html: `<span style="--g:${(k.c || GROUPS[k.g].c)}">${k.e}</span>`, iconSize: [28, 28], iconAnchor: [14, 14] });
 }
 const ICONS = {};
 Object.keys(CATS).forEach(c => (ICONS[c] = icon(c)));
@@ -1451,7 +1452,7 @@ function renderFavs() {
   const box = $('#favlist'); if (!box) return; const o = origin();
   const ps = [...favs].map(id => byId[id]).filter(Boolean).map(p => ({ p, d: hav(o.lat, o.lon, p.y, p.x) })).sort((a, b) => a.d - b.d);
   $('#favn').textContent = ps.length;
-  box.innerHTML = ps.map(({ p, d }, i) => { const k = CATS[p.c]; return `<li><button type="button" data-fav="${i}"><span class="ic" style="--g:${GROUPS[k.g].c}">${k.e}</span><span class="nm"><b>${esc(p.t.name || k.l)}</b><small>${esc(k.l)}${p.m >= 0 ? ' · ' + esc(D.munis[p.m].n) : ''}</small></span><span class="ds"><b>${fmtD(d)}</b></span></button></li>`; }).join('') || '<li class="empty">Abre un punto y pulsa ☆ Guardar. Se guardan en este navegador, sin conexión.</li>';
+  box.innerHTML = ps.map(({ p, d }, i) => { const k = CATS[p.c]; return `<li><button type="button" data-fav="${i}"><span class="ic" style="--g:${(k.c || GROUPS[k.g].c)}">${k.e}</span><span class="nm"><b>${esc(p.t.name || k.l)}</b><small>${esc(k.l)}${p.m >= 0 ? ' · ' + esc(D.munis[p.m].n) : ''}</small></span><span class="ds"><b>${fmtD(d)}</b></span></button></li>`; }).join('') || '<li class="empty">Abre un punto y pulsa ☆ Guardar. Se guardan en este navegador, sin conexión.</li>';
   $$('[data-fav]').forEach(el => el.onclick = () => { const it = ps[+el.dataset.fav]; enabled.add(it.p.c); applyCats(); flyTo(it.p); openDetail(it.p); });
 }
 
@@ -1506,7 +1507,7 @@ function renderNear() {
   $('#neartitle').textContent = nearGroup ? 'Lo más cercano · ' + GROUPS[nearGroup].l : 'Lo más cercano';
   box.innerHTML = best.map(({ p, d }, i) => {
     const k = CATS[p.c], b = bearing(o.lat, o.lon, p.y, p.x);
-    return `<li><button type="button" data-near="${i}"><span class="ic" style="--g:${GROUPS[k.g].c}">${k.e}</span><span class="nm"><b>${esc(p.t.name || k.l)}</b><small>${p.t.name ? esc(k.l) + (p.m >= 0 ? ' · ' : '') : ''}${p.m >= 0 ? esc(D.munis[p.m].n) : ''}</small></span><span class="ds"><b>${fmtD(d)}</b><small><i class="ar" data-b="${Math.round(b)}" style="transform:rotate(${Math.round(b)}deg)">↑</i> ${DIRS[Math.round(b / 45) % 8]} · ${walk(d)}</small></span></button></li>`;
+    return `<li><button type="button" data-near="${i}"><span class="ic" style="--g:${(k.c || GROUPS[k.g].c)}">${k.e}</span><span class="nm"><b>${esc(p.t.name || k.l)}</b><small>${p.t.name ? esc(k.l) + (p.m >= 0 ? ' · ' : '') : ''}${p.m >= 0 ? esc(D.munis[p.m].n) : ''}</small></span><span class="ds"><b>${fmtD(d)}</b><small><i class="ar" data-b="${Math.round(b)}" style="transform:rotate(${Math.round(b)}deg)">↑</i> ${DIRS[Math.round(b / 45) % 8]} · ${walk(d)}</small></span></button></li>`;
   }).join('') || '<li class="empty">Activa alguna capa para ver puntos cercanos.</li>';
   applyHeading();
   $$('[data-near]').forEach(el => el.onclick = () => { const it = best[+el.dataset.near]; flyTo(it.p); openDetail(it.p); });
@@ -1554,7 +1555,7 @@ function openDetail(p) {
   const coord = `${p.y.toFixed(5)}, ${p.x.toFixed(5)}`;
   $('#dt').innerHTML = `
     <button class="x" type="button" data-close aria-label="Cerrar">×</button>
-    <div class="dh"><span class="ic big" style="--g:${GROUPS[k.g].c}">${k.e}</span><div><h2>${esc(t.name || k.l)}</h2><p class="sub">${t.name ? esc(k.l) : ''}${p.m >= 0 ? (t.name ? ' · ' : '') + esc(D.munis[p.m].n) + ' (' + esc(({ '08': 'Barcelona', '17': 'Girona', '25': 'Lleida', '43': 'Tarragona' })[D.munis[p.m].pr]) + ')' : (t.name ? ' · ' : '') + 'fuera de Cataluña'}</p></div></div>
+    <div class="dh"><span class="ic big" style="--g:${(k.c || GROUPS[k.g].c)}">${k.e}</span><div><h2>${esc(t.name || k.l)}</h2><p class="sub">${t.name ? esc(k.l) : ''}${p.m >= 0 ? (t.name ? ' · ' : '') + esc(D.munis[p.m].n) + ' (' + esc(({ '08': 'Barcelona', '17': 'Girona', '25': 'Lleida', '43': 'Tarragona' })[D.munis[p.m].pr]) + ')' : (t.name ? ' · ' : '') + 'fuera de Cataluña'}</p></div></div>
     <p class="dist"><b>${fmtD(d)}</b> <i class="ar" data-b="${Math.round(b)}" style="transform:rotate(${Math.round(b)}deg)">↑</i> ${DIRS[Math.round(b / 45) % 8]} ${fromTxt(o)} · ≈ ${walk(d)} a pie en línea recta</p>
     ${p.c === 'fuente' || p.c === 'manantial' ? waterNeed(d) + waterNote(p) : ''}
     ${['super', 'tienda', 'mercado'].includes(p.c) ? '<p class="warn">En una emergencia puede estar cerrado o sin existencias. Si hay reparto organizado, lo anuncian el ayuntamiento o el 112. Coger mercancía sin pagar es delito, y el Código Penal lo castiga más si se aprovecha una catástrofe.</p>' : ''}
@@ -1668,7 +1669,7 @@ q.addEventListener('input', () => {
   res.innerHTML = r.map((it, i) => {
     if (it.k === 'm') { const m = D.munis[it.i]; return `<li><button type="button" data-r="${i}"><span class="ic" style="--g:#59636e">📍</span><span class="nm"><b>${esc(m.n)}</b><small>Municipio · ${fmtN(m.p)} hab.</small></span></button></li>`; }
     const p = D.pois[it.i], k = CATS[p.c];
-    return `<li><button type="button" data-r="${i}"><span class="ic" style="--g:${GROUPS[k.g].c}">${k.e}</span><span class="nm"><b>${esc(p.t.name)}</b><small>${esc(k.l)}${p.m >= 0 ? ' · ' + esc(D.munis[p.m].n) : ''}</small></span></button></li>`;
+    return `<li><button type="button" data-r="${i}"><span class="ic" style="--g:${(k.c || GROUPS[k.g].c)}">${k.e}</span><span class="nm"><b>${esc(p.t.name)}</b><small>${esc(k.l)}${p.m >= 0 ? ' · ' + esc(D.munis[p.m].n) : ''}</small></span></button></li>`;
   }).join('') || '<li class="empty">Sin resultados</li>';
   res.hidden = false;
   $$('[data-r]').forEach(el => el.onclick = () => {
