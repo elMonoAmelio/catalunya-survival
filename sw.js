@@ -1,7 +1,7 @@
 // Catalunya Survival · MonkiSoft · service worker
-const VERSION = 'cs-1.22';
+const VERSION = 'cs-1.23';
 const APP = 'app-' + VERSION, TILES = 'tiles-v1', DATA = 'data-v1';
-const CORE = ['./', './index.html', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/maskable-512.png', './icons/apple-touch-icon.png'];
+const CORE = ['./', './index.html', './rodalies.html', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/maskable-512.png', './icons/apple-touch-icon.png'];
 const MAX_TILES = 25000;
 
 self.addEventListener('install', e => {
@@ -41,7 +41,7 @@ self.addEventListener('fetch', e => {
   // La propia app: sale de la caché al instante y se actualiza por detrás.
   if (url.origin === self.location.origin) {
     e.respondWith(caches.open(APP).then(async c => {
-      const key = req.mode === 'navigate' ? './index.html' : req;
+      const key = req.mode === 'navigate' ? (/rodalies\.html$/.test(url.pathname) ? './rodalies.html' : './index.html') : req;
       const hit = await c.match(key, { ignoreSearch: true });
       const net = fetch(req, { cache: 'no-cache' }).then(res => { if (res.ok) c.put(key, res.clone()); return res; }).catch(() => null);
       return hit || (await net) || new Response('Sin conexión', { status: 503 });
