@@ -827,6 +827,7 @@ body.pinning #map{cursor:crosshair}body.pinning #pinb{outline:3px solid #f25c19}
 .cat.pot{border-top:1px dashed var(--line);margin-top:2px}
 .zone{display:flex;align-items:center;gap:10px;padding:10px 0}.zone>div{flex:1;min-width:0}.zone small{display:block;color:var(--muted);font-size:12px}.zone .btn{flex:none;min-height:38px}.zone .btn[disabled]{opacity:.5}.ver{margin:6px 0 0;font-size:12px;color:var(--muted)}.ver summary{cursor:pointer;padding:4px 0}.ver ul{margin:4px 0 0;padding-left:16px}.ver li{margin:3px 0}.ver li b{color:var(--ink);font-weight:600}
 .lnk{border:0;background:none;padding:0;font:inherit;color:var(--signal);font-weight:700;text-decoration:underline;cursor:pointer}.btn.sm{min-height:36px;padding:4px 10px;font-size:13px;display:inline-flex}
+.xrow{margin:8px 0}.xrow select{font:inherit;padding:6px 8px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--ink)}.xbtn{display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:10px 0;border:0;border-bottom:1px solid var(--line);background:none;font:inherit;color:var(--ink);cursor:pointer}.xbtn b{display:block}.xbtn small{display:block;color:var(--muted);font-size:12px}.xbtn .go{margin-left:auto;font-weight:700;color:var(--signal);white-space:nowrap;padding-left:8px}
 .zone em{font-style:normal;font-weight:700;color:var(--ink)}.zone em.ok{color:#1d8a4a}
 progress{width:100%;height:10px;accent-color:var(--signal)}#dlbar{padding:6px 0 10px}
 #compb[aria-pressed="true"]{background:#1f6fd1;color:#fff}
@@ -1032,21 +1033,22 @@ progress{width:100%;height:10px;accent-color:var(--signal)}#dlbar{padding:6px 0 
     <ol class="steps">
       <li><button type="button" data-info="inst"><b>Instala la app en el móvil</b><small id="pstep1">Para abrirla sin red, con GPS y brújula</small></button></li>
       <li><button type="button" data-info="dl"><b>Guarda el mapa de tus zonas</b><small id="pstep2">Toda Cataluña y los alrededores de donde estés</small></button></li>
-      <li><button type="button" data-info="copia"><b>Ten una copia en Catalunya Offline</b><small>App oficial del ICGC: toda Cataluña a cualquier zoom sin red, con los puntos de Survival</small></button></li>
+      <li><button type="button" data-info="copia"><b>Ten una copia en Catalunya Offline</b><small>App oficial del ICGC: toda Cataluña sin red; admite 100 puntos por archivo, los preparo yo</small></button></li>
       <li><button type="button" data-info="kit"><b>Prepara la mochila</b><small>Lo que recomienda la Generalitat para 72 horas</small></button></li>
     </ol>
   </section>
   <section class="sheet info" id="copia" hidden>
-    <div class="grab"><div><h3>Copia en Catalunya Offline</h3><p class="sub">Mapa oficial de toda Cataluña sin red, con tus puntos</p></div><button class="x" type="button" data-close aria-label="Cerrar">×</button></div>
+    <div class="grab"><div><h3>Puntos para Catalunya Offline</h3><p class="sub">Máximo 100 por archivo: te preparo los más cercanos a ti</p></div><button class="x" type="button" data-close aria-label="Cerrar">×</button></div>
+    <p class="warn">Catalunya Offline <b>no deja importar más de 100 elementos</b> por archivo. Por eso el paquete grande no sirve ahí: aquí generas archivos de hasta 100 puntos, los más cercanos a <span id="xorg">tu posición</span>.</p>
     <ol>
-      <li>Instala <b>Catalunya Offline</b>, la app del ICGC: <a href="http://apple.co/2n8Wmra" target="_blank" rel="noopener">iPhone</a> · <a href="http://bit.ly/2lZgOuZ" target="_blank" rel="noopener">Android</a>.</li>
-      <li>Ábrela con wifi: la primera vez descarga el mapa topográfico de toda Cataluña (necesita unos <b>900 MB</b> libres).</li>
-      <li>Descarga el <a class="btn ghost sm" href="https://elmonoamelio.github.io/catalunya-survival/catalunya-survival-offline.zip" download>paquete de puntos (zip, 1,4 MB)</a> y ábrelo en la app Archivos: salen 5 KML (Agua, Refugio, Salud, Seguridad, Salir) y un GPX con todo.</li>
-      <li>En Catalunya Offline, usa la opción de cargar archivos <b>.kml / .gpx</b>. Empieza por Agua y Refugio. Si no la ves, en Archivos mantén pulsado el KML → Compartir → Catalunya Offline.</li>
-      <li>Pruébala en modo avión antes de salir.</li>
+      <li>Instala <b>Catalunya Offline</b>, la app del ICGC: <a href="http://apple.co/2n8Wmra" target="_blank" rel="noopener">iPhone</a> · <a href="http://bit.ly/2lZgOuZ" target="_blank" rel="noopener">Android</a>. Ábrela con wifi: la primera vez descarga el mapa de toda Cataluña (unos <b>900 MB</b>).</li>
+      <li>Elige abajo qué quieres y pulsa. En el iPhone sale la hoja de compartir: elige <b>Catalunya Offline</b> o <b>Guardar en Archivos</b>.</li>
+      <li>Si lo guardaste en Archivos: en la app usa la opción de cargar archivos <b>.kml / .gpx</b> ("Pujar dades").</li>
+      <li>Repite con otra categoría cuando quieras. Pruébalo en modo avión antes de salir.</li>
     </ol>
-    <p>Las fotos de satélite de Catalunya Offline necesitan red. Alternativas que también abren el paquete: Organic Maps u OsmAnd.</p>
-    <p class="src">Fuente: <a href="https://www.icgc.cat/en/Tools-and-viewers/Apps/Catalunya-Offline" target="_blank" rel="noopener">ICGC – Catalunya Offline</a> y su <a href="https://www.icgc.cat/ca/content/download/81549/709753/version/1/file/CatalunyaOffline.pdf" target="_blank" rel="noopener">manual</a>.</p>
+    <div class="xrow"><label>Formato <select id="xfmt"><option value="kml">KML</option><option value="gpx">GPX</option></select></label></div>
+    <ul class="lst" id="xlist"></ul>
+    <p class="src">Los puntos salen de esta app y funcionan sin red. Las fotos de satélite de Catalunya Offline necesitan red. También sirven Organic Maps y OsmAnd, que sí admiten el paquete completo. Fuente: <a href="https://www.icgc.cat/en/Tools-and-viewers/Apps/Catalunya-Offline" target="_blank" rel="noopener">ICGC – Catalunya Offline</a>.</p>
   </section>
   <section class="sheet info" id="lluvia" hidden>
     <div class="grab"><div><h3>Lluvia fuerte</h3><p class="sub">Rieras en rojo, zonas inundables y lugares altos donde ir.</p></div><button class="x" type="button" data-close aria-label="Cerrar">×</button></div>
@@ -1092,7 +1094,7 @@ progress{width:100%;height:10px;accent-color:var(--signal)}#dlbar{padding:6px 0 
     <div id="dlbar" hidden><p class="lbl" id="dlname"></p><progress id="dlprog" max="1" value="0"></progress><p class="sub" id="dltxt"></p><button type="button" class="btn ghost" id="dlstop">Detener</button></div>
     <p class="src">Cada tesela del topográfico pesa entre 15 y 80 KB según el zoom (medido en el servidor del ICGC); el tamaño mostrado es aproximado. Guarda solo lo que necesites: descargas muy grandes cargan el servidor del ICGC y llenan el móvil.</p>
     <button type="button" class="btn ghost" id="dlclear">Borrar mapas guardados</button>
-    <p class="src">¿Quieres toda Cataluña con detalle? Pesaría varios GB aquí. Usa la <button type="button" class="lnk" data-info="copia">copia en Catalunya Offline</button> (unos 900 MB).</p>
+    <p class="src">¿Quieres toda Cataluña con detalle? Pesaría varios GB aquí. Usa la <button type="button" class="lnk" data-info="copia">copia en Catalunya Offline</button> (unos 900 MB), con puntos de 100 en 100.
   </section>
   <section class="sheet info" id="inst" hidden>
     <div class="grab"><div><h3>Instalar en el móvil</h3><p class="sub" id="instst"></p></div><button class="x" type="button" data-close aria-label="Cerrar">×</button></div>
@@ -1127,7 +1129,7 @@ progress{width:100%;height:10px;accent-color:var(--signal)}#dlbar{padding:6px 0 
     </div>
     <div class="mini"><button type="button" class="chip" data-info="favs">★ Guardados <span id="favn">0</span></button><button type="button" class="chip" id="popbtn">📊 Población 3D</button><button type="button" class="chip" data-info="tips">⚠️ Límites de los datos</button></div>
     <p class="foot">Datos: © colaboradores de OpenStreetMap (ODbL), extracto de Geofabrik a <span>20/10/2026</span>. Mapa base: © ICGC (CC BY). Límites municipales: CNIG. Población: Idescat. Información orientativa; no sustituye las indicaciones de Protecció Civil ni del 112. MonkiSoft.</p>
-    <details class="ver"><summary>Versión <b id="appver">1.21</b> · 22/10/2026 09:58 · Novedades</summary><ul><li><b>1.21 · 22/10/2026</b> Punto de tu posición más grande, luminoso y con pulso</li><li><b>1.20 · 22/10/2026</b> v1.20: Farmacias en morado, distinto del rojo de los desfibriladores</li><li><b>1.19 · 22/10/2026</b> v1.19: Ver todo el mapa se abre directamente en tu zona si hay GPS o chincheta</li><li><b>1.18 · 22/10/2026</b> v1.18: Capa Comida: supermercados, tiendas, mercados y bancos de alimentos</li><li><b>1.17 · 21/10/2026</b> v1.17: Mapa 3D: tocar un municipio lo selecciona sin mover la vista</li><li><b>1.16 · 21/10/2026</b> v1.16: Mapa 3D: apartar controles deslizando hacia abajo y fichas hacia la izquierda</li><li><b>1.15 · 21/10/2026</b> v1.15: Mapa 3D en móvil: datos, rankings y leyenda accesibles; diseño propio en horizontal</li><li><b>1.14 · 21/10/2026</b> v1.14: Mapa 3D: relieve a 0 deja el mapa totalmente plano</li><li><b>1.13 · 21/10/2026</b> v1.13: Mapa 3D: pellizcar solo amplía; girar e inclinar solo con gesto claro</li></ul></details>
+    <details class="ver"><summary>Versión <b id="appver">1.22</b> · 22/10/2026 10:22 · Novedades</summary><ul><li><b>1.22 · 22/10/2026</b> Puntos para Catalunya Offline en archivos de 100: los más cercanos a ti</li><li><b>1.21 · 22/10/2026</b> v1.21: Punto de tu posición más grande, luminoso y con pulso</li><li><b>1.20 · 22/10/2026</b> v1.20: Farmacias en morado, distinto del rojo de los desfibriladores</li><li><b>1.19 · 22/10/2026</b> v1.19: Ver todo el mapa se abre directamente en tu zona si hay GPS o chincheta</li><li><b>1.18 · 22/10/2026</b> v1.18: Capa Comida: supermercados, tiendas, mercados y bancos de alimentos</li><li><b>1.17 · 21/10/2026</b> v1.17: Mapa 3D: tocar un municipio lo selecciona sin mover la vista</li><li><b>1.16 · 21/10/2026</b> v1.16: Mapa 3D: apartar controles deslizando hacia abajo y fichas hacia la izquierda</li><li><b>1.15 · 21/10/2026</b> v1.15: Mapa 3D en móvil: datos, rankings y leyenda accesibles; diseño propio en horizontal</li><li><b>1.14 · 21/10/2026</b> v1.14: Mapa 3D: relieve a 0 deja el mapa totalmente plano</li></ul></details>
   </div>
 </div>
 <div id="pop" hidden><div id="popbar"><button class="fab" id="popx" type="button" aria-label="Volver a Catalunya Survival">← Volver a Survival</button></div><iframe id="popf" title="Población 3D por municipio"></iframe></div>
@@ -1598,7 +1600,7 @@ function copy(s, id) {
 function openSheet(id) {
   if (id !== 'dt' && $('#sheets').dataset.open === 'dt') clearSel();
   if (id === 'lluvia') renderRain();
-  if (id === 'favs') renderFavs(); if (id === 'tel') renderMyPos(); if (id === 'dl') { renderZones(); renderReady(); } if (id === 'inst') renderInstall();
+  if (id === 'favs') renderFavs(); if (id === 'tel') renderMyPos(); if (id === 'dl') { renderZones(); renderReady(); } if (id === 'inst') renderInstall(); if (id === 'copia') renderExport();
   $$('.sheet').forEach(s => (s.hidden = s.id !== id));
   $('#sheets').hidden = false; $('#sheets').dataset.open = id;
   $('#sheets').classList.toggle('full', ['guia', 'kit', 'tips', 'prep', 'dl', 'inst', 'copia'].includes(id));
@@ -1729,6 +1731,49 @@ async function toggleCompass() {
   applyHeading();
 }
 $('#compb').onclick = toggleCompass;
+
+// ---------- exportar puntos (máx. 100 por archivo, límite de Catalunya Offline) ----------
+const XMAX = 100;
+const XSETS = [
+  { id: 'esencial', t: 'Lo esencial', s: '30 agua · 20 refugio · 20 salud · 15 comida · 10 seguridad · 5 salir', mix: { agua: 30, refugio: 20, salud: 20, comida: 15, seguridad: 10, salir: 5 } },
+  { id: 'agua', t: 'Agua', s: 'Las 100 fuentes y manantiales más cercanos', g: 'agua' },
+  { id: 'comida', t: 'Comida', s: 'Los 100 puntos de comida más cercanos', g: 'comida' },
+  { id: 'refugio', t: 'Refugio', s: 'Los 100 refugios y puntos de acogida más cercanos', g: 'refugio' },
+  { id: 'salud', t: 'Salud', s: 'Hospitales, CAP, farmacias y DEA más cercanos', g: 'salud' },
+  { id: 'seguridad', t: 'Seguridad', s: 'Policía, bomberos y ejército más cercanos', g: 'seguridad' },
+  { id: 'salir', t: 'Salir', s: 'Estaciones, puertos, collados y fronteras más cercanos', g: 'salir' }
+];
+function nearestOf(groups, n, o) {
+  const cs = new Set(Object.keys(CATS).filter(c => groups.includes(CATS[c].g) && !CATS[c].minor)), best = [];
+  for (const p of D.pois) { if (!cs.has(p.c)) continue; const d = hav(o.lat, o.lon, p.y, p.x); if (best.length < n || d < best[best.length - 1].d) { best.push({ p, d }); best.sort((a, b) => a.d - b.d); if (best.length > n) best.pop(); } }
+  return best;
+}
+const xesc = v => String(v).replace(/[<>&"]/g, c => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;' })[c]);
+function pname(p) { const k = CATS[p.c]; return (p.t.name ? p.t.name + ' · ' : '') + k.l; }
+function pdesc(p, d) { const m = p.m >= 0 ? D.munis[p.m].n : ''; return [CATS[p.c].l, m, fmtD(d) + ' desde ' + (origin().pin ? 'tu chincheta' : 'tu posición'), p.t.opening_hours ? 'Horario: ' + p.t.opening_hours : ''].filter(Boolean).join(' · '); }
+function buildExport(list, fmt, title) {
+  if (fmt === 'gpx') return `<?xml version="1.0" encoding="UTF-8"?>\n<gpx version="1.1" creator="MonkiSoft" xmlns="http://www.topografix.com/GPX/1/1"><metadata><name>${xesc(title)}</name><author><name>MonkiSoft</name></author></metadata>\n` +
+    list.map(({ p, d }) => `<wpt lat="${p.y}" lon="${p.x}"><name>${xesc(pname(p))}</name><desc>${xesc(pdesc(p, d))}</desc></wpt>`).join('\n') + '\n</gpx>';
+  return `<?xml version="1.0" encoding="UTF-8"?>\n<kml xmlns="http://www.opengis.net/kml/2.2"><Document><name>${xesc(title)}</name><atom:author xmlns:atom="http://www.w3.org/2005/Atom"><atom:name>MonkiSoft</atom:name></atom:author>\n` +
+    list.map(({ p, d }) => `<Placemark><name>${xesc(pname(p))}</name><description>${xesc(pdesc(p, d))}</description><Point><coordinates>${p.x},${p.y},0</coordinates></Point></Placemark>`).join('\n') + '\n</Document></kml>';
+}
+async function exportSet(set) {
+  const o = origin(), fmt = $('#xfmt').value;
+  let list = [];
+  if (set.mix) Object.entries(set.mix).forEach(([g, n]) => { list = list.concat(nearestOf([g], n, o)); }); else list = nearestOf([set.g], XMAX, o);
+  list = list.slice(0, XMAX);
+  if (!list.length) { toast('No hay puntos de esta categoría'); return; }
+  const fname = `Survival-${set.t.replace(/\s+/g, '')}-${list.length}.${fmt}`, mime = fmt === 'gpx' ? 'application/gpx+xml' : 'application/vnd.google-earth.kml+xml';
+  const file = new File([buildExport(list, fmt, 'Catalunya Survival · ' + set.t)], fname, { type: mime });
+  try { if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: fname }); return; } } catch (e) { if (e && e.name === 'AbortError') return; }
+  const a = document.createElement('a'); a.href = URL.createObjectURL(file); a.download = fname; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  toast(`Archivo ${fname} descargado: ábrelo desde Archivos`);
+}
+function renderExport() {
+  const o = origin(); $('#xorg').textContent = o.pin ? 'tu chincheta' : o.gps ? 'tu posición' : 'el centro del mapa';
+  $('#xlist').innerHTML = XSETS.map((x, i) => `<li><button type="button" class="xbtn" data-x="${i}"><span><b>${x.t}</b><small>${x.s}</small></span><span class="go">Enviar</span></button></li>`).join('');
+  $$('#xlist [data-x]').forEach(b => b.onclick = () => exportSet(XSETS[+b.dataset.x]));
+}
 
 // ---------- app instalable y mapa sin red ----------
 const standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
