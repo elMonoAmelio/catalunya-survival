@@ -135,7 +135,7 @@ u{text-decoration:none;color:var(--acc);font-size:10px;font-weight:600;opacity:.
 :root{--glass:rgba(255,255,255,.86)}
 .box{background:var(--glass);-webkit-backdrop-filter:blur(14px) saturate(1.5);backdrop-filter:blur(14px) saturate(1.5);border:1px solid rgba(255,255,255,.6);border-radius:14px;box-shadow:0 8px 28px rgba(20,30,50,.14),0 1px 2px rgba(20,30,50,.08)}
 .tc{border-radius:14px;box-shadow:0 8px 28px rgba(20,30,50,.14)}
-.slab{pointer-events:auto!important;cursor:pointer;padding:1px 4px;border-radius:5px}.slab:hover{background:#1d2330;color:#fff;text-shadow:none}
+.slab{padding:1px 4px;border-radius:5px}
 #home{margin:-1px -3px 6px}
 .hhead{display:flex;align-items:center;gap:8px;width:100%;border:0;background:linear-gradient(135deg,#1d2330,#2c3546);color:#fff;border-radius:11px;padding:8px 10px;cursor:pointer;text-align:left;font:inherit}
 .hico{font-size:18px}.htit{flex:1;min-width:0}.htit b{display:block;font-size:14px}.htit small{display:block;font-size:12px;opacity:.92;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -154,6 +154,18 @@ u{text-decoration:none;color:var(--acc);font-size:10px;font-weight:600;opacity:.
 .hsrc{display:block;margin-top:6px;font-size:10px;color:var(--mut)}
 @media(min-width:641px){#inf{width:380px;max-width:calc(100vw - 340px)!important}}
 @media(max-width:640px){.hv b{font-size:19px}#home.open~.more{display:none}}
+
+.tc .chg{list-style:none;padding:0;margin:8px 0 0}
+.tc .chg li{display:grid;grid-template-columns:auto 1fr;column-gap:8px;align-items:baseline;padding:7px 0;border-top:1px solid var(--line)}
+.tc .chg li b{min-width:0;font-size:13px;color:var(--ink)}.tc .chg li small{color:var(--mut);font-size:11px}
+.tc .chg li p{grid-column:1/-1;margin:2px 0 0;font-size:12.5px;line-height:1.4;color:var(--ink)}
+.tc .chg li:first-child b::after{content:'nueva';margin-left:6px;font-size:9.5px;font-weight:700;background:#0c8a3e;color:#fff;border-radius:8px;padding:1px 6px;vertical-align:2px}
+/* escritorio: Mi estación arriba a la derecha, controles abajo a la izquierda */
+@media(min-width:641px) and (min-height:501px){
+#inf{left:auto!important;right:12px;top:12px;bottom:auto;width:min(380px,calc(100vw - 330px))!important;max-width:none!important;max-height:calc(100vh - 210px);overflow:auto}
+#rc{top:auto;bottom:12px;left:12px;right:auto;width:320px;max-height:calc(100vh - 90px)}
+#mcs{max-height:var(--mcsmax,calc(100vh - 64px - 215px))}
+}
 </style>
 </head>
 <body>
