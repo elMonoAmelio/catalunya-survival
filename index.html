@@ -1123,7 +1123,7 @@ progress{width:100%;height:10px;accent-color:var(--signal)}#dlbar{padding:6px 0 
     </div>
     <div class="mini"><button type="button" class="chip" data-info="favs">★ Guardados <span id="favn">0</span></button><button type="button" class="chip" id="popbtn">📊 Población 3D</button><button type="button" class="chip" data-info="tips">⚠️ Límites de los datos</button></div>
     <p class="foot">Datos: © colaboradores de OpenStreetMap (ODbL), extracto de Geofabrik a <span>20/10/2026</span>. Mapa base: © ICGC (CC BY). Límites municipales: CNIG. Población: Idescat. Información orientativa; no sustituye las indicaciones de Protecció Civil ni del 112. MonkiSoft.</p>
-    <details class="ver"><summary>Versión <b id="appver">1.18</b> · 22/10/2026 09:38 · Novedades</summary><ul><li><b>1.18 · 22/10/2026</b> Capa Comida: supermercados, tiendas, mercados y bancos de alimentos</li><li><b>1.17 · 21/10/2026</b> v1.17: Mapa 3D: tocar un municipio lo selecciona sin mover la vista</li><li><b>1.16 · 21/10/2026</b> v1.16: Mapa 3D: apartar controles deslizando hacia abajo y fichas hacia la izquierda</li><li><b>1.15 · 21/10/2026</b> v1.15: Mapa 3D en móvil: datos, rankings y leyenda accesibles; diseño propio en horizontal</li><li><b>1.14 · 21/10/2026</b> v1.14: Mapa 3D: relieve a 0 deja el mapa totalmente plano</li><li><b>1.13 · 21/10/2026</b> v1.13: Mapa 3D: pellizcar solo amplía; girar e inclinar solo con gesto claro</li><li><b>1.12 · 21/10/2026</b> v1.12: Norte en rojo en ambos mapas; mapa 3D táctil: tocar para seleccionar, dos dedos para inclinar y girar</li><li><b>1.11 · 21/10/2026</b> v1.11: Revisión general: copia en Catalunya Offline, zona de 10 km, pesos reales de descarga, luz hasta el anochecer, agua en rutas de varios días</li><li><b>1.10 · 21/10/2026</b> v1.10: Número de versión y novedades en el menú</li></ul></details>
+    <details class="ver"><summary>Versión <b id="appver">1.19</b> · 22/10/2026 09:45 · Novedades</summary><ul><li><b>1.19 · 22/10/2026</b> Ver todo el mapa se abre directamente en tu zona si hay GPS o chincheta</li><li><b>1.18 · 22/10/2026</b> v1.18: Capa Comida: supermercados, tiendas, mercados y bancos de alimentos</li><li><b>1.17 · 21/10/2026</b> v1.17: Mapa 3D: tocar un municipio lo selecciona sin mover la vista</li><li><b>1.16 · 21/10/2026</b> v1.16: Mapa 3D: apartar controles deslizando hacia abajo y fichas hacia la izquierda</li><li><b>1.15 · 21/10/2026</b> v1.15: Mapa 3D en móvil: datos, rankings y leyenda accesibles; diseño propio en horizontal</li><li><b>1.14 · 21/10/2026</b> v1.14: Mapa 3D: relieve a 0 deja el mapa totalmente plano</li><li><b>1.13 · 21/10/2026</b> v1.13: Mapa 3D: pellizcar solo amplía; girar e inclinar solo con gesto claro</li><li><b>1.12 · 21/10/2026</b> v1.12: Norte en rojo en ambos mapas; mapa 3D táctil: tocar para seleccionar, dos dedos para inclinar y girar</li><li><b>1.11 · 21/10/2026</b> v1.11: Revisión general: copia en Catalunya Offline, zona de 10 km, pesos reales de descarga, luz hasta el anochecer, agua en rutas de varios días</li></ul></details>
   </div>
 </div>
 <div id="pop" hidden><div id="popbar"><button class="fab" id="popx" type="button" aria-label="Volver a Catalunya Survival">← Volver a Survival</button></div><iframe id="popf" title="Población 3D por municipio"></iframe></div>
@@ -1621,8 +1621,14 @@ $$('[data-base]').forEach(b => b.onclick = () => setBase(b.dataset.base));
 function showNeed(g) {
   nearGroup = g;
   enabled.clear(); MAIN().filter(c => !g || CATS[c].g === g).forEach(c => enabled.add(c));
+  // centrar primero en tu posición (chincheta o GPS): así no se dibuja toda Cataluña con miles de puntos
+  const z = g ? 14 : 15, here = pin ? [pin.lat, pin.lon] : me ? [me.lat, me.lon] : null;
+  if (here && map.getZoom() < z - 1) map.setView(here, z, { animate: false });
+  else if (here && !map.getBounds().pad(-0.1).contains(here)) map.setView(here, map.getZoom(), { animate: false });
   applyCats(); hideMenu();
   if (g) { openSheet('near'); startGPS(true); }
+  else if (watchId != null && !pin) follow = !me || Date.now() - me.t > STALE;
+  if (!g && !here && watchId == null) toast('Consejo: activa el GPS o pon la chincheta 📍 y el mapa se abrirá directamente en tu zona');
 }
 function hideMenu() { $('#menu').hidden = true; $('#menuback').hidden = false; setTimeout(() => map.invalidateSize(), 50); }
 function showMenu() { $('#menu').hidden = false; closeSheet(); }
