@@ -1,7 +1,10 @@
 name: Estadísticas de Rodalies
+# Foto del tiempo real de Renfe cada 15 min. Como GitHub no garantiza las tareas programadas frecuentes,
+# el trabajo se queda en marcha ~5 h haciendo una foto cada 15 min y, al terminar, se vuelve a lanzar solo.
+# La tarea horaria es solo de respaldo por si la cadena se corta.
 on:
   schedule:
-    - cron: '7,22,37,52 * * * *'
+    - cron: '7 * * * *'
   push:
     paths:
       - '.github/workflows/stats.yml'
@@ -9,31 +12,38 @@ on:
   workflow_dispatch:
 permissions:
   contents: write
+  actions: write
 concurrency:
   group: stats
   cancel-in-progress: false
 jobs:
-  foto:
+  fotos:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 330
     steps:
       - uses: actions/checkout@v4
-      - name: Recuperar lo acumulado
-        run: |
-          mkdir -p /tmp/st
-          if git fetch -q origin stats; then
-            git show origin/stats:hoy.json > /tmp/st/hoy.json 2>/dev/null || rm -f /tmp/st/hoy.json
-            git show origin/stats:ayer.json > /tmp/st/ayer.json 2>/dev/null || rm -f /tmp/st/ayer.json
-          fi
-      - name: Foto del tiempo real de Renfe
-        run: python3 rodalies-build/stats.py /tmp/st
-      - name: Guardar en la rama stats (un solo commit, sin historial)
+      - name: Fotos cada 15 min durante unas 5 horas
         run: |
           git config user.name "MonkiSoft"
           git config user.email "elMonoAmelio@users.noreply.github.com"
-          git checkout -q --orphan stats-tmp
-          git rm -rfq .
-          cp /tmp/st/*.json .
-          git add -- *.json
-          git commit -qm "Estadísticas de Rodalies"
-          git push -qf origin stats-tmp:stats
+          cp rodalies-build/stats.py /tmp/stats.py
+          for i in $(seq 1 20); do
+            mkdir -p /tmp/st && rm -f /tmp/st/*.json
+            if git fetch -q origin stats; then
+              git show FETCH_HEAD:hoy.json > /tmp/st/hoy.json 2>/dev/null || rm -f /tmp/st/hoy.json
+              git show FETCH_HEAD:ayer.json > /tmp/st/ayer.json 2>/dev/null || rm -f /tmp/st/ayer.json
+            fi
+            python3 /tmp/stats.py /tmp/st || echo "foto fallida"
+            rm -rf /tmp/pub && mkdir /tmp/pub && cd /tmp/pub && git init -q && cp /tmp/st/*.json . \
+              && git add -- *.json && git -c user.name=MonkiSoft -c user.email=elMonoAmelio@users.noreply.github.com commit -qm "Estadísticas de Rodalies" \
+              && git push -qf "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD:stats || echo "subida fallida"
+            cd "$GITHUB_WORKSPACE"
+            if [ "$i" -lt 20 ]; then sleep 900; fi
+          done
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Volver a lanzarse
+        if: success() || failure()
+        run: gh workflow run stats.yml --ref main -R "$GITHUB_REPOSITORY"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
