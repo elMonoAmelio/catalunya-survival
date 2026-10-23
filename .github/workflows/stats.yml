@@ -1,7 +1,7 @@
 name: Estadísticas de Rodalies
 on:
   schedule:
-    - cron: '*/15 4-23 * * *'
+    - cron: '7,22,37,52 * * * *'
   push:
     paths:
       - '.github/workflows/stats.yml'
