@@ -180,6 +180,14 @@ u{text-decoration:none;color:var(--acc);font-size:10px;font-weight:600;opacity:.
 .hpush{display:flex;align-items:center;gap:8px;margin-top:6px;padding:7px 9px;border-radius:10px;background:#f3f5f9;font-size:12px;color:var(--ink)}.hpush span{flex:1}.hpush small{display:block;color:var(--mut);font-size:10.5px}.hpush button{border:0;border-radius:9px;padding:6px 11px;font:inherit;font-weight:700;background:#1d4ed8;color:#fff;cursor:pointer}.hpush button.on{background:#e8ebf1;color:#1d2330}
 #toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);background:#1d2330;color:#fff;padding:10px 14px;border-radius:12px;font-size:13px;z-index:20;opacity:0;pointer-events:none;transition:.2s;max-width:calc(100vw - 32px);text-align:center}#toast.on{opacity:1;transform:translate(-50%,0)}
 .hwalk[hidden]{display:none}.hcols.one{grid-template-columns:1fr}
+.tc .mn{display:none}
+@media(max-width:640px){
+#inf.compact{padding:5px 6px!important}#inf.compact .l1,#inf.compact .more,#inf.compact .hpush,#inf.compact .hbody{display:none!important}
+#inf.compact #home{margin:0}#inf.compact #home>.hplace:not(:first-child){display:none}#inf.compact #home .hplace:first-child .hhead.hnew{display:none}
+#inf.compact .hhead{padding:5px 9px;border-radius:9px}#inf.compact .hico{font-size:14px}#inf.compact .htit b{font-size:12.5px}#inf.compact .htit small{font-size:11px}#inf.compact .hchev{transform:none!important}
+.tc .mn{display:block;position:absolute;top:8px;right:40px;width:30px;height:30px;border:0;border-radius:50%;background:#eef1f6;font-size:13px;cursor:pointer;color:#1d2330}
+#mcs.peek{max-height:150px!important;overflow:hidden!important;-webkit-mask-image:linear-gradient(#000 78%,transparent);mask-image:linear-gradient(#000 78%,transparent)}
+}
 </style>
 </head>
 <body>
