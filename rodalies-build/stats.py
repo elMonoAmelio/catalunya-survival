@@ -56,13 +56,17 @@ if not H or H.get('day') != day:
     if H and H.get('snaps'):
         with open(os.path.join(OUT, 'ayer.json'), 'w') as f:
             json.dump(H, f, ensure_ascii=False, separators=(',', ':'))
-    H = {'day': day, 'snaps': [], 'lines': {}, 'st': {}, 'note': 'Foto cada 15 min del tiempo real de Renfe. Los trenes sin dato de retraso se cuentan como puntuales.'}
+    H = {'day': day, 'snaps': [], 'lines': {}, 'st': {}, 'note': 'Foto cada 15 min del tiempo real de Renfe. Solo cuentan los trenes con dato de retraso.'}
 
+H['note'] = 'Foto cada 15 min del tiempo real de Renfe. Solo cuentan los trenes con dato de retraso.'
+# solo cuentan los trenes de los que Renfe publica retraso (los demás se apuntan aparte, sin suponer que van en hora)
+nd = sum(1 for t, _ in running if t not in delay)
+running = [(t, s) for t, s in running if t in delay]
 n = len(running)
-ds = [max(0, delay.get(t, 0)) for t, _ in running]
+ds = [max(0, delay[t]) for t, _ in running]
 ok = sum(1 for d in ds if d < 180)
 snap = {'t': now.strftime('%H:%M'), 'n': n, 'ok': ok, 'd5': sum(1 for d in ds if d >= 300),
-        'avg': round(sum(ds) / n / 60, 2) if n else 0, 'cx': len(cancel)}
+        'avg': round(sum(ds) / n / 60, 2) if n else 0, 'cx': len(cancel), 'nd': nd}
 H['snaps'].append(snap)
 for (t, sid), d in zip(running, ds):
     m = FAM.search(t)
