@@ -6,6 +6,8 @@ on:
     paths:
       - 'rodalies-build/bundle.js'
       - 'rodalies-build/template.html'
+      - 'rodalies.html'
+      - '.github/workflows/rodalies.yml'
   workflow_dispatch:
 permissions:
   contents: write
