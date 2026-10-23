@@ -67,6 +67,10 @@ ds = [max(0, delay[t]) for t, _ in running]
 ok = sum(1 for d in ds if d < 180)
 snap = {'t': now.strftime('%H:%M'), 'n': n, 'ok': ok, 'd5': sum(1 for d in ds if d >= 300),
         'avg': round(sum(ds) / n / 60, 2) if n else 0, 'cx': len(cancel), 'nd': nd}
+# para el modo «repasar el día»: retraso de cada tren en esa foto (segundos) y cancelados
+snap['d'] = {t: delay[t] for t, _ in running if delay[t]}
+snap['x'] = sorted(cancel)
+snap['r'] = sorted(t for t, _ in running)   # trenes con posición: sirve para comprobar después si los «sin señal» pasaron
 H['snaps'].append(snap)
 for (t, sid), d in zip(running, ds):
     m = FAM.search(t)
