@@ -130,7 +130,7 @@ u{text-decoration:none;color:var(--acc);font-size:10px;font-weight:600;opacity:.
   #inf{max-width:min(520px,calc(100vw - 120px))}
   .hint br{display:none}
 }
-@media(min-width:641px) and (min-height:501px) and (max-width:900px){#rc{width:280px}#s,#sel{width:min(280px,calc(100vw - 316px))}#mcs{width:min(290px,calc(100vw - 316px))!important}}
+@media(min-width:641px) and (min-height:501px) and (max-width:900px){#rc{width:280px}#s,#sel{width:min(280px,calc(100vw - 316px))}#mcs{width:min(290px,calc(100vw - 316px))}}
 
 /* --- interfaz moderna --- */
 :root{--glass:rgba(255,255,255,.86)}
@@ -230,6 +230,17 @@ em.dl{font-style:normal;font-weight:800;font-size:11px;border-radius:6px;padding
 .tc ol.stops li span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:1}
 .tc h3.rt{display:flex;align-items:center;gap:4px 6px;min-width:0;flex-wrap:wrap;padding-right:34px}.tc h3.rt .o{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:0 1 auto;min-width:0}.tc h3.rt .ar{flex:none}.tc h3.rt .dst{flex:0 1 auto;min-width:0;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:.88em}
 #north{transition:opacity .2s}#north.flat{opacity:.45}
+#mbtn{position:fixed;top:16px;left:304px;z-index:3;display:none;align-items:center;gap:5px;border:1px solid rgba(255,255,255,.6);background:var(--glass);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border-radius:16px;padding:5px 11px;font:inherit;font-size:12px;font-weight:600;color:var(--ink);cursor:pointer;box-shadow:0 4px 14px rgba(20,30,50,.12)}#mbtn.show{display:flex}#mbtn.on{background:#1d2330;color:#fff}
+.mlab{position:fixed;left:0;top:0;z-index:1;pointer-events:none;font-size:10.5px;font-weight:600;color:#3b3f4a;white-space:nowrap;text-shadow:0 0 2px #fff,0 0 3px #fff,0 0 5px #fff;display:none;opacity:.9}.mlab.big{font-size:11.5px;font-weight:700;color:#1d2330}
+@media(max-width:640px){#mbtn{top:252px;left:auto;right:10px;width:44px;height:44px;border-radius:50%;justify-content:center;padding:0;font-size:18px}#mbtn span{display:none}}
+#sbtn{position:fixed;top:16px;left:430px;z-index:3;display:flex;align-items:center;gap:5px;border:1px solid rgba(255,255,255,.6);background:var(--glass);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border-radius:16px;padding:5px 11px;font:inherit;font-size:12px;font-weight:600;color:var(--ink);cursor:pointer;box-shadow:0 4px 14px rgba(20,30,50,.12)}
+#mbtn:not(.show)~#sbtn{left:304px}
+@media(max-width:640px){.sbar{grid-template-columns:minmax(0,84px) 1fr auto!important;font-size:11px}#sbtn{top:304px;left:auto!important;right:10px;width:44px;height:44px;border-radius:50%;justify-content:center;padding:0;font-size:18px}#sbtn span{display:none}#mbtn:not(.show)~#sbtn{top:252px}}
+.sts h4{margin:12px 0 4px;font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--mut)}
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:6px}.kpi{border-radius:10px;padding:7px 8px;color:#fff;display:flex;flex-direction:column}.kpi b{font-size:22px;line-height:1.05}.kpi span{font-size:10.5px;line-height:1.2;opacity:.95}.kpi small{font-size:9.5px;opacity:.85}.kpi.g{background:#0c8a3e}.kpi.w{background:#c2410c}.kpi.b{background:#b91c1c}
+.sbars{display:flex;flex-direction:column;gap:5px}.sbar{display:grid;grid-template-columns:minmax(0,120px) 1fr minmax(88px,auto);align-items:center;gap:6px;font-size:11.5px}.sbar .sl{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.sbar .st{height:10px;background:#eef1f6;border-radius:5px;overflow:hidden}.sbar .st i{display:block;height:100%;border-radius:5px}.sbar .sv{font-variant-numeric:tabular-nums;font-size:11.5px;white-space:nowrap}.sbar .sv small{display:inline;margin-left:4px;color:var(--mut);font-weight:500}
+.sn{cursor:pointer;text-decoration:underline dotted}.snote{display:block;color:var(--mut);font-size:10.5px;margin:2px 0 4px}
+.schart{width:100%;height:auto;display:block;margin:2px 0}.schart .gl{stroke:#e3e6ec;stroke-width:1}.schart .ax{font-size:8.5px;fill:#6b7385}.schart .ln{fill:none;stroke:#1d4ed8;stroke-width:2;stroke-linejoin:round}.schart .pt{fill:#1d4ed8;stroke:#fff;stroke-width:2;r:3}.schart .pt:hover{r:5}
 </style>
 </head>
 <body>
