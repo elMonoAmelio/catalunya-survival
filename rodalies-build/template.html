@@ -242,11 +242,12 @@ em.dl{font-style:normal;font-weight:800;font-size:11px;border-radius:6px;padding
 .sn{cursor:pointer;text-decoration:underline dotted}.snote{display:block;color:var(--mut);font-size:10.5px;margin:2px 0 4px}
 .schart{width:100%;height:auto;display:block;margin:2px 0}.schart .gl{stroke:#e3e6ec;stroke-width:1}.schart .ax{font-size:8.5px;fill:#6b7385}.schart .ln{fill:none;stroke:#1d4ed8;stroke-width:2;stroke-linejoin:round}.schart .pt{fill:#1d4ed8;stroke:#fff;stroke-width:2;r:3}.schart .pt:hover{r:5}
 .st.late.d-lo{color:#a16207!important}.st.late.d-md{color:#c2410c!important}.st.late.d-hi{color:#dc2626!important}
-#ccount{flex-basis:100%;font-size:12px;font-weight:600;color:var(--ink);margin-top:2px}#ccount small{color:var(--mut);font-weight:500}
+#ccount{flex:1 1 auto;font-size:12px;font-weight:600;color:var(--ink);margin-top:2px}#ccount small{color:var(--mut);font-weight:500}
 .hrd{display:block!important;min-width:0}.hrd .dst{display:inline-block;max-width:100%;vertical-align:middle}.hro{display:block}
 .hcol li.hr::before{opacity:.35}.hcol li.hr.on::before{opacity:1}
 .hmore{display:block;width:100%;margin-top:6px;border:0;border-radius:9px;background:#eef1f6;padding:7px;font:inherit;font-size:12px;font-weight:700;color:var(--ink);cursor:pointer}.hmore:hover{background:#e3e7ef}
 .lg7{background:#dc2626;position:relative;box-shadow:0 0 0 2px #fff}.lg7::after{content:"!";position:absolute;inset:0;color:#fff;font-size:8px;font-weight:900;line-height:10px;text-align:center}
+.cbrk{flex-basis:100%;height:0}#alrslot{display:flex;flex:none}#alrslot #alr{margin:0}
 </style>
 </head>
 <body>
@@ -256,7 +257,7 @@ em.dl{font-style:normal;font-weight:800;font-size:11px;border-radius:6px;padding
 <div class="box" id="chip"></div>
 <div id="tip" class="tip"></div>
 <div id="rc"><button class="box" id="rcgrab" type="button" aria-label="Ocultar o mostrar controles"><i></i><span>Ocultar controles</span></button><div class="box" id="p">
-  <div id="clock"><span id="mode" class="live">Horario</span><b id="ctime">--:--</b><span id="cdate"></span><span id="ccount"></span>
+  <div id="clock"><span id="mode" class="live">Horario</span><b id="ctime">--:--</b><span id="cdate"></span><span class="cbrk"></span><span id="ccount"></span><span id="alrslot"></span>
     <div class="seg sp"><button data-sp="0" class="on">Ahora</button><button data-sp="60">×60</button><button data-sp="300">×300</button></div></div>
   <label class="trow">Hora<input id="tsl" type="range" min="240" max="1560" step="1" value="720"></label>
   <div id="lines"></div>
