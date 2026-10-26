@@ -2,7 +2,7 @@ import csv,collections,datetime,json,math,sys
 G='gtfs/'
 def rd(f):
     for r in csv.DictReader(open(G+f,encoding='utf-8-sig')): yield {k.strip():(v or '').strip() for k,v in r.items()}
-R={r['route_id']:r for r in rd('routes.txt') if r['route_id'].startswith('51')}
+R={r['route_id']:r for r in rd('routes.txt') if r['route_id'].startswith('51') and (r.get('route_type') or '2').strip() == '2'}   # solo trenes: route_type 3 son autobuses que sustituyen tramos (obras)
 C={r['service_id']:r for r in rd('calendar.txt')}
 trips={t['trip_id']:t for t in rd('trips.txt') if t['route_id'] in R}
 d0=datetime.date.fromisoformat(sys.argv[1]); ND=int(sys.argv[2])
