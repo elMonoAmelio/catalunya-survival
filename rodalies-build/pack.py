@@ -38,6 +38,6 @@ trips=[[day,pat,rt,t0,re.sub(r'^\d+[A-Z]','',tid).rstrip('abcdefghijklmnopqrstuv
 trips=[[t[0],t[1],t[2],t[3],re.match(r'(\d+)',t[4]).group(1) if re.match(r'(\d+)',t[4]) else t[4]] for t in trips]
 out={'days':d['days'],'gen':d['gen'],'routes':d['routes'],
  'stops':[[s[0],*P(s[1],s[2]),s[3]] for s in d['stops']],'segs':SEG,'pats':pats,'trips':trips,
- 'tids':[t[4] for t in d['trips']]}
+ 'tids':[t[4] for t in d['trips']],'bus':d.get('bus',[])}
 js=json.dumps(out,ensure_ascii=False,separators=(',',':'));open('rod_pack.json','w').write(js);print('MB',round(len(js)/1e6,2),'segs',len(SEG),'pts',sum(len(s) for s in SEG)//2)
 print(out['trips'][:3],out['tids'][:3])

@@ -4,7 +4,10 @@ def rd(f):
     for r in csv.DictReader(open(G+f,encoding='utf-8-sig')): yield {k.strip():(v or '').strip() for k,v in r.items()}
 R={r['route_id']:r for r in rd('routes.txt') if r['route_id'].startswith('51') and (r.get('route_type') or '2').strip() == '2'}   # solo trenes: route_type 3 son autobuses que sustituyen tramos (obras)
 C={r['service_id']:r for r in rd('calendar.txt')}
-trips={t['trip_id']:t for t in rd('trips.txt') if t['route_id'] in R}
+RB={r['route_id']:r for r in rd('routes.txt') if r['route_id'].startswith('51') and (r.get('route_type') or '').strip() == '3'}   # autobuses de sustitución
+alltr=list(rd('trips.txt'))
+trips={t['trip_id']:t for t in alltr if t['route_id'] in R}
+btrips={t['trip_id']:t for t in alltr if t['route_id'] in RB}
 d0=datetime.date.fromisoformat(sys.argv[1]); ND=int(sys.argv[2])
 days=[];act={}
 WD=['monday','tuesday','wednesday','thursday','friday','saturday','sunday']
@@ -14,6 +17,7 @@ for k in range(ND):
     days.append(ds); 
     for sid in s: act.setdefault(sid,[]).append(k)
 keep={tid:t for tid,t in trips.items() if t['service_id'] in act}
+keepB={tid:t for tid,t in btrips.items() if t['service_id'] in act}
 print('trips en ventana',len(keep))
 ST=collections.defaultdict(list); sec_nonzero=0
 def ts(x):
@@ -22,13 +26,13 @@ with open(G+'stop_times.txt',encoding='utf-8-sig') as f:
     rr=csv.reader(f); hdr=[h.strip() for h in next(rr)]; I={h:i for i,h in enumerate(hdr)}
     for row in rr:
         tid=row[I['trip_id']].strip()
-        if tid in keep:
+        if tid in keep or tid in keepB:
             a,dp=ts(row[I['arrival_time']].strip()),ts(row[I['departure_time']].strip())
             if a%60 or dp%60: sec_nonzero+=1
             ST[tid].append((int(row[I['stop_sequence']]),row[I['stop_id']].strip(),a,dp))
 print('stop_times',sum(len(v) for v in ST.values()),'con segundos',sec_nonzero)
 stops={s['stop_id']:s for s in rd('stops.txt')}
-used=sorted({s for v in ST.values() for _,s,_,_ in v})
+used=sorted({s for v in ST.values() for _,s,_,_ in v})   # incluye paradas de autobús (no se dibujan: no tienen trenes)
 SI={s:i for i,s in enumerate(used)}
 # shapes
 shp=collections.defaultdict(list)
@@ -57,6 +61,11 @@ def proj(k,p,start):
 pat={};P=[];TR=[];off=0;bad=0
 routes=sorted(R); RI={r:i for i,r in enumerate(routes)}
 shk=sorted(shp); SHI={k:i for i,k in enumerate(shk)}
+BUS=[]
+for tid,t in keepB.items():
+    v=sorted(ST[tid])
+    if len(v)>=2: BUS.append([act[t['service_id']],RB[t['route_id']]['route_short_name'],[SI[s] for _,s,_,_ in v],[d//60 for _,_,_,d in v]])
+print('autobuses de sustitución',len(BUS))
 for tid,t in keep.items():
     v=sorted(ST[tid])
     if len(v)<2: continue
@@ -90,6 +99,6 @@ for k in shk:
 out={'days':days,'gen':datetime.datetime.now().isoformat(timespec='minutes'),
  'routes':[[R[r]['route_short_name'],R[r]['route_long_name'].replace('  ',' ').strip(),'#'+(R[r]['route_color'] or '888888')] for r in routes],
  'stops':[[stops[s]['stop_name'],round(float(stops[s]['stop_lon']),5),round(float(stops[s]['stop_lat']),5),s] for s in used],
- 'shapes':SH,'pats':P,'trips':TR}
+ 'shapes':SH,'pats':P,'trips':TR,'bus':BUS}
 js=json.dumps(out,ensure_ascii=False,separators=(',',':'))
 open('rod_data.json','w').write(js); print('MB',round(len(js)/1e6,2))
