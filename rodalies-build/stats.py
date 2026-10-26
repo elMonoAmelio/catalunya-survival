@@ -56,6 +56,18 @@ if not H or H.get('day') != day:
     if H and H.get('snaps'):
         with open(os.path.join(OUT, 'ayer.json'), 'w') as f:
             json.dump(H, f, ensure_ascii=False, separators=(',', ':'))
+        # historial de 30 días: retraso máximo de cada tren (por número) cada día, para «¿suele ir tarde mi tren?»
+        HI = load('hist.json') or {'days': []}
+        obs = {}
+        for sn in H['snaps']:
+            for t in sn.get('r', []):
+                m = re.match(r'^\d+[A-Z](\d+)', t)
+                if m: obs.setdefault(m.group(1), []).append(max(0, sn.get('d', {}).get(t, 0)) / 60)
+        tr = {k: round(sorted(v)[len(v) // 2]) for k, v in obs.items()}   # retraso típico del tren ese día (mediana de las fotos)
+        if tr: HI['days'] = [x for x in HI['days'] if x['day'] != H['day']] + [{'day': H['day'], 'tr': tr}]
+        HI['days'] = HI['days'][-30:]
+        with open(os.path.join(OUT, 'hist.json'), 'w') as f:
+            json.dump(HI, f, ensure_ascii=False, separators=(',', ':'))
     H = {'day': day, 'snaps': [], 'lines': {}, 'st': {}, 'note': 'Foto cada 15 min del tiempo real de Renfe. Solo cuentan los trenes con dato de retraso.'}
 
 H['note'] = 'Foto cada 15 min del tiempo real de Renfe. Solo cuentan los trenes con dato de retraso.'
@@ -72,6 +84,7 @@ snap['d'] = {t: delay[t] for t, _ in running if delay[t]}
 snap['x'] = sorted(cancel)
 snap['r'] = sorted(t for t, _ in running)   # trenes con posición: sirve para comprobar después si los «sin señal» pasaron
 H['snaps'].append(snap)
+
 for (t, sid), d in zip(running, ds):
     m = FAM.search(t)
     f = m.group(1) if m else '?'
