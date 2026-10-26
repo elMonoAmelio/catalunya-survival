@@ -1,5 +1,5 @@
 // Catalunya Survival · MonkiSoft · service worker
-const VERSION = 'cs-1.87';
+const VERSION = 'cs-1.89';
 const APP = 'app-' + VERSION, TILES = 'tiles-v1', DATA = 'data-v1';
 const CORE = ['./', './index.html', './rodalies.html', './manifest.webmanifest', './rodalies.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/maskable-512.png', './icons/apple-touch-icon.png'];
 const MAX_TILES = 25000;
@@ -44,6 +44,7 @@ self.addEventListener('fetch', e => {
       const nav = req.mode === 'navigate', key = nav ? (/rodalies\.html$/.test(url.pathname) ? './rodalies.html' : './index.html') : url.origin + url.pathname;   // sin ?parámetros: una sola copia por archivo
       const hit = await c.match(key, { ignoreSearch: true });
       const net = fetch(req, { cache: 'no-cache' }).then(res => { if (res.ok) c.put(key, res.clone()); return res; }).catch(() => null);
+      e.waitUntil(net);   // que el teléfono no corte la descarga de la versión nueva
       // páginas: primero la versión nueva (si la red responde en 3 s); si no, la guardada. Así al abrir se ve siempre lo último.
       if (nav) { const quick = await Promise.race([net, new Promise(r => setTimeout(() => r(null), 3000))]); return quick || hit || (await net) || new Response('Sin conexión', { status: 503 }); }
       return hit || (await net) || new Response('Sin conexión', { status: 503 });
