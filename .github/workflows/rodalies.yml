@@ -6,6 +6,7 @@ on:
     paths:
       - 'rodalies-build/bundle.js'
       - 'rodalies-build/template.html'
+      - 'rodalies-build/build.py'
       - 'rodalies.html'
       - '.github/workflows/rodalies.yml'
   workflow_dispatch:
