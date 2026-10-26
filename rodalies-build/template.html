@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <link rel="manifest" href="rodalies.webmanifest"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Rodalies"><link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="theme-color" content="#eef1f5">
 <title>Rodalies en vivo</title>
 <meta name="author" content="MonkiSoft">
 <meta name="creator" content="MonkiSoft">
@@ -285,9 +286,47 @@ em.dl{font-style:normal;font-weight:800;font-size:11px;border-radius:6px;padding
 #onb{position:fixed;left:50%;top:70px;transform:translate(-50%,-20px);z-index:15;background:#1d2330;color:#fff;border-radius:14px;padding:9px 12px;font-size:13px;box-shadow:0 8px 28px rgba(0,0,0,.25);opacity:0;pointer-events:none;transition:.25s;max-width:calc(100vw - 24px);display:flex;align-items:center;gap:8px;flex-wrap:wrap}#onb.on{opacity:1;pointer-events:auto;transform:translate(-50%,0)}#onb button{border:0;border-radius:8px;background:rgba(255,255,255,.18);color:#fff;font:inherit;font-size:12px;font-weight:700;padding:4px 8px;cursor:pointer}
 .tc ol.stops li .abtn{border:0;background:transparent;cursor:pointer;font-size:13px;opacity:.35;padding:0 2px;margin-left:2px}.tc ol.stops li:hover .abtn,.tc ol.stops li.alm .abtn{opacity:1}.tc ol.stops li.alm{background:rgba(29,78,216,.1)}
 .hfav{font-size:12px;background:#fffbea;border-radius:9px;padding:6px 8px;margin-bottom:6px;line-height:1.6}.okc{color:#0c8a3e}.hcol li.hr.fav .hrt b::after{content:" ⭐";font-size:10px}
+
+/* ---------- modo noche ---------- */
+#tbtn{position:fixed;z-index:3;width:44px;height:44px;border-radius:50%;border:1px solid rgba(255,255,255,.6);background:var(--glass);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);box-shadow:0 4px 14px rgba(20,30,50,.12);font-size:18px;cursor:pointer;top:16px;left:556px;width:auto;height:auto;border-radius:16px;padding:5px 10px;font-size:14px}
+#mbtn:not(.show)~#sbtn~#tbtn,#mbtn:not(.show)~#tbtn{left:430px}
+@media(max-width:640px){#tbtn{top:356px;left:auto!important;right:10px;width:44px;height:44px;border-radius:50%;padding:0;font-size:18px}#mbtn:not(.show)~#sbtn~#tbtn{top:304px}}
+html.dark{--ink:#e7ebf3;--mut:#9aa3b5;--card:rgba(22,27,38,.95);--line:#2c3444;--glass:rgba(20,25,35,.88);color-scheme:dark}
+html.dark body{background:#0d1119}
+html.dark .box,html.dark .tc,html.dark #mbtn,html.dark #sbtn,html.dark #tbtn,html.dark #s{background:var(--glass);border-color:rgba(255,255,255,.08);color:var(--ink)}
+html.dark .tc{background:var(--card)}
+html.dark #q{color:var(--ink)}html.dark #q::placeholder{color:var(--mut)}
+html.dark #list li:hover,html.dark #list li.on{background:#232b3a}
+html.dark .hst button,html.dark .hpick.alt,html.dark .ckb button,html.dark .crowd p button,html.dark .hwalk button,html.dark .hmore,html.dark .hpush,html.dark #bell,html.dark .hhide,html.dark .sfc button:not(.ln),html.dark .tc .mn,html.dark .seg button,html.dark #z button{background:#232b3a;color:var(--ink);border-color:#2c3444}
+html.dark .hst button.on,html.dark #mbtn.on,html.dark .sfc button.on{background:#e7ebf3;color:#0d1119}
+html.dark .hhead{background:linear-gradient(135deg,#1a2130,#252e40);box-shadow:inset 0 0 0 1px rgba(255,255,255,.06)}
+html.dark .hhead.hnew{background:#161c27;border-color:#39425a}
+html.dark #inf .hhead.hnew b{color:var(--ink)}
+html.dark .hal{background:#3a2a12;color:#f8d9a8}html.dark .hal.bad{background:#3d1717;color:#fecaca}
+html.dark .hcr,html.dark .hfav{background:#1c2536;color:var(--ink)}
+html.dark .al{background:#2e2414;color:#f8d9a8}
+html.dark .why{background:#3a2a12;color:#f8d9a8}
+html.dark .via,html.dark .hrm .via{background:#232b3a;color:#c3cad8}
+html.dark .sbar .st{background:#232b3a}
+html.dark .schart .gl{stroke:#2c3444}
+html.dark .tc li.go:hover,html.dark .hcol li.go:hover{background:rgba(255,255,255,.05)}
+html.dark .hcol li.hr.sel,html.dark .tc li.go.sel{background:rgba(255,214,26,.14)}
+html.dark .tc ol.stops li.mine{background:rgba(255,214,26,.1)}
+html.dark .slab{color:#e7ebf3;text-shadow:0 0 3px #0d1119,0 0 3px #0d1119,0 0 6px #0d1119}
+html.dark .mlab{color:#c3cad8;text-shadow:0 0 2px rgba(13,17,25,.95),0 0 4px rgba(13,17,25,.9),0 0 7px rgba(13,17,25,.7)}html.dark .mlab.t1{color:#f1f4f9}html.dark .mlab.t4{color:#8a93a6}
+html.dark .plab{color:#c3cad8;text-shadow:0 0 4px #0d1119}
+html.dark #toast{background:#e7ebf3;color:#0d1119}
+html.dark #north{background:var(--glass)}
+html.dark .lg3{background:#0d1119;border-color:#e7ebf3}
+html.dark input[type=range]{accent-color:#e7ebf3}
+html.dark .hcol li.u-info .hrt b{color:var(--ink)}
+html.dark .okc{color:#4ade80}html.dark .hok{color:#4ade80}
+html.dark #rcgrab{color:var(--mut)}
+.hwalk .hgo{width:auto!important;height:auto!important;border-radius:9px!important;background:#1d4ed8!important;color:#fff!important;font-size:11.5px}
 </style>
 <script>if(innerWidth<=640)document.documentElement.classList.add("boot")</script>
 <style>@media(max-width:640px){html.boot #inf .more,html.boot #inf .l1,html.boot #rc>*:not(#rcgrab){display:none!important}html.boot #rcgrab span{visibility:hidden}}</style>
+<script>try{var m=localStorage.getItem("rod_theme")||"auto";if(m==="dark"||(m==="auto"&&matchMedia("(prefers-color-scheme: dark)").matches))document.documentElement.classList.add("dark")}catch(e){}</script>
 </head>
 <body>
 <canvas id="c"></canvas>
