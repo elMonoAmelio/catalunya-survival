@@ -112,4 +112,5 @@ T = {
 "Toca aquí para recogerlo": ("Toca aquí per recollir-lo", "Tap here to collapse"),
 "actualizado ": ("actualitzat ", "updated "),
 "Líneas de las que quieres avisos:": ("Línies de les quals vols avisos:", "Lines you want alerts for:"),
+"Elige tu estación de Casa o Trabajo (pestaña Ahora) para recibir avisos de sus líneas.": ("Tria la teva estació de Casa o Feina (pestanya Ara) per rebre avisos de les seves línies.", "Choose your Home or Work station (Now tab) to get alerts for its lines."),
 }

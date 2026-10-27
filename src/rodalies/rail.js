@@ -372,7 +372,7 @@ export function initRail(A) {
   let selNews = false, selStats = false, selLine = '';
   let act = [], lastT = 0, follow = null, selTrip = null, selStation = -1, selAlerts = false, lastCard = 0, lastClock = '';
   function tick(now) {
-    const fast = speed > 0 || (live() && simMin == null) || !!selTrip, gap = fast ? 50 : 250;
+    const fast = speed > 0 || (live() && simMin == null) || !!selTrip, gap = window.__mapHidden ? 1000 : fast ? 50 : 250;   // sin mapa a la vista basta con recalcular una vez por segundo (batería)
     if (now - lastT < gap) return false;
     lastT = now;
     { const k = [...focusF()].join(); if (k !== lastFocus) { buildLines(); styleStations(); } }
@@ -1344,7 +1344,7 @@ export function initRail(A) {
     tabA.innerHTML = `<h3>${'Ajustes'}</h3>
       <h4>🌐 ${'Idioma'}</h4><div class="seg2">${[['ca', 'Català'], ['es', 'Español'], ['en', 'English']].map(([k, n]) => `<button type="button" data-lang="${k}" class="${L === k ? 'on' : ''}">${n}</button>`).join('')}</div>
       <h4>🌙 ${'Modo noche'}</h4><div class="seg2">${[['auto', 'Automático'], ['light', 'Claro'], ['dark', 'Oscuro']].map(([k, n]) => `<button type="button" data-th="${k}" class="${th === k ? 'on' : ''}">${n}</button>`).join('')}</div>
-      <h4>🔔 ${'Avisos'}</h4><div id="tabAbell"></div>${(() => { const ls = allLines(); return ls.length > 1 ? `<small class="tabAhint">${'Líneas de las que quieres avisos:'}</small><div class="alch">${ls.map(f => `<button type="button" data-al="${esc(f)}" class="ln${ALOFF.has(f) ? ' off' : ''}" style="--c:${FC[f]}">${esc(f)}</button>`).join('')}</div>` : ''; })()}
+      <h4>🔔 ${'Avisos'}</h4><div id="tabAbell"></div>${allLines().length ? '' : `<small class="tabAhint">${'Elige tu estación de Casa o Trabajo (pestaña Ahora) para recibir avisos de sus líneas.'}</small>`}${(() => { const ls = allLines(); return ls.length > 1 ? `<small class="tabAhint">${'Líneas de las que quieres avisos:'}</small><div class="alch">${ls.map(f => `<button type="button" data-al="${esc(f)}" class="ln${ALOFF.has(f) ? ' off' : ''}" style="--c:${FC[f]}">${esc(f)}</button>`).join('')}</div>` : ''; })()}
       <h4>📡 ${'Datos en directo'}</h4><div id="tabArt"></div>
       <h4>ℹ️ ${'Información'}</h4><div id="tabAinf"></div>
       <p class="tabAfoot">MonkiSoft</p>`;
