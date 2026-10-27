@@ -822,7 +822,7 @@ export function initRail(A) {
     const keep = mcs.scrollTop; if (mcs._h !== h) { mcs.innerHTML = h; mcs._h = h; mcs.scrollTop = keep; } mcs.style.display = 'flex'; mcs.classList.toggle('min', CARDHID);
     syncCompact();
     // en el móvil la ficha se puede encoger para ver el mapa (se encoge sola al seguir un tren)
-    if (innerWidth <= 640) { const tc = mcs.querySelector('.tc'); if (tc && !tc.querySelector('.mn')) { const b = document.createElement('button'); b.type = 'button'; b.className = 'mn'; b.setAttribute('aria-label', 'Encoger o ampliar la ficha'); b.textContent = mcs.classList.contains('peek') ? '▴' : '▾'; b.onclick = e => { e.stopPropagation(); mcs.classList.toggle('peek'); b.textContent = mcs.classList.contains('peek') ? '▴' : '▾'; mcs.scrollTop = 0; }; tc.appendChild(b); } } else mcs.classList.remove('peek');
+    if (innerWidth <= 640) { const tc = mcs.querySelector('.tc'); if (tc && !tc.querySelector('.mn')) { const b = document.createElement('button'); b.type = 'button'; b.className = 'mn'; b.setAttribute('aria-label', 'Encoger o ampliar la ficha'); b.textContent = mcs.classList.contains('peek') ? '▴' : '▾'; b.onclick = e => { e.stopPropagation(); mcs.classList.toggle('peek'); b.textContent = mcs.classList.contains('peek') ? '▴' : '▾'; mcs.scrollTop = 0; }; const x = tc.querySelector('.x'); tc.insertBefore(b, x ? x.nextSibling : tc.firstChild); } } else mcs.classList.remove('peek');
     const rc = $('#rc'); if (innerWidth <= 640 && !rc.classList.contains('min') && !renderCard.done) { renderCard.done = 1; $('#rcgrab').click(); }
     const sm = innerWidth <= 640;
     if (sm) { const ib = $('#inf').getBoundingClientRect().bottom; mcs.style.top = Math.round(ib + 8) + 'px'; mcs.style.width = 'calc(100vw - 76px)'; mcs.style.maxHeight = Math.max(140, $('#rc').getBoundingClientRect().top - ib - 16) + 'px'; }
@@ -1315,6 +1315,8 @@ export function initRail(A) {
   // avisos del panel: recortados a 3 líneas; al tocarlos se ven enteros (y al volver a tocar, se recortan)
   const HALOPEN = { v: false };
   document.addEventListener('click', e => { const h = e.target.closest && e.target.closest('[data-halx]'); if (!h || e.target.closest('a')) return; HALOPEN.v = !HALOPEN.v; renderHome(true); });
+  // ficha minimizada: tocarla en cualquier sitio la vuelve a abrir
+  mcs.addEventListener('click', e => { if (!mcs.classList.contains('peek') || e.target.closest('button,a,input')) return; e.stopPropagation(); e.preventDefault(); mcs.classList.remove('peek'); const b = mcs.querySelector('.mn'); if (b) b.textContent = '▾'; mcs.scrollTop = 0; }, true);
   // ---------- PESTAÑAS (móvil y app): Ahora · Mapa · Línea · Ajustes ----------
   // En el ordenador se mantiene el diseño con paneles flotantes; en el móvil y en la app, cuatro pestañas abajo.
   const TAB = { on: false, cur: 'now', home: new Map() };
