@@ -925,7 +925,15 @@ export function initRail(A) {
         const t = (x.departureDateHourSelectedStation || '').slice(11, 16); if (!t) continue;
         const num = String(x.commercialNumber || x.technicalNumber || ''), v = byNum.get(num), d = v ? RT.delays.get(v.tid) : null, dl = Math.max(typeof d === 'number' ? Math.max(0, d / 60) : 0, v && v.pre ? v.preDl || 0 : 0);
         let sm = hm2min(t); if (sm < S.min - 720) sm += 1440;
-        out.push({ sm, est: sm + dl, dl, fam: (x.line || {}).id || '', dest: (x.destinationStation || {}).name || '', destId: (x.destinationStation || {}).id || '', plat: x.platformSelectedStation || '', cancel: !!x.trainCancelled, obs: x.trainObservations || '', live: !!v, num, tid: v ? v.tid : '', tr: (v && TID.get(v.tid)) || tripByNum(num), src: 'oficial' });
+        // la hora oficial de Rodalies YA es la prevista (lleva segundos y el retraso dentro): no se le vuelve a sumar el retraso de Renfe
+        const ss = +(x.departureDateHourSelectedStation || '').slice(17, 19) || 0, ofi = sm + ss / 60, trS = (v && TID.get(v.tid)) || tripByNum(num), iS = trS ? trS.pat.stops.indexOf(s) : -1;
+        let sch = iS >= 0 ? (trS.t0 + trS.pat.t[2 * iS + 1]) % 1440 : null; if (sch != null) { while (sch < ofi - 720) sch += 1440; while (sch > ofi + 720) sch -= 1440; if (Math.abs(ofi - sch) > 120) sch = null; }
+        let est, dl2;
+        if (sch == null) { est = ss || !dl ? ofi : ofi + dl; dl2 = ss ? 0 : dl; }   // sin horario con qué comparar
+        else if (ss || Math.abs(ofi - sch) >= 1) { est = ofi; dl2 = Math.max(0, ofi - sch); }   // Rodalies ya da la hora estimada
+        else { est = sch + dl; dl2 = dl; }   // Rodalies aún da la hora del horario: se usa el retraso de Renfe
+        if (sch != null) sm = Math.round(sch);
+        out.push({ sm, est, dl: dl2, fam: (x.line || {}).id || '', dest: (x.destinationStation || {}).name || '', destId: (x.destinationStation || {}).id || '', plat: x.platformSelectedStation || '', cancel: !!x.trainCancelled, obs: x.trainObservations || '', live: !!v, num, tid: v ? v.tid : '', tr: (v && TID.get(v.tid)) || tripByNum(num), src: 'oficial' });
       }
     } else {
       const k = R.days.indexOf(S.ymd); if (k < 0) return out;
@@ -1399,5 +1407,5 @@ export function initRail(A) {
   tabMode();
   // en Ahora, tus paneles se colocan siempre por encima de los controles (abiertos o cerrados): nada queda tapado
   { const rc = $('#rc'), upd = () => document.documentElement.style.setProperty('--rch', Math.round(rc.getBoundingClientRect().height) + 'px'); if (window.ResizeObserver) new ResizeObserver(upd).observe(rc); upd(); }
-  window.__rod = { TID, SID, byDay, get days() { return R.days; }, get hist() { return HIST; }, get past() { return PAST.cur; }, get cols() { return COLS.mesh ? COLS.mesh.count : -1; }, get dist() { return cur.dist; }, get follow() { return follow; }, get selTrip() { return selTrip; }, ST, TR, FAM, act: () => act, setSpeed, RT, pollRT, nowState, posAt, activeTrips, LL, select: tr => { selTrip = tr; renderCard(); } };
+  window.__rod = { departuresFor, DEPS, tripByNum, delayOf, TID, SID, byDay, get days() { return R.days; }, get hist() { return HIST; }, get past() { return PAST.cur; }, get cols() { return COLS.mesh ? COLS.mesh.count : -1; }, get dist() { return cur.dist; }, get follow() { return follow; }, get selTrip() { return selTrip; }, ST, TR, FAM, act: () => act, setSpeed, RT, pollRT, nowState, posAt, activeTrips, LL, select: tr => { selTrip = tr; renderCard(); } };
 }
