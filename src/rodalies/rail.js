@@ -118,7 +118,7 @@ export function initRail(A) {
     if (nt.status === 'fulfilled' && Array.isArray(nt.value.included)) {
       RT.okNotices = Date.now();
       for (const n of nt.value.included) {
-        const fams = new Set((n.lines || []).map(l => l.id).filter(f => FC[f])), tl = (x, l) => ((x || {})[l || window.__L] || (x || {}).es || (x || {}).ca || '').trim(), best = l => [tl(n.description, l), tl(n.title, l)].sort((a, b) => b.length - a.length)[0], tx = best(), txEs = best('es');   // el título viene recortado: se usa la descripción completa
+        const fams = new Set((n.lines || []).map(l => l.id).filter(f => FC[f])), tl = (x, l) => { x = x || {}; l = l || window.__L; let t = x[l]; if (l === 'en' && t && (t === x.ca || /\b(els|amb|dels|per una|circulen|serveis|entre .{2,40} i )\b|ç|l·l/i.test(t))) t = '';   /* Rodalies a veces copia el catalán en «en»: en inglés se usa el castellano */ return (t || x.es || x.ca || '').trim(); }, best = l => [tl(n.description, l), tl(n.title, l)].sort((a, b) => b.length - a.length)[0], tx = best(), txEs = best('es');   // el título viene recortado: se usa la descripción completa
         if (!tx) continue;
         out.push({ id: 'N' + n.externalId, fams, stops: new Set(), txt: tx, es: txEs, when: (n.date || '') + 'T' + (n.time || ''), src: 'Rodalies', core: n.core || '' });
       }
