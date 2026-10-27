@@ -290,6 +290,10 @@ em.dl{font-style:normal;font-weight:800;font-size:11px;border-radius:6px;padding
 /* ---------- modo noche ---------- */
 #tbtn{position:fixed;z-index:3;width:44px;height:44px;border-radius:50%;border:1px solid rgba(255,255,255,.6);background:var(--glass);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);box-shadow:0 4px 14px rgba(20,30,50,.12);font-size:18px;cursor:pointer;top:16px;left:556px;width:auto;height:auto;border-radius:16px;padding:5px 10px;font-size:14px}
 #mbtn:not(.show)~#sbtn~#tbtn,#mbtn:not(.show)~#tbtn{left:430px}
+#wabtn{position:fixed;z-index:3;top:16px;left:604px;display:flex;align-items:center;gap:5px;border:1px solid rgba(255,255,255,.6);background:var(--glass);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border-radius:16px;padding:5px 11px;font-size:12px;font-weight:600;color:var(--ink);text-decoration:none;box-shadow:0 4px 14px rgba(20,30,50,.12)}
+#mbtn:not(.show)~#wabtn{left:478px}
+html.dark #wabtn{border-color:rgba(255,255,255,.08)}
+@media(max-width:640px){#wabtn{top:408px;left:auto!important;right:10px;width:44px;height:44px;border-radius:50%;justify-content:center;padding:0}#wabtn svg{width:22px;height:22px}#wabtn span{display:none}#mbtn:not(.show)~#wabtn{top:356px}}
 @media(max-width:640px){#tbtn{top:356px;left:auto!important;right:10px;width:44px;height:44px;border-radius:50%;padding:0;font-size:18px}#mbtn:not(.show)~#sbtn~#tbtn{top:304px}}
 html.dark{--ink:#e7ebf3;--mut:#9aa3b5;--card:rgba(22,27,38,.95);--line:#2c3444;--glass:rgba(20,25,35,.88);color-scheme:dark}
 html.dark body{background:#0d1119}
