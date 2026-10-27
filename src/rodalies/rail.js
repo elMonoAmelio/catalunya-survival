@@ -740,7 +740,7 @@ export function initRail(A) {
     const css = [...new Set(Object.values(FC))].filter(c => lum(c) > 0.3).map(c => `.ln[style*="--c:${c}"],[data-f][style*="--c:${c}"].on,[data-f][style*="--c:${c}"]:not(.off){color:#14203a!important}`).join('');
     if (css) { const st = document.createElement('style'); st.textContent = css; document.head.appendChild(st); } }
   function lateTxt(d, live_) { if (!live_) return '<span class="st sch">Según horario · sin dato en directo</span>'; if (d === 'X') return '<span class="st late">Cancelado</span>'; return d >= 60 ? `<span class="st late ${dlCls(d / 60)}">Retraso de ${Math.round(d / 60)} min</span>` : '<span class="st ok">Puntual</span>'; }
-  function peekH() { if (!mcs.classList.contains('peek') || window.__mapHidden || !mcs.getClientRects().length) return; /* oculta (otra pestaña) mide 0: no se toca */ const tc = mcs.querySelector('.tc'); if (!tc) return; const st = tc.querySelector('.st') || tc.querySelector('p'); const top = mcs.getBoundingClientRect().top - mcs.scrollTop; const h = st ? st.getBoundingClientRect().bottom - top + 6 : 150; mcs.style.setProperty('--peekh', Math.round(Math.min(280, Math.max(110, h))) + 'px'); }
+  function peekH() { if (!mcs.classList.contains('peek') || window.__mapHidden || !mcs.getClientRects().length) return; /* oculta (otra pestaña) mide 0: no se toca */ const tc = mcs.querySelector('.tc'); if (!tc) return; const st = tc.querySelector('.st') || tc.querySelector('p'); const top = mcs.getBoundingClientRect().top - mcs.scrollTop; let h = st ? st.getBoundingClientRect().bottom - top + 3 : 150; if (st) { let nx = st.nextElementSibling || (st.parentElement !== tc && st.parentElement.nextElementSibling); if (nx) h = Math.min(h, nx.getBoundingClientRect().top - top - 1); } mcs.style.setProperty('--peekh', Math.round(Math.min(280, Math.max(110, h))) + 'px'); }
   function renderCard() { try { renderCard0(); } finally { if (window.__rodTabSync) window.__rodTabSync(); try { peekH(); } catch (e) {} } }
   function renderCard0() {
     if (!selTrip && selStation < 0 && !selAlerts && !selNews && !selStats && !selLine) { CARDHID = false; mcs.innerHTML = ''; mcs._h = ''; mcs.style.display = 'none'; mcs.classList.remove('peek'); syncCompact(); return; }
@@ -1222,6 +1222,9 @@ export function initRail(A) {
     const sv = al.reduce((m, a) => Math.max(m, sevOf(a)), 0);
     return `<div class="hnow${sv === 3 ? ' bad' : sv === 2 ? ' warn' : sv === 1 ? ' info' : ''}${al.length && !exp ? ' col' : ''}" data-nowx="${esc(al.map(a => a.id).join('|'))}">${head}${exp ? al.slice().sort((a, b) => sevOf(b) - sevOf(a)).map(a => `<p class="sv${sevOf(a)}">${srcB(a)} ${esc(a.txt)} <small>${whenTxt(a)}</small></p>`).join('') + `<small class="hnowt">${'Toca aquí para recogerlo'}</small>` : ''}</div>`;
   }
+  // Ahora: la línea «Sal en… · vía · hora → hora» siempre en una sola línea; si no cabe, se reduce un poco la letra (mín. 86 %)
+  function fitHome() { if (!document.documentElement.classList.contains('tabmode')) return; const L = [...document.querySelectorAll('#home .hhead .htit small')]; const sz = (s, k) => { s.style.fontSize = k === 1 ? '' : (s._f0 * k).toFixed(1) + 'px'; s.querySelectorAll('b').forEach(b => b.style.fontSize = k === 1 ? '' : (s._b0 * k).toFixed(1) + 'px'); }; let k = 1; for (const s of L) { s.style.whiteSpace = ''; sz(s, 1); if (!s.clientWidth) continue; s._f0 = parseFloat(getComputedStyle(s).fontSize); const b = s.querySelector('b'); s._b0 = b ? parseFloat(getComputedStyle(b).fontSize) : 0; while (s.scrollWidth > s.clientWidth + 1 && k > 0.86) { k -= 0.02; sz(s, k); } } if (k < 1) for (const s of L) if (s._f0) sz(s, k); for (const s of L) if (s.scrollWidth > s.clientWidth + 1) s.style.whiteSpace = 'normal'; }   /* si ni así cabe, pasa a 2 líneas (la ficha mide lo mismo) */   /* mismo tamaño en todas las fichas */
+  addEventListener('resize', () => { try { fitHome(); } catch (e) {} });
   function renderHome(force) {
     const el = $('#home'); if (!el) return;
     const now = performance.now(); if (!force && now - homeT < 4000) return; homeT = now;
@@ -1229,7 +1232,7 @@ export function initRail(A) {
     el.className = PLACES.some(P => P.open) ? 'open' : '';
     let bell = $('#bell'); if (!bell) { bell = document.createElement('button'); bell.type = 'button'; bell.id = 'bell'; bell.onclick = pushToggle; $('#inf .more').prepend(bell); }   // dentro del desplegable ▾
     { const on = RT.repOk ? PUSH.on : LN.on; bell.hidden = !tg.lines.length; bell.className = on ? 'on' : ''; bell.textContent = (on ? '🔔 Avisos activados · ' : '🔕 Activar avisos de ') + tg.lines.join(', '); bell.title = (on ? 'Avisos activados' : 'Activar avisos') + ' de ' + tg.lines.join(', ') + (RT.repOk ? '' : ' (mientras la app esté abierta)'); }
-    if (el._h === html) return; el._h = html; el.innerHTML = html;
+    if (el._h === html) return; el._h = html; el.innerHTML = html; fitHome();
     { const lead = [...el.children].find(c => c.classList.contains('hplace') && !c.querySelector('.hnew')); if (lead) lead.classList.add('lead'); }
     const P_ = k => k === 'work' ? WORK : k === 'near' ? NEAR : HOME;
     el.querySelectorAll('[data-hloc]').forEach(b => b.onclick = () => { NEAR.err = ''; locate(true); });
@@ -1368,7 +1371,7 @@ export function initRail(A) {
     else if (was === 'line') { selStats = selAlerts = false; selLine = ''; const kp = TAB.keep; TAB.keep = null; if (kp && k === 'map' && !selTrip && selStation < 0) { selTrip = kp.t; selStation = kp.s; TAB.sk = kp.sk; } mcs._h = ''; renderCard(); }
     if (k === 'map') requestAnimationFrame(() => requestAnimationFrame(() => { try { peekH(); } catch (e) {} dispatchEvent(new Event('resize')); }));   // al volver a verse el mapa, se recalcula la altura de la ficha (oculta medía mal)
     if (k === 'set') renderAjustes();
-    if (k === 'now') renderHome(true);
+    if (k === 'now') { renderHome(true); requestAnimationFrame(fitHome); }
     lastT = 0; invalidate();
   }
   tabbar.onclick = e => { const b = e.target.closest('[data-tab]'); if (b) setTab(b.dataset.tab); };
