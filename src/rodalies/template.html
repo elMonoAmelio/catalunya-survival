@@ -187,7 +187,7 @@ u{text-decoration:none;color:var(--acc);font-size:10px;font-weight:600;opacity:.
 #inf.compact #home{margin:0}#inf.compact #home>.hplace:not(.lead){display:none}
 #inf.compact .hhead{padding:5px 9px;border-radius:9px}#inf.compact .hico{font-size:14px}#inf.compact .htit b{font-size:12.5px}#inf.compact .htit small{font-size:11px}#inf.compact .hchev{transform:none!important}
 .tc .mn{display:block;position:absolute;top:8px;right:40px;width:30px;height:30px;border:0;border-radius:50%;background:#eef1f6;font-size:13px;cursor:pointer;color:#1d2330}
-#mcs.peek{max-height:150px!important;overflow:hidden!important;-webkit-mask-image:linear-gradient(#000 78%,transparent);mask-image:linear-gradient(#000 78%,transparent)}
+#mcs.peek{max-height:var(--peekh,150px)!important;overflow:hidden!important;-webkit-mask-image:linear-gradient(#000 calc(100% - 8px),transparent);mask-image:linear-gradient(#000 calc(100% - 8px),transparent)}
 }
 
 /* lectura rápida por colores */
@@ -320,7 +320,7 @@ html.tabmode #mcs .tc .x,html.tabmode #mcs .tc .mn{position:sticky;top:4px;float
 html.tabmode[data-tab=now] #inf .l1,html.tabmode[data-tab=now] #inf .more{display:none!important}
 html.tabmode[data-tab=now] #s,html.tabmode[data-tab=now] #z,html.tabmode[data-tab=now] #north,html.tabmode[data-tab=now] #mbtn,html.tabmode[data-tab=now] #mcs,html.tabmode[data-tab=now] #chip{display:none!important}
 html.tabmode[data-tab=map] #inf{display:none!important}
-html.tabmode[data-tab=map] #mcs.peek{max-height:150px!important}
+html.tabmode[data-tab=map] #mcs.peek{max-height:var(--peekh,150px)!important}
 html.tabmode[data-tab=map] #mcs{top:calc(64px + var(--sat0))!important;translate:none;max-height:calc(100vh - 64px - var(--tbh) - 70px - var(--sat0) - var(--sab0))!important}
 html.tabmode[data-tab=line] #s,html.tabmode[data-tab=line] #z,html.tabmode[data-tab=line] #north,html.tabmode[data-tab=line] #mbtn,html.tabmode[data-tab=line] #rc,html.tabmode[data-tab=line] #inf,html.tabmode[data-tab=line] #chip{display:none!important}
 html.tabmode[data-tab=line] #tabL{display:flex;gap:6px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;position:fixed;left:10px;right:10px;top:calc(10px + var(--sat0));z-index:21}

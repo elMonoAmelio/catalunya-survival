@@ -740,7 +740,8 @@ export function initRail(A) {
     const css = [...new Set(Object.values(FC))].filter(c => lum(c) > 0.3).map(c => `.ln[style*="--c:${c}"],[data-f][style*="--c:${c}"].on,[data-f][style*="--c:${c}"]:not(.off){color:#14203a!important}`).join('');
     if (css) { const st = document.createElement('style'); st.textContent = css; document.head.appendChild(st); } }
   function lateTxt(d, live_) { if (!live_) return '<span class="st sch">Según horario · sin dato en directo</span>'; if (d === 'X') return '<span class="st late">Cancelado</span>'; return d >= 60 ? `<span class="st late ${dlCls(d / 60)}">Retraso de ${Math.round(d / 60)} min</span>` : '<span class="st ok">Puntual</span>'; }
-  function renderCard() { try { renderCard0(); } finally { if (window.__rodTabSync) window.__rodTabSync(); } }
+  function peekH() { if (!mcs.classList.contains('peek')) return; const tc = mcs.querySelector('.tc'); if (!tc) return; const st = tc.querySelector('.st') || tc.querySelector('p'); const top = mcs.getBoundingClientRect().top - mcs.scrollTop; const h = st ? st.getBoundingClientRect().bottom - top + 6 : 150; mcs.style.setProperty('--peekh', Math.round(Math.min(280, Math.max(110, h))) + 'px'); }
+  function renderCard() { try { renderCard0(); } finally { if (window.__rodTabSync) window.__rodTabSync(); try { peekH(); } catch (e) {} } }
   function renderCard0() {
     if (!selTrip && selStation < 0 && !selAlerts && !selNews && !selStats && !selLine) { CARDHID = false; mcs.innerHTML = ''; mcs._h = ''; mcs.style.display = 'none'; mcs.classList.remove('peek'); syncCompact(); return; }
     const S = nowState(); let h = ''; const useLive = live() && S.live;
@@ -822,7 +823,7 @@ export function initRail(A) {
     const keep = mcs.scrollTop; if (mcs._h !== h) { mcs.innerHTML = h; mcs._h = h; mcs.scrollTop = keep; } mcs.style.display = 'flex'; mcs.classList.toggle('min', CARDHID);
     syncCompact();
     // en el móvil la ficha se puede encoger para ver el mapa (se encoge sola al seguir un tren)
-    if (innerWidth <= 640) { const tc = mcs.querySelector('.tc'); if (tc && !tc.querySelector('.mn')) { const b = document.createElement('button'); b.type = 'button'; b.className = 'mn'; b.setAttribute('aria-label', 'Encoger o ampliar la ficha'); b.textContent = mcs.classList.contains('peek') ? '▴' : '▾'; b.onclick = e => { e.stopPropagation(); mcs.classList.toggle('peek'); b.textContent = mcs.classList.contains('peek') ? '▴' : '▾'; mcs.scrollTop = 0; }; const x = tc.querySelector('.x'); tc.insertBefore(b, x ? x.nextSibling : tc.firstChild); } } else mcs.classList.remove('peek');
+    if (innerWidth <= 640) { const tc = mcs.querySelector('.tc'); if (tc && !tc.querySelector('.mn')) { const b = document.createElement('button'); b.type = 'button'; b.className = 'mn'; b.setAttribute('aria-label', 'Encoger o ampliar la ficha'); b.textContent = mcs.classList.contains('peek') ? '▴' : '▾'; b.onclick = e => { e.stopPropagation(); mcs.classList.toggle('peek'); peekH(); b.textContent = mcs.classList.contains('peek') ? '▴' : '▾'; mcs.scrollTop = 0; }; const x = tc.querySelector('.x'); tc.insertBefore(b, x ? x.nextSibling : tc.firstChild); } } else mcs.classList.remove('peek');
     const rc = $('#rc'); if (innerWidth <= 640 && !rc.classList.contains('min') && !renderCard.done) { renderCard.done = 1; $('#rcgrab').click(); }
     const sm = innerWidth <= 640;
     if (sm) { const ib = $('#inf').getBoundingClientRect().bottom; mcs.style.top = Math.round(ib + 8) + 'px'; mcs.style.width = 'calc(100vw - 76px)'; mcs.style.maxHeight = Math.max(140, $('#rc').getBoundingClientRect().top - ib - 16) + 'px'; }
@@ -1363,7 +1364,7 @@ export function initRail(A) {
     if (k === 'line') { if (!selStats && !selAlerts && !selLine) { selStats = true; HIST.at = 0; } selTrip = null; selStation = -1; selNews = false; mcs._h = ''; renderCard(); renderLineaBar(); }
     else if (was === 'line') { selStats = selAlerts = false; selLine = ''; mcs._h = ''; renderCard(); }
     if (k === 'set') renderAjustes();
-    if (k === 'now') { renderHome(true); if (!$('#home .hbody')) { const h = $('#home .hhead[data-ht]'); if (h) h.click(); } }   // en Ahora, el panel principal ya abierto
+    if (k === 'now') renderHome(true);
     lastT = 0; invalidate();
   }
   tabbar.onclick = e => { const b = e.target.closest('[data-tab]'); if (b) setTab(b.dataset.tab); };
