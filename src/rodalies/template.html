@@ -307,30 +307,30 @@ html.tabmode #sbtn,html.tabmode #tbtn,html.tabmode #wabtn,html.tabmode #mcstab{d
 html.tabmode #rc{bottom:calc(var(--tbh) + 10px)}
 html.tabmode #rc{translate:0 calc(-1*var(--sab0))}
 /* hojas a pantalla completa (Ahora, Línea, Ajustes) */
-html.tabmode[data-tab=ahora] #inf,html.tabmode #tabA,html.tabmode[data-tab=linea] #mcs{position:fixed;left:10px;right:10px;top:calc(10px + var(--sat0));bottom:calc(var(--tbh) + 10px + var(--sab0));max-width:none;max-height:none;overflow:auto;-webkit-overflow-scrolling:touch;translate:none;z-index:20}
-html.tabmode[data-tab=ahora] #inf{display:flex;flex-direction:column;padding:8px;background:none;border:0;box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none}
-html.tabmode[data-tab=ahora] #home{margin:auto 0}
-html.tabmode[data-tab=ahora] #inf{bottom:calc(var(--tbh) + 66px + var(--sab0))}
+html.tabmode[data-tab=now] #inf,html.tabmode #tabA,html.tabmode[data-tab=line] #mcs{position:fixed;left:10px;right:10px;top:calc(10px + var(--sat0));bottom:calc(var(--tbh) + 10px + var(--sab0));max-width:none;max-height:none;overflow:auto;-webkit-overflow-scrolling:touch;translate:none;z-index:20}
+html.tabmode[data-tab=now] #inf{display:flex;flex-direction:column;padding:8px;background:none;border:0;box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none}
+html.tabmode[data-tab=now] #home{margin:auto 0}
+html.tabmode[data-tab=now] #inf{bottom:calc(var(--tbh) + 66px + var(--sab0))}
 html.tabmode #rc{z-index:25}
-html.tabmode:not([data-tab=mapa]) #c,html.tabmode:not([data-tab=mapa]) .plab,html.tabmode:not([data-tab=mapa]) .mlab,html.tabmode:not([data-tab=mapa]) .slab,html.tabmode:not([data-tab=mapa]) #tip{visibility:hidden}
-html.tabmode:not([data-tab=mapa]) body{background:#eef1f5}html.dark.tabmode:not([data-tab=mapa]) body{background:#0d1117}
+html.tabmode:not([data-tab=map]) #c,html.tabmode:not([data-tab=map]) .plab,html.tabmode:not([data-tab=map]) .mlab,html.tabmode:not([data-tab=map]) .slab,html.tabmode:not([data-tab=map]) #tip{visibility:hidden}
+html.tabmode:not([data-tab=map]) body{background:#eef1f5}html.dark.tabmode:not([data-tab=map]) body{background:#0d1117}
 html.tabmode #tabA{background:none;border:0;box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none}
 .hal{line-height:1.4;cursor:pointer}.hal .asrc{line-height:1;vertical-align:baseline}.hal.open{display:block;-webkit-line-clamp:unset;overflow:visible}
 html.tabmode #mcs .tc .x,html.tabmode #mcs .tc .mn{position:sticky;top:4px;float:right;z-index:3;margin-left:6px}html.tabmode #mcs .tc .x{background:var(--card);box-shadow:0 1px 4px rgba(0,0,0,.15)}
-html.tabmode[data-tab=ahora] #inf .l1,html.tabmode[data-tab=ahora] #inf .more{display:none!important}
-html.tabmode[data-tab=ahora] #s,html.tabmode[data-tab=ahora] #z,html.tabmode[data-tab=ahora] #north,html.tabmode[data-tab=ahora] #mbtn,html.tabmode[data-tab=ahora] #mcs,html.tabmode[data-tab=ahora] #chip{display:none!important}
-html.tabmode[data-tab=mapa] #inf{display:none!important}
-html.tabmode[data-tab=mapa] #mcs.peek{max-height:150px!important}
-html.tabmode[data-tab=mapa] #mcs{top:calc(64px + var(--sat0))!important;translate:none;max-height:calc(100vh - 64px - var(--tbh) - 70px - var(--sat0) - var(--sab0))!important}
-html.tabmode[data-tab=linea] #s,html.tabmode[data-tab=linea] #z,html.tabmode[data-tab=linea] #north,html.tabmode[data-tab=linea] #mbtn,html.tabmode[data-tab=linea] #rc,html.tabmode[data-tab=linea] #inf,html.tabmode[data-tab=linea] #chip{display:none!important}
-html.tabmode[data-tab=linea] #tabL{display:flex;gap:6px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;position:fixed;left:10px;right:10px;top:calc(10px + var(--sat0));z-index:21}
-html.tabmode[data-tab=linea] #mcs{top:calc(58px + var(--sat0))!important;bottom:calc(var(--tbh) + 10px + var(--sab0))!important;left:10px!important;right:10px!important;width:auto!important;max-height:none!important;height:auto!important;display:flex!important;flex-direction:column}
-html.tabmode[data-tab=linea] #mcs>.tc{flex:1 1 auto;max-height:none!important;overflow:auto}
-html.tabmode[data-tab=linea] #mcs .x,html.tabmode[data-tab=linea] #mcs .mn{display:none}
+html.tabmode[data-tab=now] #inf .l1,html.tabmode[data-tab=now] #inf .more{display:none!important}
+html.tabmode[data-tab=now] #s,html.tabmode[data-tab=now] #z,html.tabmode[data-tab=now] #north,html.tabmode[data-tab=now] #mbtn,html.tabmode[data-tab=now] #mcs,html.tabmode[data-tab=now] #chip{display:none!important}
+html.tabmode[data-tab=map] #inf{display:none!important}
+html.tabmode[data-tab=map] #mcs.peek{max-height:150px!important}
+html.tabmode[data-tab=map] #mcs{top:calc(64px + var(--sat0))!important;translate:none;max-height:calc(100vh - 64px - var(--tbh) - 70px - var(--sat0) - var(--sab0))!important}
+html.tabmode[data-tab=line] #s,html.tabmode[data-tab=line] #z,html.tabmode[data-tab=line] #north,html.tabmode[data-tab=line] #mbtn,html.tabmode[data-tab=line] #rc,html.tabmode[data-tab=line] #inf,html.tabmode[data-tab=line] #chip{display:none!important}
+html.tabmode[data-tab=line] #tabL{display:flex;gap:6px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;position:fixed;left:10px;right:10px;top:calc(10px + var(--sat0));z-index:21}
+html.tabmode[data-tab=line] #mcs{top:calc(58px + var(--sat0))!important;bottom:calc(var(--tbh) + 10px + var(--sab0))!important;left:10px!important;right:10px!important;width:auto!important;max-height:none!important;height:auto!important;display:flex!important;flex-direction:column}
+html.tabmode[data-tab=line] #mcs>.tc{flex:1 1 auto;max-height:none!important;overflow:auto}
+html.tabmode[data-tab=line] #mcs .x,html.tabmode[data-tab=line] #mcs .mn{display:none}
 #tabL button,#tabL a{white-space:nowrap;flex:none;border:1px solid rgba(29,35,48,.12);background:var(--glass);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border-radius:16px;padding:7px 12px;font:inherit;font-size:12.5px;font-weight:600;color:var(--ink);text-decoration:none;cursor:pointer}
 #tabL .on{background:var(--ink);color:var(--card)}
-html.tabmode[data-tab=ajustes] #s,html.tabmode[data-tab=ajustes] #z,html.tabmode[data-tab=ajustes] #north,html.tabmode[data-tab=ajustes] #mbtn,html.tabmode[data-tab=ajustes] #rc,html.tabmode[data-tab=ajustes] #inf,html.tabmode[data-tab=ajustes] #mcs,html.tabmode[data-tab=ajustes] #chip{display:none!important}
-html.tabmode[data-tab=ajustes] #tabA{display:block;padding:14px 16px}
+html.tabmode[data-tab=set] #s,html.tabmode[data-tab=set] #z,html.tabmode[data-tab=set] #north,html.tabmode[data-tab=set] #mbtn,html.tabmode[data-tab=set] #rc,html.tabmode[data-tab=set] #inf,html.tabmode[data-tab=set] #mcs,html.tabmode[data-tab=set] #chip{display:none!important}
+html.tabmode[data-tab=set] #tabA{display:block;padding:14px 16px}
 #tabA h3{margin:0 0 6px;font-size:18px}#tabA h4{margin:16px 0 6px;font-size:13px;color:var(--mut)}
 #tabA .seg2{display:flex;gap:6px;flex-wrap:wrap}#tabA .seg2 button{flex:1;min-width:80px;border:1px solid rgba(29,35,48,.15);background:none;border-radius:12px;padding:9px 6px;font:inherit;font-weight:600;color:var(--ink);cursor:pointer}
 #tabA .seg2 button.on{background:var(--ink);color:var(--card);border-color:var(--ink)}
@@ -338,15 +338,16 @@ html.tabmode[data-tab=ajustes] #tabA{display:block;padding:14px 16px}
 #tabA #dp{position:static;max-height:none;margin-top:6px;box-shadow:none}#tabA #src{display:block;color:var(--mut);margin:0 0 8px;white-space:normal}
 #tabA .tabAfoot{margin-top:22px;text-align:center;color:var(--mut);font-size:11px;letter-spacing:.08em}
 html.dark #tabs{border-top-color:rgba(255,255,255,.08)}html.dark #tabL button,html.dark #tabL a,html.dark #tabA .seg2 button,html.dark #tabA #bell,html.dark #tabA #dtoggle,html.dark #tabA #ver{border-color:rgba(255,255,255,.12)}
+#home .ln{display:inline-block;padding:1px 6px;border-radius:5px;color:#fff;font-weight:700;font-size:11px;background:var(--c);line-height:1.35}
 /* Ahora: bloque de avisos de tus líneas */
 .hnow{display:none}
 html.tabmode .hnow{display:block;background:#eef1f6;border-radius:12px;padding:8px 10px;margin:0 0 8px;font-size:12.5px;color:var(--ink)}
 html.tabmode .hnow.warn{background:#fff4e5;color:#7a3d00}html.tabmode .hnow.bad{background:#fde2e2;color:#991b1b}
 .hnowh{display:flex;align-items:center;gap:6px;flex-wrap:wrap}.hnowh .ln{margin:0;background:var(--c)!important;color:#fff;padding:1px 6px;border-radius:5px;font-weight:700;font-size:11px}
-.hnow p{margin:6px 0 0;line-height:1.4}.hnow small{opacity:.75}
+.hnow p{margin:6px 0 0;line-height:1.4}.hnow{cursor:pointer}.hnowt{display:block;margin-top:6px;opacity:.6;font-size:11px}.hnow.col .hnowh>b::after{content:' ▸';opacity:.6}.hnow small{opacity:.75}
 .hwa{margin-left:auto;text-decoration:none;font-weight:700;color:inherit;border:1px solid currentColor;border-radius:12px;padding:3px 9px;font-size:12px;opacity:.85}
 html.dark.tabmode .hnow{background:#161c27}html.dark.tabmode .hnow.warn{background:#3a2a12;color:#f8d9a8}html.dark.tabmode .hnow.bad{background:#3d1717;color:#fecaca}
-html.tabmode[data-tab=ahora] #home .hal,html.tabmode[data-tab=ahora] #home .hok{display:none}
+html.tabmode[data-tab=now] #home .hal,html.tabmode[data-tab=now] #home .hok{display:none}
 /* 2) con pestañas no se muestra la configuración del puente (la app ya conecta sola) */
 html.tabmode #dtoggle,html.tabmode #dp{display:none!important}
 /* ---------- modo noche ---------- */
@@ -602,7 +603,7 @@ export default {
 <button class="box" id="north" title="Norte · toca para orientar el mapa al norte" aria-label="Norte: orientar al norte"><span id="northr"><svg viewBox="0 0 40 40" width="100%" height="100%" aria-hidden="true"><path d="M20 4 27 21H13z" fill="#e0182d"/><path d="M20 36 13 21h14z" fill="#c9d0d9"/><circle cx="20" cy="21" r="2.2" fill="#14202b"/><text x="20" y="13.5" text-anchor="middle" font-size="7.5" font-weight="800" fill="#fff" font-family="system-ui,sans-serif">N</text></svg></span></button>
 <div class="box" id="z"><button id="zin" title="Acercar">+</button><button id="zout" title="Alejar">−</button><button id="rst" title="Ver toda Cataluña">⌂</button></div>
 <div class="box" id="leg"><div id="bar"></div><div id="tk"><span id="lmin">menos</span><span id="lname">habitantes</span><span id="lmax">más</span></div></div>
-<div class="box" id="inf"><div id="home"></div><div class="l1"><b hidden><span id="ntr">…</span> <span id="ntrl">trenes</span></b> <button type="button" id="alr" hidden></button><button type="button" id="inft" aria-label="Plegar o desplegar la información" title="Plegar / desplegar">▾</button></div><div class="more"><span class="lng">🌐 <a data-lang="ca">Català</a> · <a data-lang="es">Castellano</a> · <a data-lang="en">English</a></span><span class="lgd"><span class="lgi"><i class="lg1"></i> tren · flecha = sentido</span><span class="lgi"><i class="lg2"></i> retraso de 5 min o más</span><span class="lgi"><i class="lg3"></i> estación</span><span class="lgi"><i class="lg5"></i> parado</span><span class="lgi"><i class="lg6"></i> detenido en la vía</span><span class="lgi"><i class="lg4"></i> seleccionado (color de su retraso)</span><span class="lgi"><i class="lg7"></i> averiado o detenido mucho rato</span><span class="lgi">▍ barra intensa = tren circulando con posición · pálida = aún no ha salido · discontinua «sin señal» = debería circular y Renfe no da su posición</span><span class="lgi">Salidas: oficiales de Rodalies en directo; más allá de unas 2 h, horario oficial</span></span><br><span id="src">Conectando…</span><button type="button" id="ver">@@VER@@<span> · novedades y fuentes</span></button><span class="hint"><br>Rueda: inclinar · Option+rueda o Option+arrastrar: girar · Ctrl+rueda/pellizco: zoom · Arrastrar: mover · Doble clic: restablecer</span><span class="thint"><br>Arrastra: mover · Pellizca: zoom · 2 dedos: inclinar y girar · Toca: datos</span></div></div><template id="chg">@@CHANGES@@</template>
+<div class="box" id="inf"><div id="home"></div><div class="l1"><b hidden><span id="ntr">…</span> <span id="ntrl">trenes</span></b> <button type="button" id="alr" hidden></button><button type="button" id="inft" aria-label="Plegar o desplegar la información" title="Plegar / desplegar">▾</button></div><div class="more"><span class="lng">🌐 <a data-lang="ca">Català</a> · <a data-lang="es">Español</a> · <a data-lang="en">English</a></span><span class="lgd"><span class="lgi"><i class="lg1"></i> tren · flecha = sentido</span><span class="lgi"><i class="lg2"></i> retraso de 5 min o más</span><span class="lgi"><i class="lg3"></i> estación</span><span class="lgi"><i class="lg5"></i> parado</span><span class="lgi"><i class="lg6"></i> detenido en la vía</span><span class="lgi"><i class="lg4"></i> seleccionado (color de su retraso)</span><span class="lgi"><i class="lg7"></i> averiado o detenido mucho rato</span><span class="lgi">▍ barra intensa = tren circulando con posición · pálida = aún no ha salido · discontinua «sin señal» = debería circular y Renfe no da su posición</span><span class="lgi">Salidas: oficiales de Rodalies en directo; más allá de unas 2 h, horario oficial</span></span><br><span id="src">Conectando…</span><button type="button" id="ver">@@VER@@<span> · novedades y fuentes</span></button><span class="hint"><br>Rueda: inclinar · Option+rueda o Option+arrastrar: girar · Ctrl+rueda/pellizco: zoom · Arrastrar: mover · Doble clic: restablecer</span><span class="thint"><br>Arrastra: mover · Pellizca: zoom · 2 dedos: inclinar y girar · Toca: datos</span></div></div><template id="chg">@@CHANGES@@</template>
 <script>window.__tHtml&&__tHtml(document.body)</script>
 <script>window.__DATA__=@@DATA@@;window.__ROD__=@@ROD@@;</script>
 <script>@@BUNDLE@@</script>

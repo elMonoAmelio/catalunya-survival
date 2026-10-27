@@ -1200,13 +1200,18 @@ export function initRail(A) {
     const title = `${P.ico} ${stName} ${P === WORK ? 'hacia casa' : 'hacia el trabajo'}: el de las ${hhmm(x.sm)} va con +${Math.round(x.dl)} min`, body = `${x.fam} a ${x.dest}: saldrá hacia las ${hhmm(x.est)}. Si ibas a cogerlo, puedes salir ${Math.round(x.dl)} min más tarde. (Aviso de tu panel ${P === WORK ? 'Trabajo' : 'Casa'}; se quita con la 🔔.)`;
     (navigator.serviceWorker && navigator.serviceWorker.getRegistration ? navigator.serviceWorker.getRegistration() : Promise.resolve(null)).then(r => r ? r.showNotification(title, { body, tag: 'rd-' + x.num, icon: 'icons/icon-192.png' }) : new Notification(title, { body })).catch(() => { try { new Notification(title, { body }); } catch (e) {} });
   }
+  const NOW = { open: false, seen: new Set((() => { try { return JSON.parse(localStorage.getItem('rod_seen') || '[]'); } catch (e) { return []; } })()) };
+  document.addEventListener('click', e => { const h = e.target.closest && e.target.closest('[data-nowx]'); if (!h || e.target.closest('a')) return; const ids = h.dataset.nowx ? h.dataset.nowx.split('|') : []; if (!ids.length) return;
+    if (h.classList.contains('col')) NOW.open = true; else { NOW.open = false; ids.forEach(i => NOW.seen.add(i)); try { localStorage.setItem('rod_seen', JSON.stringify([...NOW.seen].slice(-200))); } catch (x) {} } renderHome(true); });
   // pestaña Ahora: todos los avisos de tus líneas, completos, y el canal de WhatsApp de Rodalies
   function nowBlock(tg) {
     let lines = tg.lines; if (!lines.length && NEAR.st && NEAR.st.length) { const s = new Set(); NEAR.st.forEach(id => { const i = SID.get(id); if (i != null) ST[i].fams.forEach(f => s.add(f)); }); lines = [...s].sort(natural); }
     const fs = new Set(lines), al = RT.alerts.filter(a => !fs.size || [...a.fams].some(f => fs.has(f)));
     const wa = `<a class="hwa" href="https://www.whatsapp.com/channel/0029Vav4hGTId7nPenKMuo2C" target="_blank" rel="noopener">💬 WhatsApp</a>`;
     const head = `<div class="hnowh"><b>${al.length ? '⚠️ ' + al.length + (al.length === 1 ? ' aviso' : ' avisos') : '✓ Sin avisos'}</b>${lines.length ? ' · ' + lines.slice(0, 6).map(chipL).join(' ') : ''}${wa}</div>`;
-    return `<div class="hnow${al.some(a => BAD.test(a.es || a.txt)) ? ' bad' : al.length ? ' warn' : ''}">${head}${al.map(a => `<p>${srcB(a)} ${esc(a.txt)} <small>${whenTxt(a)}</small></p>`).join('')}</div>`;
+    // avisos nuevos se ven enteros; una vez leídos (tocando la cabecera) se recogen en una línea hasta que llegue otro nuevo
+    const unseen = al.filter(a => !NOW.seen.has(a.id)), exp = al.length && (NOW.open || unseen.length > 0);
+    return `<div class="hnow${al.some(a => BAD.test(a.es || a.txt)) ? ' bad' : al.length ? ' warn' : ''}${al.length && !exp ? ' col' : ''}" data-nowx="${esc(al.map(a => a.id).join('|'))}">${head}${exp ? al.map(a => `<p>${srcB(a)} ${esc(a.txt)} <small>${whenTxt(a)}</small></p>`).join('') + `<small class="hnowt">${'Toca aquí para recogerlo'}</small>` : ''}</div>`;
   }
   function renderHome(force) {
     const el = $('#home'); if (!el) return;
@@ -1312,10 +1317,10 @@ export function initRail(A) {
   document.addEventListener('click', e => { const h = e.target.closest && e.target.closest('[data-halx]'); if (!h || e.target.closest('a')) return; HALOPEN.v = !HALOPEN.v; renderHome(true); });
   // ---------- PESTAÑAS (móvil y app): Ahora · Mapa · Línea · Ajustes ----------
   // En el ordenador se mantiene el diseño con paneles flotantes; en el móvil y en la app, cuatro pestañas abajo.
-  const TAB = { on: false, cur: 'ahora', home: new Map() };
+  const TAB = { on: false, cur: 'now', home: new Map() };
   const tabsMQ = matchMedia('(max-width:640px)');
   const tabbar = document.createElement('nav'); tabbar.id = 'tabs';
-  const TABS = [['ahora', '🕒', 'Ahora'], ['mapa', '🗺️', 'Mapa'], ['linea', '📊', 'Línea'], ['ajustes', '⚙️', 'Ajustes']];
+  const TABS = [['now', '🕒', 'Ahora'], ['map', '🗺️', 'Mapa'], ['line', '📊', 'Línea'], ['set', '⚙️', 'Ajustes']];
   tabbar.innerHTML = TABS.map(([k, i, l]) => `<button type="button" data-tab="${k}"><span>${i}</span><small>${l}</small></button>`).join('');
   document.body.appendChild(tabbar);
   const tabL = document.createElement('div'); tabL.id = 'tabL'; document.body.appendChild(tabL);
@@ -1332,7 +1337,7 @@ export function initRail(A) {
     unpark();   // primero se devuelven a su sitio los elementos prestados (si no, se borrarían al rehacer la hoja)
     const L = window.__L || 'es', th = THEME.mode;
     tabA.innerHTML = `<h3>${'Ajustes'}</h3>
-      <h4>🌐 ${'Idioma'}</h4><div class="seg2">${[['ca', 'Català'], ['es', 'Castellano'], ['en', 'English']].map(([k, n]) => `<button type="button" data-lang="${k}" class="${L === k ? 'on' : ''}">${n}</button>`).join('')}</div>
+      <h4>🌐 ${'Idioma'}</h4><div class="seg2">${[['ca', 'Català'], ['es', 'Español'], ['en', 'English']].map(([k, n]) => `<button type="button" data-lang="${k}" class="${L === k ? 'on' : ''}">${n}</button>`).join('')}</div>
       <h4>🌙 ${'Modo noche'}</h4><div class="seg2">${[['auto', 'Automático'], ['light', 'Claro'], ['dark', 'Oscuro']].map(([k, n]) => `<button type="button" data-th="${k}" class="${th === k ? 'on' : ''}">${n}</button>`).join('')}</div>
       <h4>🔔 ${'Avisos'}</h4><div id="tabAbell"></div>
       <h4>📡 ${'Datos en directo'}</h4><div id="tabArt"></div>
@@ -1343,21 +1348,21 @@ export function initRail(A) {
   }
   function setTab(k) {
     if (!TAB.on) return;
-    const was = TAB.cur; TAB.cur = k; document.documentElement.dataset.tab = k; window.__mapHidden = k !== 'mapa';
+    const was = TAB.cur; TAB.cur = k; document.documentElement.dataset.tab = k; window.__mapHidden = k !== 'map';
     tabbar.querySelectorAll('[data-tab]').forEach(b => b.classList.toggle('on', b.dataset.tab === k));
-    if (k === 'linea') { if (!selStats && !selAlerts && !selLine) { selStats = true; HIST.at = 0; } selTrip = null; selStation = -1; selNews = false; mcs._h = ''; renderCard(); renderLineaBar(); }
-    else if (was === 'linea') { selStats = selAlerts = false; selLine = ''; mcs._h = ''; renderCard(); }
-    if (k === 'ajustes') renderAjustes();
-    if (k === 'ahora') { renderHome(true); if (!$('#home .hbody')) { const h = $('#home .hhead[data-ht]'); if (h) h.click(); } }   // en Ahora, el panel principal ya abierto
+    if (k === 'line') { if (!selStats && !selAlerts && !selLine) { selStats = true; HIST.at = 0; } selTrip = null; selStation = -1; selNews = false; mcs._h = ''; renderCard(); renderLineaBar(); }
+    else if (was === 'line') { selStats = selAlerts = false; selLine = ''; mcs._h = ''; renderCard(); }
+    if (k === 'set') renderAjustes();
+    if (k === 'now') { renderHome(true); if (!$('#home .hbody')) { const h = $('#home .hhead[data-ht]'); if (h) h.click(); } }   // en Ahora, el panel principal ya abierto
     lastT = 0; invalidate();
   }
   tabbar.onclick = e => { const b = e.target.closest('[data-tab]'); if (b) setTab(b.dataset.tab); };
   // al abrir un tren o una estación desde Ahora o Ajustes, se pasa al mapa; desde Línea, un tren también lleva al mapa
-  window.__rodTabSync = () => { if (!TAB.on) return; const sk = selTrip ? 't' + (selTrip.num || selTrip.vtid) : selStation >= 0 ? 's' + selStation : ''; const nueva = sk !== TAB.sk; TAB.sk = sk; if (sk && nueva && TAB.cur !== 'mapa') setTab('mapa'); else if ((selAlerts || selLine || selNews) && TAB.cur !== 'linea' && TAB.cur !== 'mapa') setTab('linea'); if (TAB.cur === 'linea') renderLineaBar(); };
+  window.__rodTabSync = () => { if (!TAB.on) return; const sk = selTrip ? 't' + (selTrip.num || selTrip.vtid) : selStation >= 0 ? 's' + selStation : ''; const nueva = sk !== TAB.sk; TAB.sk = sk; if (sk && nueva && TAB.cur !== 'map') setTab('map'); else if ((selAlerts || selLine || selNews) && TAB.cur !== 'line' && TAB.cur !== 'map') setTab('line'); if (TAB.cur === 'line') renderLineaBar(); };
   function tabMode() {
     const on = tabsMQ.matches || document.documentElement.classList.contains('cap');
     if (on === TAB.on) return; TAB.on = on; document.documentElement.classList.toggle('tabmode', on); if (!on) window.__mapHidden = false;
-    if (on) setTab('ahora'); else { delete document.documentElement.dataset.tab; unpark(); }
+    if (on) setTab('now'); else { delete document.documentElement.dataset.tab; unpark(); }
   }
   tabsMQ.addEventListener ? tabsMQ.addEventListener('change', tabMode) : tabsMQ.addListener(tabMode);
   tabMode();

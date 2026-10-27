@@ -109,4 +109,5 @@ T = {
 "Oscuro": ("Fosc", "Dark"),
 " avisos": (" avisos", " notices"),
 "✓ Sin avisos": ("✓ Sense avisos", "✓ No notices"),
+"Toca aquí para recogerlo": ("Toca aquí per recollir-lo", "Tap here to collapse"),
 }
