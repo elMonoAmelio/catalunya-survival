@@ -44,6 +44,8 @@ jobs:
         run: |
           git config user.name "MonkiSoft"
           git config user.email "elMonoAmelio@users.noreply.github.com"
+          # la app Andana lleva la misma web dentro: se actualiza a la vez
+          if [ -d andana/www ]; then cp rodalies.html andana/www/index.html; mkdir -p andana/ios/App/App/public && cp rodalies.html andana/ios/App/App/public/index.html; git add andana/www/index.html andana/ios/App/App/public/index.html; fi
           git add rodalies.html
           if git diff --cached --quiet; then echo "Sin cambios"; exit 0; fi
           git commit -m "Horarios de Rodalies $(TZ=Europe/Madrid date +%d/%m/%Y)"

@@ -1,0 +1,9 @@
+{
+  "appId": "com.monkisoft.andana",
+  "appName": "Andana",
+  "webDir": "www",
+  "ios": {
+    "contentInset": "always",
+    "backgroundColor": "#eef1f5"
+  }
+}
