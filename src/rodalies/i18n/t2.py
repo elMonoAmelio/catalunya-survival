@@ -129,4 +129,7 @@ T = {
 "⏳ Aún no ha salido de su estación de origen": ("⏳ Encara no ha sortit de l'estació d'origen", "⏳ Hasn't left its first station yet"),
 "Cancelado": ("Cancel·lat", "Cancelled"),
 "No llegas a pie": ("No hi arribes a peu", "You won't make it on foot"),
+"🚉 En el andén": ("🚉 A l'andana", "🚉 On the platform"),
+"🚉 En el andén · esperando el tren: horas de salida, sin contar el camino · ": ("🚉 A l'andana · esperant el tren: hores de sortida, sense comptar el camí · ", "🚉 On the platform · waiting for the train: departure times, no walking time · "),
+"Tiempo que tardas a pie hasta la estación": ("Temps que trigues a peu fins a l'estació", "Time it takes you to walk to the station"),
 }
