@@ -50,4 +50,5 @@ jobs:
           git add rodalies.html rodalies-original.html
           if git diff --cached --quiet; then echo "Sin cambios"; exit 0; fi
           git commit -m "Horarios de Rodalies $(TZ=Europe/Madrid date +%d/%m/%Y)"
-          git push
+          # si mientras tanto se ha subido otra versión, esa ejecución ya publicará: esta no falla
+          if ! git push; then git fetch origin main; if [ "$(git rev-parse origin/main)" != "$(git rev-parse HEAD~1)" ]; then echo "Hay una versión más nueva en main; la publicará su propia ejecución"; exit 0; fi; exit 1; fi
