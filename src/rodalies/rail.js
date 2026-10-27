@@ -82,7 +82,7 @@ export function initRail(A) {
     const t = simMin == null ? m.min : simBase + (speed ? (performance.now() - simAt) / 60000 * speed : 0);
     return { ymd: m.ymd, min: t, live: false };
   }
-  const hhmm = m => { m = ((Math.round(m) % 1440) + 1440) % 1440; return String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0'); };
+  const hhmm = m => { m = ((Math.floor(m + 1e-6) % 1440) + 1440) % 1440;   /* hacia abajo: mejor llegar antes que perder el tren */ return String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0'); };
 
   // ---------- tiempo real ----------
   const DEF_RT = 'https://rodalies.erathegameoftime.com';
@@ -920,6 +920,17 @@ export function initRail(A) {
     if (Date.now() - COV.at > 60000) { COV.at = Date.now(); COV.m = new Map(); const S = nowState(), k = R.days.indexOf(S.ymd); if (k >= 0) for (const tr of byDay[k]) { const a = S.min - tr.t0; if (a < tr.pat.t[1] + 3 || a > tr.pat.t[tr.pat.t.length - 2] - 3) continue; const o = COV.m.get(tr.fam) || [0, 0]; o[0]++; if (RT.vp.has(tr.tid)) o[1]++; COV.m.set(tr.fam, o); } }
     const o = COV.m.get(f); return o && o[0] >= 3 ? o[1] / o[0] : 1;
   }
+  // salida estimada desde la posición REAL del tren (no del retraso que arrastra): los trenes recuperan tiempo entre estaciones
+  function posEta(tr, v, i, S) {
+    if (!tr || !v || v.pre || v.dObs == null || v.err == null || v.err > 0.6 || i < 0) return null;
+    const age = Date.now() / 1000 - v.ts; if (age > 150 || age < -30 || (v.still || 0) >= 90) return null;
+    const sd = pg(tr.pat).stopD, T = tr.pat.t; if (v.dObs > sd[i] + 0.1) return null;   // ya ha pasado
+    let tpos; const j = sd.reduce((b, x, k) => (Math.abs(x - v.dObs) < Math.abs(sd[b] - v.dObs) ? k : b), 0);
+    if (Math.abs(sd[j] - v.dObs) < 0.16 && j <= i) tpos = T[2 * j + 1];   // en una estación: sale ya
+    else { const nx = sd.findIndex(x => x > v.dObs); if (nx <= 0) return null; const f = Math.min(1, Math.max(0, (v.dObs - sd[nx - 1]) / ((sd[nx] - sd[nx - 1]) || 1))); tpos = T[2 * nx - 1] + f * (T[2 * nx] - T[2 * nx - 1]); }
+    const left = T[2 * i + 1] - tpos; if (left < 0 || left > 30) return null;   // solo para trenes que ya se acercan
+    return S.min - age / 60 + left;
+  }
   function departuresFor(s, useHorario) {
     const S = nowState(), useLive = (live() || rtDown()) && S.live && !useHorario, OD = DEPS.get(ST[s].id), out = [];
     const byNum = new Map([...RT.vp.values()].map(v => [String((TID.get(v.tid) || {}).num || v.num), v]));
@@ -936,6 +947,8 @@ export function initRail(A) {
         else if (ss || Math.abs(ofi - sch) >= 1) { est = ofi; dl2 = Math.max(0, ofi - sch); }   // Rodalies ya da la hora estimada
         else { est = sch + dl; dl2 = dl; }   // Rodalies aún da la hora del horario: se usa el retraso de Renfe
         if (sch != null) sm = Math.round(sch);
+        // si el tren ya se acerca y su posición dice que llegará antes (hasta 3 min), se adelanta: mejor esperar que perderlo
+        { const pe = v && trS && iS >= 0 ? posEta(trS, v, iS, S) : null; if (pe != null && pe < est - 0.25 && pe > est - 3) { est = Math.max(pe, S.min); if (sch != null) dl2 = Math.max(0, est - sch); } }
         out.push({ sm, est, dl: dl2, fam: (x.line || {}).id || '', dest: (x.destinationStation || {}).name || '', destId: (x.destinationStation || {}).id || '', plat: x.platformSelectedStation || '', cancel: !!x.trainCancelled, obs: x.trainObservations || '', live: !!v, num, tid: v ? v.tid : '', tr: (v && TID.get(v.tid)) || tripByNum(num), src: 'oficial' });
       }
     } else {
@@ -1056,7 +1069,7 @@ export function initRail(A) {
     const dd = i => Math.hypot(ST[i].w[0] - ST[ref].w[0], ST[i].w[1] - ST[ref].w[1]);
     return dd(d) < dd(s) ? 'to' : 'out';
   }
-  const mins = m => m < 1 ? 'ahora' : m < 60 ? Math.round(m) + ' min' : Math.floor(m / 60) + ' h ' + String(Math.round(m % 60)).padStart(2, '0');
+  const mins = m => m < 1 ? 'ahora' : m < 60 ? Math.floor(m) + ' min' : Math.floor(m / 60) + ' h ' + String(Math.floor(m % 60)).padStart(2, '0');
   let homeT = 0;
   const BAD = /sin servicio|sense servei|suspend|interromp|interrump|no circula|no se puede garantizar|no es pot garantir/i;
   const SEV3 = /sin servicio|sense servei|suspend|interromp|interrump|no circula|no hi ha circulaci|cortad|tallad|corte de|tall de|servicio alternativo|servei alternatiu|por carretera|per carretera|no se puede garantizar|no es pot garantir/i;
