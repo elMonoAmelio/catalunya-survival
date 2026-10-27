@@ -134,4 +134,5 @@ T = {
 "Tiempo que tardas a pie hasta la estación": ("Temps que trigues a peu fins a l'estació", "Time it takes you to walk to the station"),
 "Tardo": ("Trigo", "I take"),
 "a pie": ("a peu", "on foot"),
+"Prepárate para bajar": ("Prepara't per baixar", "Get ready to get off"),
 }

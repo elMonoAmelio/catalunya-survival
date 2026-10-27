@@ -418,6 +418,8 @@ try{Object.defineProperty(navigator,'geolocation',{configurable:true,value:{
 getCurrentPosition:function(ok,ko,o){G.getCurrentPosition(opt(o)).then(ok,function(e){bad(e,ko)})},
 watchPosition:function(ok,ko,o){var k=++n;ids[k]=0;G.watchPosition(opt(o),function(p,e){if(e)bad(e,ko);else if(p)ok(p)}).then(function(id){if(ids[k]===null)G.clearWatch({id:id});else ids[k]=id});return k},
 clearWatch:function(k){var id=ids[k];if(id)G.clearWatch({id:id});ids[k]=null}}})}catch(e){}})();</script>
+<script>/* MonkiSoft · vibración: en el iPhone la web no puede vibrar (navigator.vibrate no existe); en la app se usa la vibración nativa */
+window.__vib=function(){try{var C=window.Capacitor,H=C&&C.isNativePlatform&&C.isNativePlatform()&&C.Plugins&&C.Plugins.Haptics;if(H){[0,700,1400].forEach(function(t){setTimeout(function(){H.vibrate({duration:500}).catch(function(){})},t)});return true}if(navigator.vibrate)return navigator.vibrate([400,150,400,150,600])}catch(e){}return false};</script>
 <script>/* MonkiSoft · dentro de la app, los avisos («Notification» de la web) son notificaciones nativas de iOS */
 (function(){var C=window.Capacitor;if(!C||!C.isNativePlatform||!C.isNativePlatform())return;var N=C.Plugins&&C.Plugins.LocalNotifications;if(!N)return;
 var st='default',id=1000;var map=function(r){var d=r&&r.display;return d==='granted'?'granted':d==='denied'?'denied':'default'};
@@ -425,7 +427,10 @@ N.checkPermissions().then(function(r){st=map(r)}).catch(function(){});
 function Nt(title,o){o=o||{};N.schedule({notifications:[{id:++id%2000000000,title:String(title),body:String(o.body||'')}]}).catch(function(){})}
 Object.defineProperty(Nt,'permission',{get:function(){return st}});
 Nt.requestPermission=function(){return N.requestPermissions().then(function(r){st=map(r);return st},function(){return st})};
-window.Notification=Nt;try{Object.defineProperty(navigator,'serviceWorker',{configurable:true,value:undefined})}catch(e){}})();</script>
+window.Notification=Nt;
+/* aviso programado en iOS: suena/vibra aunque la app esté en segundo plano o la pantalla bloqueada */
+window.__schedAt=function(k,title,body,at){N.cancel({notifications:[{id:k}]}).catch(function(){}).then(function(){return st==='granted'?0:N.requestPermissions().then(function(r){st=map(r)},function(){})}).then(function(){if(at>Date.now()+5000)N.schedule({notifications:[{id:k,title:String(title),body:String(body),schedule:{at:new Date(at),allowWhileIdle:true}}]}).catch(function(){})})};
+window.__schedOff=function(k){N.cancel({notifications:[{id:k}]}).catch(function(){})};try{Object.defineProperty(navigator,'serviceWorker',{configurable:true,value:undefined})}catch(e){}})();</script>
 <style>@media(max-width:640px){html.boot #inf .more,html.boot #inf .l1,html.boot #rc>*:not(#rcgrab){display:none!important}html.boot #rcgrab span{visibility:hidden}}</style>
 <script>try{if(localStorage.getItem("rod_big")==="1")document.documentElement.classList.add("big")}catch(e){}</script>
 <script>try{var m=localStorage.getItem("rod_theme")||"auto";if(m==="dark"||(m==="auto"&&matchMedia("(prefers-color-scheme: dark)").matches))document.documentElement.classList.add("dark")}catch(e){}</script>

@@ -699,8 +699,9 @@ export function initRail(A) {
   const saveAlarm = () => { try { localStorage.setItem('rod_alarm', JSON.stringify(ALARM)); } catch (e) {} };
   const isAlarm = (tr, i) => !!(ALARM && tr && ALARM.num === String(tr.num) && ALARM.sid === ST[tr.pat.stops[i]].id);
   function buzz(title, body) {
-    try { navigator.vibrate && navigator.vibrate([400, 150, 400, 150, 600]); } catch (e) {}
+    try { window.__vib ? window.__vib() : navigator.vibrate && navigator.vibrate([400, 150, 400, 150, 600]); } catch (e) {}
     toast(title + ' · ' + body);
+    if (!document.hidden) return;   // con la app delante basta con vibrar (sin notificación ni sonido)
     if ('Notification' in window && Notification.permission === 'granted') (navigator.serviceWorker && navigator.serviceWorker.getRegistration ? navigator.serviceWorker.getRegistration() : Promise.resolve(null)).then(r => r ? r.showNotification(title, { body, tag: 'alarm', requireInteraction: true, vibrate: [400, 150, 400, 150, 600], icon: 'icons/icon-192.png' }) : new Notification(title, { body })).catch(() => {});
   }
   function checkAlarm() {
@@ -709,7 +710,9 @@ export function initRail(A) {
     const i = tr.pat.stops.findIndex(si => ST[si].id === ALARM.sid); if (i < 0) return;
     const d = delayOf(tr), dl = typeof d === 'number' ? Math.max(0, d / 60) : 0, off = tr.day === k - 1 ? 1440 : 0, eta = tr.t0 + tr.pat.t[2 * i] + dl - off;
     if (eta - S.min < -3) { ALARM.done = true; saveAlarm(); return; }   // ya pasó: no avisar tarde
-    if (eta - S.min <= 2) { ALARM.done = true; saveAlarm(); buzz(`🚉 Llegas a ${ST[tr.pat.stops[i]].n}`, `En unos ${Math.max(0, Math.round(eta - S.min))} min (${hhmm(eta)}) · prepárate para bajar`); }
+    // en la app: aviso nativo programado 2 min antes, por si la pantalla está bloqueada (se reprograma si cambia el retraso)
+    if (window.__schedAt && (ALARM.sch == null || Math.abs(ALARM.sch - eta) >= 0.5)) { ALARM.sch = eta; saveAlarm(); window.__schedAt(7701, `🚉 Llegas a ${ST[tr.pat.stops[i]].n}`, 'Prepárate para bajar' + ` (${hhmm(eta)})`, Date.now() + (eta - 2 - S.min) * 60000); }
+    if (eta - S.min <= 2) { ALARM.done = true; saveAlarm(); if (window.__schedOff) window.__schedOff(7701); buzz(`🚉 Llegas a ${ST[tr.pat.stops[i]].n}`, `En unos ${Math.max(0, Math.round(eta - S.min))} min (${hhmm(eta)}) · prepárate para bajar`); }
   }
   // tus trenes de cada día: aviso si van con retraso (una vez al día por tren y retraso)
   // tu tren de cada día: se busca por número y, si ese día cambia, por línea + estación + hora (±10 min) + mismo destino
@@ -833,7 +836,7 @@ export function initRail(A) {
       selAlerts = false; selNews = false; selStats = false; selTrip = null; selStation = -1; follow = null; styleStations(); renderCard(); lastT = 0; invalidate(); };
     bindCrowd(mcs);
     mcs.querySelectorAll('[data-alarm]').forEach(b => b.onclick = e => { e.stopPropagation(); const tr = selTrip && selTrip.pat ? selTrip : (TID.get(selTrip && selTrip.vtid) || null); if (!tr) return; const i = +b.dataset.alarm, sid = ST[tr.pat.stops[i]].id;
-      if (ALARM && ALARM.num === String(tr.num) && ALARM.sid === sid) { ALARM = null; toast('Aviso de llegada quitado'); } else { ALARM = { num: String(tr.num), sid, at: Date.now() }; toast(`🔔 Te aviso 2 min antes de llegar a ${ST[tr.pat.stops[i]].n}`); if ('Notification' in window && Notification.permission === 'default') Notification.requestPermission(); }
+      if (ALARM && ALARM.num === String(tr.num) && ALARM.sid === sid) { ALARM = null; if (window.__schedOff) window.__schedOff(7701); toast('Aviso de llegada quitado'); } else { ALARM = { num: String(tr.num), sid, at: Date.now() }; toast(`🔔 Te aviso 2 min antes de llegar a ${ST[tr.pat.stops[i]].n}`); if ('Notification' in window && Notification.permission === 'default') Notification.requestPermission(); }
       saveAlarm(); mcs._h = ''; renderCard(); });
     { const fb2 = mcs.querySelector('[data-fav]'); if (fb2) fb2.onclick = e => { e.stopPropagation(); const tr = selTrip && selTrip.pat ? selTrip : (TID.get(selTrip && selTrip.vtid) || null); if (!tr) return; const i = FAV.findIndex(f => f.num === String(tr.num));
       if (i >= 0) { FAV.splice(i, 1); toast('Quitado de tus trenes de cada día'); } else { const mine = [...HOME.st, ...WORK.st, ...NEAR.st]; const si = tr.pat.stops.find(x => mine.includes(ST[x].id)) ?? tr.pat.stops[0]; FAV.push({ num: String(tr.num), fam: tr.fam, sid: ST[si].id, dest: ST[tr.pat.stops[tr.pat.stops.length - 1]].id, t: hhmm(tr.t0 + tr.pat.t[2 * tr.pat.stops.indexOf(si) + 1]) }); toast(`⭐ Te avisaré si el ${tr.fam} de las ${FAV[FAV.length - 1].t} desde ${ST[si].n} va con retraso`); if ('Notification' in window && Notification.permission === 'default') Notification.requestPermission(); }
