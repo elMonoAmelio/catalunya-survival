@@ -1368,5 +1368,7 @@ export function initRail(A) {
   }
   tabsMQ.addEventListener ? tabsMQ.addEventListener('change', tabMode) : tabsMQ.addListener(tabMode);
   tabMode();
+  // en Ahora, tus paneles se colocan siempre por encima de los controles (abiertos o cerrados): nada queda tapado
+  { const rc = $('#rc'), upd = () => document.documentElement.style.setProperty('--rch', Math.round(rc.getBoundingClientRect().height) + 'px'); if (window.ResizeObserver) new ResizeObserver(upd).observe(rc); upd(); }
   window.__rod = { TID, SID, byDay, get days() { return R.days; }, get hist() { return HIST; }, get past() { return PAST.cur; }, get cols() { return COLS.mesh ? COLS.mesh.count : -1; }, get dist() { return cur.dist; }, get follow() { return follow; }, get selTrip() { return selTrip; }, ST, TR, FAM, act: () => act, setSpeed, RT, pollRT, nowState, posAt, activeTrips, LL, select: tr => { selTrip = tr; renderCard(); } };
 }

@@ -310,7 +310,7 @@ html.tabmode #rc{translate:0 calc(-1*var(--sab0))}
 html.tabmode[data-tab=now] #inf,html.tabmode #tabA,html.tabmode[data-tab=line] #mcs{position:fixed;left:10px;right:10px;top:calc(10px + var(--sat0));bottom:calc(var(--tbh) + 10px + var(--sab0));max-width:none;max-height:none;overflow:auto;-webkit-overflow-scrolling:touch;translate:none;z-index:20}
 html.tabmode[data-tab=now] #inf{display:flex;flex-direction:column;padding:8px;background:none;border:0;box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none}
 html.tabmode[data-tab=now] #home{margin:auto 0}
-html.tabmode[data-tab=now] #inf{bottom:calc(var(--tbh) + 66px + var(--sab0))}
+html.tabmode[data-tab=now] #inf{bottom:calc(var(--tbh) + 18px + var(--rch,56px) + var(--sab0));transition:bottom .2s ease}
 html.tabmode #rc{z-index:25}
 html.tabmode:not([data-tab=map]) #c,html.tabmode:not([data-tab=map]) .plab,html.tabmode:not([data-tab=map]) .mlab,html.tabmode:not([data-tab=map]) .slab,html.tabmode:not([data-tab=map]) #tip{visibility:hidden}
 html.tabmode:not([data-tab=map]) body{background:#eef1f5}html.dark.tabmode:not([data-tab=map]) body{background:#0d1117}
