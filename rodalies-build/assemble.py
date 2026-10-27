@@ -9,7 +9,7 @@ t=open(P('template.html'),encoding='utf8').read()
 ver=open(P('VERSION')).read().strip() if os.path.exists(P('VERSION')) else ''
 g=json.loads(r.replace('<\\/','</')).get('gen','')
 gtxt=f'{g[8:10]}/{g[5:7]} {g[11:16]}' if len(g)>=16 else g
-v=(f'v{ver} · ' if ver else '')+f'horarios Renfe del {gtxt}'
+v=(f'v{ver} · ' if ver else '')+f'horario oficial descargado el {gtxt}'
 chg=open(P('CHANGES.html'),encoding='utf8').read() if os.path.exists(P('CHANGES.html')) else ''
 import os
 i18=open(P('i18n.js'),encoding='utf8').read().replace('</','<\\/') if os.path.exists(P('i18n.js')) else ''
