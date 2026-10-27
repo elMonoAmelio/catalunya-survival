@@ -24,6 +24,7 @@ sw=open('pwa/sw.js').read(); sw=re.sub(r"const VERSION = '[^']*'",f"const VERSIO
 shutil.copy('catalunya-survival.html','pwa/index.html'); shutil.copy('catalunya-survival.html','/tmp/ms-out/catalunya-survival.html')
 for f in ('index.html','sw.js','rodalies.html','rodalies.webmanifest'): shutil.copy('pwa/'+f, REPO+'/'+f)
 shutil.copy('/tmp/ms-out/catalunya-survival-offline.zip', REPO)
+subprocess.run(['python3','sync_src.py'],check=True)   # el código fuente también va al repositorio
 if '--dry' in sys.argv: print('dry', ver); sys.exit()
 g('add','-A'); g('-c','user.name=MonkiSoft','-c','user.email=elMonoAmelio@users.noreply.github.com','commit','-qm',f'v{ver}: {msg}')
 print(g('push','-q','origin','main'), 'publicada', ver, now)
