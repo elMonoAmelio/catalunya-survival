@@ -2,6 +2,7 @@ name: Actualizar horarios de Rodalies
 on:
   schedule:
     - cron: '17 2 * * *'
+    - cron: '41 4 * * *'   # respaldo: GitHub a veces se salta la primera
   push:
     paths:
       - 'rodalies-build/bundle.js'
