@@ -124,4 +124,9 @@ T = {
 ' · filtro de líneas activo · hacia ': (' · filtre de línies actiu · cap a ', ' · line filter on · to '),
 ' (tu filtro no va hasta allí)</div>': (' (el teu filtre no hi arriba)</div>', " (your filter doesn't go there)</div>"),
 '</span> a ': ('</span> a ', '</span> to '),
+"Volver al próximo tren": ("Tornar al proper tren", "Back to the next train"),
+"Elegido": ("Triat", "Chosen"),
+"⏳ Aún no ha salido de su estación de origen": ("⏳ Encara no ha sortit de l'estació d'origen", "⏳ Hasn't left its first station yet"),
+"Cancelado": ("Cancel·lat", "Cancelled"),
+"No llegas a pie": ("No hi arribes a peu", "You won't make it on foot"),
 }
