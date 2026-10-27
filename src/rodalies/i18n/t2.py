@@ -117,4 +117,5 @@ T = {
 " · tren ": (" · tren ", " · train "),
 "Tamaño del texto": ("Mida del text", "Text size"),
 "Grande": ("Gran", "Large"),
+"tren\u00a0": ("tren\u00a0", "train\u00a0"),
 }
