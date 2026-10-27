@@ -1215,7 +1215,8 @@ export function initRail(A) {
     let lines = tg.lines; if (!lines.length && NEAR.st && NEAR.st.length) { const s = new Set(); NEAR.st.forEach(id => { const i = SID.get(id); if (i != null) ST[i].fams.forEach(f => s.add(f)); }); lines = [...s].sort(natural); }
     const fs = new Set(lines), al = RT.alerts.filter(a => !fs.size || [...a.fams].some(f => fs.has(f)));
     const wa = `<a class="hwa" href="https://www.whatsapp.com/channel/0029Vav4hGTId7nPenKMuo2C" target="_blank" rel="noopener" title="${'Canal de avisos de Rodalies en WhatsApp'}" aria-label="WhatsApp"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="#25d366" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2z"/><path fill="#fff" d="M8.6 7.2c.2-.4.4-.4.7-.4h.5c.2 0 .4 0 .6.5l.8 1.9c.1.2.1.4 0 .6l-.5.7c-.1.2-.2.3 0 .6.5.8 1.1 1.5 1.9 2 .3.2.4.1.6 0l.7-.8c.2-.2.4-.2.6-.1l1.8.9c.3.1.4.2.4.4 0 .5-.2 1.2-.8 1.6-.6.4-1.5.6-2.9 0-1.6-.7-3-2-3.9-3.4-.8-1.2-1.1-2.4-.5-3.5z"/></svg></a>`;
-    const head = `<div class="hnowh"><span class="hnowl"><b>${al.length ? '⚠️ ' + al.length + (al.length === 1 ? ' aviso' : ' avisos') : '✓ Sin avisos'}</b>${lines.length ? lines.map(chipL).join('') : ''}</span>${wa}</div>`;
+    const sv0 = al.reduce((m, a) => Math.max(m, sevOf(a)), 0), ico = sv0 === 3 ? '⛔ ' : sv0 === 2 ? '⚠️ ' : 'ℹ️ ';   // icono además del color (para quien no distingue bien los colores)
+    const head = `<div class="hnowh"><span class="hnowl"><b>${al.length ? ico + al.length + (al.length === 1 ? ' aviso' : ' avisos') : '✓ Sin avisos'}</b>${lines.length ? lines.map(chipL).join('') : ''}</span>${wa}</div>`;
     // avisos nuevos se ven enteros; una vez leídos (tocando la cabecera) se recogen en una línea hasta que llegue otro nuevo
     const unseen = al.filter(a => !NOW.seen.has(a.id)), exp = al.length && (NOW.open || unseen.length > 0);
     const sv = al.reduce((m, a) => Math.max(m, sevOf(a)), 0);
