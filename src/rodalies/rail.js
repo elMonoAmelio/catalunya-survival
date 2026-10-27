@@ -581,7 +581,15 @@ export function initRail(A) {
   const pool = [];
   const _v = new THREE.Vector3();
   function placeStationLabels() {
-    const show = cur.dist < 30; let k = 0;
+    let k = 0;
+    if (COLS.on) {   // columnas de retraso: se rotulan las estaciones con más retraso que se ven en pantalla (sin pisarse)
+      const d = colData().sort((a, b) => b[1] - a[1]), used = [];
+      for (const [i, m] of d) { if (k >= 30) break; _v.set(ST[i].w[0], ST[i].w[1], Z).project(camera); if (_v.z > 1 || Math.abs(_v.x) > 1 || Math.abs(_v.y) > 1) continue; const x = (_v.x * 0.5 + 0.5) * innerWidth, y = (-_v.y * 0.5 + 0.5) * innerHeight; if (used.some(([ux, uy]) => Math.abs(ux - x) < 90 && Math.abs(uy - y) < 18)) continue; used.push([x, y]);
+        const el = pool[k] || (pool[k] = Object.assign(document.createElement('div'), { className: 'slab' })); if (!el.isConnected) document.body.appendChild(el); el.textContent = ST[i].n + ' +' + Math.round(m) + '′'; el.dataset.i = i; el.style.display = 'block'; el.style.transform = `translate(${Math.round(x + 8)}px,${Math.round(y - 8)}px)`; k++; }
+      for (; k < pool.length; k++) pool[k].style.display = 'none';
+      return;
+    }
+    const show = cur.dist < 30;
     if (show) {
       const cand = [];
       for (let i = 0; i < NS; i++) { if (sSize[i] < 4) continue; _v.set(ST[i].w[0], ST[i].w[1], Z).project(camera); if (_v.z > 1 || Math.abs(_v.x) > 1.05 || Math.abs(_v.y) > 1.05) continue; cand.push([i, (_v.x * 0.5 + 0.5) * innerWidth, (-_v.y * 0.5 + 0.5) * innerHeight]); }
@@ -1192,10 +1200,18 @@ export function initRail(A) {
     const title = `${P.ico} ${stName} ${P === WORK ? 'hacia casa' : 'hacia el trabajo'}: el de las ${hhmm(x.sm)} va con +${Math.round(x.dl)} min`, body = `${x.fam} a ${x.dest}: saldrá hacia las ${hhmm(x.est)}. Si ibas a cogerlo, puedes salir ${Math.round(x.dl)} min más tarde. (Aviso de tu panel ${P === WORK ? 'Trabajo' : 'Casa'}; se quita con la 🔔.)`;
     (navigator.serviceWorker && navigator.serviceWorker.getRegistration ? navigator.serviceWorker.getRegistration() : Promise.resolve(null)).then(r => r ? r.showNotification(title, { body, tag: 'rd-' + x.num, icon: 'icons/icon-192.png' }) : new Notification(title, { body })).catch(() => { try { new Notification(title, { body }); } catch (e) {} });
   }
+  // pestaña Ahora: todos los avisos de tus líneas, completos, y el canal de WhatsApp de Rodalies
+  function nowBlock(tg) {
+    let lines = tg.lines; if (!lines.length && NEAR.st && NEAR.st.length) { const s = new Set(); NEAR.st.forEach(id => { const i = SID.get(id); if (i != null) ST[i].fams.forEach(f => s.add(f)); }); lines = [...s].sort(natural); }
+    const fs = new Set(lines), al = RT.alerts.filter(a => !fs.size || [...a.fams].some(f => fs.has(f)));
+    const wa = `<a class="hwa" href="https://www.whatsapp.com/channel/0029Vav4hGTId7nPenKMuo2C" target="_blank" rel="noopener">💬 WhatsApp</a>`;
+    const head = `<div class="hnowh"><b>${al.length ? '⚠️ ' + al.length + (al.length === 1 ? ' aviso' : ' avisos') : '✓ Sin avisos'}</b>${lines.length ? ' · ' + lines.slice(0, 6).map(chipL).join(' ') : ''}${wa}</div>`;
+    return `<div class="hnow${al.some(a => BAD.test(a.es || a.txt)) ? ' bad' : al.length ? ' warn' : ''}">${head}${al.map(a => `<p>${srcB(a)} ${esc(a.txt)} <small>${whenTxt(a)}</small></p>`).join('')}</div>`;
+  }
   function renderHome(force) {
     const el = $('#home'); if (!el) return;
     const now = performance.now(); if (!force && now - homeT < 4000) return; homeT = now;
-    const S = nowState(), DK = [], tg = pushTarget(), far = P => { const i = curSt(P); return i == null || !NEAR.w ? 1 : Math.hypot(ST[i].w[0] - NEAR.w[0], ST[i].w[1] - NEAR.w[1]); }, ORD = [NEAR, ...[HOME, WORK].sort((a, b) => far(a) - far(b))], html = ORD.map(P => placeHtml(P, S, DK)).join('') + (PLACES.some(P => P.open) && tg.lines.length ? `${(() => { return ''; const srv = !!RT.repOk, on = srv ? PUSH.on : LN.on; return `<div class="hpush"><span>🔔 Avisos de ${tg.lines.join(', ')}<small>${srv ? (on ? 'Activados: incidencias oficiales, de Adif y de viajeros' : 'Te llegan aunque tengas la app cerrada') : (on ? 'Activados mientras la app esté abierta' : 'Incidencias nuevas de tus líneas mientras la app esté abierta')}</small></span><button type="button" data-push class="${on ? 'on' : ''}">${on ? 'Desactivar' : 'Activar'}</button></div>`; })()}` : '');
+    const S = nowState(), DK = [], tg = pushTarget(), far = P => { const i = curSt(P); return i == null || !NEAR.w ? 1 : Math.hypot(ST[i].w[0] - NEAR.w[0], ST[i].w[1] - NEAR.w[1]); }, ORD = [NEAR, ...[HOME, WORK].sort((a, b) => far(a) - far(b))], html = (document.documentElement.classList.contains('tabmode') ? nowBlock(tg) : '') + ORD.map(P => placeHtml(P, S, DK)).join('') + (PLACES.some(P => P.open) && tg.lines.length ? `${(() => { return ''; const srv = !!RT.repOk, on = srv ? PUSH.on : LN.on; return `<div class="hpush"><span>🔔 Avisos de ${tg.lines.join(', ')}<small>${srv ? (on ? 'Activados: incidencias oficiales, de Adif y de viajeros' : 'Te llegan aunque tengas la app cerrada') : (on ? 'Activados mientras la app esté abierta' : 'Incidencias nuevas de tus líneas mientras la app esté abierta')}</small></span><button type="button" data-push class="${on ? 'on' : ''}">${on ? 'Desactivar' : 'Activar'}</button></div>`; })()}` : '');
     el.className = PLACES.some(P => P.open) ? 'open' : '';
     if (el._h === html) return; el._h = html; el.innerHTML = html;
     { const lead = [...el.children].find(c => c.classList.contains('hplace') && !c.querySelector('.hnew')); if (lead) lead.classList.add('lead'); }
@@ -1309,7 +1325,7 @@ export function initRail(A) {
   function renderLineaBar() {
     const one = famOn.size === 1 ? [...famOn][0] : '', n = RT.alerts.filter(a => [...a.fams].some(f => famOn.has(f))).length;
     const k = [selStats, selAlerts, selLine, one, n].join('|'); if (tabL._k === k) return; tabL._k = k;
-    tabL.innerHTML = `<button type="button" data-tl="stats" class="${selStats ? 'on' : ''}">📊 ${'Puntualidad'}</button><button type="button" data-tl="alr" class="${selAlerts ? 'on' : ''}">⚠️ ${n}${n === 1 ? ' aviso' : ' avisos'}</button>${one ? `<button type="button" data-tl="line" class="${selLine ? 'on' : ''}">📋 ${esc(one)}</button>` : ''}<a href="https://www.whatsapp.com/channel/0029Vav4hGTId7nPenKMuo2C" target="_blank" rel="noopener" title="${'Canal de avisos de Rodalies en WhatsApp'}">💬 WhatsApp</a>`;
+    tabL.innerHTML = `<button type="button" data-tl="stats" class="${selStats ? 'on' : ''}">📊 ${'Puntualidad'}</button><button type="button" data-tl="alr" class="${selAlerts ? 'on' : ''}">⚠️ ${n}${n === 1 ? ' aviso' : ' avisos'}</button>${one ? `<button type="button" data-tl="line" class="${selLine ? 'on' : ''}">📋 ${esc(one)}</button>` : ''}<a href="https://www.whatsapp.com/channel/0029Vav4hGTId7nPenKMuo2C" target="_blank" rel="noopener" title="${'Canal de avisos de Rodalies en WhatsApp'}">💬</a>`;
     tabL.querySelectorAll('[data-tl]').forEach(b => b.onclick = () => { const w = b.dataset.tl; selStats = w === 'stats'; selAlerts = w === 'alr'; selLine = w === 'line' ? one : ''; selNews = false; selTrip = null; selStation = -1; if (selStats) HIST.at = 0; mcs._h = ''; renderCard(); renderLineaBar(); });
   }
   function renderAjustes() {

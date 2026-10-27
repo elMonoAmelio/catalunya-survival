@@ -108,4 +108,5 @@ T = {
 "Claro": ("Clar", "Light"),
 "Oscuro": ("Fosc", "Dark"),
 " avisos": (" avisos", " notices"),
+"✓ Sin avisos": ("✓ Sense avisos", "✓ No notices"),
 }

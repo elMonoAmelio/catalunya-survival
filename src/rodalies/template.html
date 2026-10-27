@@ -260,7 +260,7 @@ em.dl{font-style:normal;font-weight:800;font-size:11px;border-radius:6px;padding
 #inf.compact{max-height:none;overflow:visible}
 .hst{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}.hst button{white-space:nowrap;flex:none}
 .hwalk{flex-wrap:nowrap;white-space:nowrap;font-size:12px;gap:5px}.hwalk button{width:28px;height:28px;flex:none}
-.hal{font-size:11.5px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.hal{font-size:11.5px}
 .htit small{white-space:nowrap}
 }
 /* leyenda: una explicación por línea, hacia abajo, sin desplazar el panel a los lados */
@@ -321,11 +321,11 @@ html.tabmode[data-tab=mapa] #inf{display:none!important}
 html.tabmode[data-tab=mapa] #mcs.peek{max-height:150px!important}
 html.tabmode[data-tab=mapa] #mcs{top:calc(64px + var(--sat0))!important;translate:none;max-height:calc(100vh - 64px - var(--tbh) - 70px - var(--sat0) - var(--sab0))!important}
 html.tabmode[data-tab=linea] #s,html.tabmode[data-tab=linea] #z,html.tabmode[data-tab=linea] #north,html.tabmode[data-tab=linea] #mbtn,html.tabmode[data-tab=linea] #rc,html.tabmode[data-tab=linea] #inf,html.tabmode[data-tab=linea] #chip{display:none!important}
-html.tabmode[data-tab=linea] #tabL{display:flex;gap:6px;flex-wrap:wrap;position:fixed;left:10px;right:10px;top:calc(10px + var(--sat0));z-index:21}
+html.tabmode[data-tab=linea] #tabL{display:flex;gap:6px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;position:fixed;left:10px;right:10px;top:calc(10px + var(--sat0));z-index:21}
 html.tabmode[data-tab=linea] #mcs{top:calc(58px + var(--sat0))!important;bottom:calc(var(--tbh) + 10px + var(--sab0))!important;left:10px!important;right:10px!important;width:auto!important;max-height:none!important;height:auto!important;display:flex!important;flex-direction:column}
 html.tabmode[data-tab=linea] #mcs>.tc{flex:1 1 auto;max-height:none!important;overflow:auto}
 html.tabmode[data-tab=linea] #mcs .x,html.tabmode[data-tab=linea] #mcs .mn{display:none}
-#tabL button,#tabL a{border:1px solid rgba(29,35,48,.12);background:var(--glass);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border-radius:16px;padding:7px 12px;font:inherit;font-size:12.5px;font-weight:600;color:var(--ink);text-decoration:none;cursor:pointer}
+#tabL button,#tabL a{white-space:nowrap;flex:none;border:1px solid rgba(29,35,48,.12);background:var(--glass);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border-radius:16px;padding:7px 12px;font:inherit;font-size:12.5px;font-weight:600;color:var(--ink);text-decoration:none;cursor:pointer}
 #tabL .on{background:var(--ink);color:var(--card)}
 html.tabmode[data-tab=ajustes] #s,html.tabmode[data-tab=ajustes] #z,html.tabmode[data-tab=ajustes] #north,html.tabmode[data-tab=ajustes] #mbtn,html.tabmode[data-tab=ajustes] #rc,html.tabmode[data-tab=ajustes] #inf,html.tabmode[data-tab=ajustes] #mcs,html.tabmode[data-tab=ajustes] #chip{display:none!important}
 html.tabmode[data-tab=ajustes] #tabA{display:block;padding:14px 16px}
@@ -336,6 +336,17 @@ html.tabmode[data-tab=ajustes] #tabA{display:block;padding:14px 16px}
 #tabA #dp{position:static;max-height:none;margin-top:6px;box-shadow:none}#tabA #src{display:block;color:var(--mut);margin:0 0 8px;white-space:normal}
 #tabA .tabAfoot{margin-top:22px;text-align:center;color:var(--mut);font-size:11px;letter-spacing:.08em}
 html.dark #tabs{border-top-color:rgba(255,255,255,.08)}html.dark #tabL button,html.dark #tabL a,html.dark #tabA .seg2 button,html.dark #tabA #bell,html.dark #tabA #dtoggle,html.dark #tabA #ver{border-color:rgba(255,255,255,.12)}
+/* Ahora: bloque de avisos de tus líneas */
+.hnow{display:none}
+html.tabmode .hnow{display:block;background:#eef1f6;border-radius:12px;padding:8px 10px;margin:0 0 8px;font-size:12.5px;color:var(--ink)}
+html.tabmode .hnow.warn{background:#fff4e5;color:#7a3d00}html.tabmode .hnow.bad{background:#fde2e2;color:#991b1b}
+.hnowh{display:flex;align-items:center;gap:6px;flex-wrap:wrap}.hnowh .ln{margin:0;background:var(--c)!important;color:#fff;padding:1px 6px;border-radius:5px;font-weight:700;font-size:11px}
+.hnow p{margin:6px 0 0;line-height:1.4}.hnow small{opacity:.75}
+.hwa{margin-left:auto;text-decoration:none;font-weight:700;color:inherit;border:1px solid currentColor;border-radius:12px;padding:3px 9px;font-size:12px;opacity:.85}
+html.dark.tabmode .hnow{background:#161c27}html.dark.tabmode .hnow.warn{background:#3a2a12;color:#f8d9a8}html.dark.tabmode .hnow.bad{background:#3d1717;color:#fecaca}
+html.tabmode[data-tab=ahora] #home .hal,html.tabmode[data-tab=ahora] #home .hok{display:none}
+/* 2) con pestañas no se muestra la configuración del puente (la app ya conecta sola) */
+html.tabmode #dtoggle,html.tabmode #dp{display:none!important}
 /* ---------- modo noche ---------- */
 #tbtn{position:fixed;z-index:3;width:44px;height:44px;border-radius:50%;border:1px solid rgba(255,255,255,.6);background:var(--glass);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);box-shadow:0 4px 14px rgba(20,30,50,.12);font-size:18px;cursor:pointer;top:16px;left:556px;width:auto;height:auto;border-radius:16px;padding:5px 10px;font-size:14px}
 #mbtn:not(.show)~#sbtn~#tbtn,#mbtn:not(.show)~#tbtn{left:430px}
