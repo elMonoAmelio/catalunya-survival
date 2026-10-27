@@ -1180,7 +1180,7 @@ export function initRail(A) {
   function syncCompact() {
     const sel = selTrip ? 't' + (selTrip.tid || selTrip.vtid) : selStation >= 0 ? 's' + selStation : selAlerts ? 'a' : selNews ? 'n' : '';
     if (sel !== lastSel) { infExp = false; lastSel = sel; }
-    const on = innerWidth <= 640 && !!sel && !infExp, inf = $('#inf');
+    const on = innerWidth <= 640 && !!sel && !infExp && !document.documentElement.classList.contains('tabmode'), inf = $('#inf');   // con pestañas, Ahora siempre muestra todos tus paneles
     if (inf.classList.contains('compact') !== on) { inf.classList.toggle('compact', on); requestAnimationFrame(() => { if (mcs.style.display !== 'none') { const ib = inf.getBoundingClientRect().bottom; mcs.style.top = Math.round(ib + 8) + 'px'; mcs.style.maxHeight = Math.max(140, $('#rc').getBoundingClientRect().top - ib - 16) + 'px'; } }); }
   }
   // aviso en el móvil: el próximo tren que te conviene va con 10 min o más de retraso (una vez por tren)
