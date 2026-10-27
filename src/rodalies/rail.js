@@ -1349,11 +1349,13 @@ export function initRail(A) {
     tabA.innerHTML = `<h3>${'Ajustes'}</h3>
       <h4>🌐 ${'Idioma'}</h4><div class="seg2">${[['ca', 'Català'], ['es', 'Español'], ['en', 'English']].map(([k, n]) => `<button type="button" data-lang="${k}" class="${L === k ? 'on' : ''}">${n}</button>`).join('')}</div>
       <h4>🌙 ${'Modo noche'}</h4><div class="seg2">${[['auto', 'Automático'], ['light', 'Claro'], ['dark', 'Oscuro']].map(([k, n]) => `<button type="button" data-th="${k}" class="${th === k ? 'on' : ''}">${n}</button>`).join('')}</div>
+      <h4>🔠 ${'Tamaño del texto'}</h4><div class="seg2">${[['0', 'Normal'], ['1', 'Grande']].map(([k, n]) => `<button type="button" data-big="${k}" class="${document.documentElement.classList.contains('big') === (k === '1') ? 'on' : ''}">${n}</button>`).join('')}</div>
       <h4>🔔 ${'Avisos'}</h4><div id="tabAbell"></div>${allLines().length ? '' : `<small class="tabAhint">${'Elige tu estación de Casa o Trabajo (pestaña Ahora) para recibir avisos de sus líneas.'}</small>`}${(() => { const ls = allLines(); return ls.length > 1 ? `<small class="tabAhint">${'Líneas de las que quieres avisos:'}</small><div class="alch">${ls.map(f => `<button type="button" data-al="${esc(f)}" class="ln${ALOFF.has(f) ? ' off' : ''}" style="--c:${FC[f]}">${esc(f)}</button>`).join('')}</div>` : ''; })()}
       <h4>📡 ${'Datos en directo'}</h4><div id="tabArt"></div>
       <h4>ℹ️ ${'Información'}</h4><div id="tabAinf"></div>
       <p class="tabAfoot">MonkiSoft</p>`;
     tabA.querySelectorAll('[data-al]').forEach(b => b.onclick = () => { const f = b.dataset.al, ls = allLines(); if (ALOFF.has(f)) ALOFF.delete(f); else if (ls.filter(x => !ALOFF.has(x)).length > 1) ALOFF.add(f); try { localStorage.setItem('rod_aloff', JSON.stringify([...ALOFF])); } catch (e) {} renderHome(true); renderAjustes(); });
+    tabA.querySelectorAll('[data-big]').forEach(b => b.onclick = () => { const on = b.dataset.big === '1'; document.documentElement.classList.toggle('big', on); try { localStorage.setItem('rod_big', on ? '1' : ''); } catch (e) {} renderAjustes(); });
     tabA.querySelectorAll('[data-th]').forEach(b => b.onclick = () => { THEME.mode = b.dataset.th; try { localStorage.setItem('rod_theme', THEME.mode); } catch (e) {} applyTheme(); renderAjustes(); });
     park($('#bell'), $('#tabAbell')); park($('#src'), $('#tabArt')); park($('#ver'), $('#tabAinf'));
   }

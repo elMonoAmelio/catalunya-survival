@@ -115,4 +115,6 @@ T = {
 "Elige tu estación de Casa o Trabajo (pestaña Ahora) para recibir avisos de sus líneas.": ("Tria la teva estació de Casa o Feina (pestanya Ara) per rebre avisos de les seves línies.", "Choose your Home or Work station (Now tab) to get alerts for its lines."),
 "Filtro de líneas activo": ("Filtre de línies actiu", "Line filter on"),
 " · tren ": (" · tren ", " · train "),
+"Tamaño del texto": ("Mida del text", "Text size"),
+"Grande": ("Gran", "Large"),
 }
