@@ -12,6 +12,7 @@
 	},
 	"packageClassList": [
 		"GeolocationPlugin",
+		"HapticsPlugin",
 		"LocalNotificationsPlugin"
 	]
 }
