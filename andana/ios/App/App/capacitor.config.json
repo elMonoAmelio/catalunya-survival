@@ -5,6 +5,11 @@
 	"ios": {
 		"contentInset": "never"
 	},
+	"plugins": {
+		"CapacitorHttp": {
+			"enabled": true
+		}
+	},
 	"packageClassList": [
 		"GeolocationPlugin"
 	]
