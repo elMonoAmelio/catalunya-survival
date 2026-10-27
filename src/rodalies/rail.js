@@ -157,7 +157,7 @@ export function initRail(A) {
   const live = () => feedUp() && !rtDown();
   function renderRT() {
     const st = $('#rtst'), m = $('#mode');
-    if (m) { const on = !!live() && nowState().live; m.classList.toggle('on', on); m.classList.toggle('pre', !on); m.textContent = on ? 'En directo' : PAST.cur ? 'Repaso real' : 'Previsión'; m.classList.toggle('past', !!PAST.cur); m.title = PAST.cur ? `Retrasos reales de la foto de las ${PAST.cur.sn.t} (se toma una cada 15 min)` : ''; }
+    if (m) { const on = !!live() && nowState().live; m.classList.toggle('on', on); m.classList.toggle('pre', !on); m.textContent = on ? 'En directo' : PAST.cur ? 'Repaso real' : 'Previsión'; m.classList.toggle('past', !!PAST.cur); const g = $('#rcgrab'); if (g) { let d = g.querySelector('.rdot'); if (!d) { d = document.createElement('b'); d.className = 'rdot'; g.insertBefore(d, g.firstChild); } d.className = 'rdot ' + (PAST.cur ? 'past' : on ? 'on' : 'pre'); d.title = m.textContent; } m.title = PAST.cur ? `Retrasos reales de la foto de las ${PAST.cur.sn.t} (se toma una cada 15 min)` : ''; }
     if (!st) return;
     if (!RT.url) st.textContent = RT.err || 'Sin puente: trenes según horario oficial.';
     else if (RT.err) st.textContent = 'No se pudo conectar con el puente (' + RT.err + '). Se usa el horario.';
@@ -740,7 +740,7 @@ export function initRail(A) {
     const css = [...new Set(Object.values(FC))].filter(c => lum(c) > 0.3).map(c => `.ln[style*="--c:${c}"],[data-f][style*="--c:${c}"].on,[data-f][style*="--c:${c}"]:not(.off){color:#14203a!important}`).join('');
     if (css) { const st = document.createElement('style'); st.textContent = css; document.head.appendChild(st); } }
   function lateTxt(d, live_) { if (!live_) return '<span class="st sch">Según horario · sin dato en directo</span>'; if (d === 'X') return '<span class="st late">Cancelado</span>'; return d >= 60 ? `<span class="st late ${dlCls(d / 60)}">Retraso de ${Math.round(d / 60)} min</span>` : '<span class="st ok">Puntual</span>'; }
-  function peekH() { if (!mcs.classList.contains('peek')) return; const tc = mcs.querySelector('.tc'); if (!tc) return; const st = tc.querySelector('.st') || tc.querySelector('p'); const top = mcs.getBoundingClientRect().top - mcs.scrollTop; const h = st ? st.getBoundingClientRect().bottom - top + 6 : 150; mcs.style.setProperty('--peekh', Math.round(Math.min(280, Math.max(110, h))) + 'px'); }
+  function peekH() { if (!mcs.classList.contains('peek') || window.__mapHidden || !mcs.getClientRects().length) return; /* oculta (otra pestaña) mide 0: no se toca */ const tc = mcs.querySelector('.tc'); if (!tc) return; const st = tc.querySelector('.st') || tc.querySelector('p'); const top = mcs.getBoundingClientRect().top - mcs.scrollTop; const h = st ? st.getBoundingClientRect().bottom - top + 6 : 150; mcs.style.setProperty('--peekh', Math.round(Math.min(280, Math.max(110, h))) + 'px'); }
   function renderCard() { try { renderCard0(); } finally { if (window.__rodTabSync) window.__rodTabSync(); try { peekH(); } catch (e) {} } }
   function renderCard0() {
     if (!selTrip && selStation < 0 && !selAlerts && !selNews && !selStats && !selLine) { CARDHID = false; mcs.innerHTML = ''; mcs._h = ''; mcs.style.display = 'none'; mcs.classList.remove('peek'); syncCompact(); return; }
@@ -1364,8 +1364,9 @@ export function initRail(A) {
     if (!TAB.on) return;
     const was = TAB.cur; TAB.cur = k; document.documentElement.dataset.tab = k; window.__mapHidden = k !== 'map';
     tabbar.querySelectorAll('[data-tab]').forEach(b => b.classList.toggle('on', b.dataset.tab === k));
-    if (k === 'line') { if (!selStats && !selAlerts && !selLine) { selStats = true; HIST.at = 0; } selTrip = null; selStation = -1; selNews = false; mcs._h = ''; renderCard(); renderLineaBar(); }
-    else if (was === 'line') { selStats = selAlerts = false; selLine = ''; mcs._h = ''; renderCard(); }
+    if (k === 'line') { if (selTrip || selStation >= 0) TAB.keep = { t: selTrip, s: selStation, sk: TAB.sk }; if (!selStats && !selAlerts && !selLine) { selStats = true; HIST.at = 0; } selTrip = null; selStation = -1; selNews = false; mcs._h = ''; renderCard(); renderLineaBar(); }
+    else if (was === 'line') { selStats = selAlerts = false; selLine = ''; const kp = TAB.keep; TAB.keep = null; if (kp && k === 'map' && !selTrip && selStation < 0) { selTrip = kp.t; selStation = kp.s; TAB.sk = kp.sk; } mcs._h = ''; renderCard(); }
+    if (k === 'map') requestAnimationFrame(() => requestAnimationFrame(() => { try { peekH(); } catch (e) {} dispatchEvent(new Event('resize')); }));   // al volver a verse el mapa, se recalcula la altura de la ficha (oculta medía mal)
     if (k === 'set') renderAjustes();
     if (k === 'now') renderHome(true);
     lastT = 0; invalidate();
