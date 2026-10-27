@@ -288,6 +288,13 @@ em.dl{font-style:normal;font-weight:800;font-size:11px;border-radius:6px;padding
 .hfav{font-size:12px;background:#fffbea;border-radius:9px;padding:6px 8px;margin-bottom:6px;line-height:1.6}.okc{color:#0c8a3e}.hcol li.hr.fav .hrt b::after{content:" ⭐";font-size:10px}
 
 .lng{display:block;font-size:12px;margin:2px 0 6px;color:var(--mut)}.lng a{cursor:pointer;color:inherit;text-decoration:none}.lng a:hover{text-decoration:underline}html[lang=ca] .lng [data-lang=ca],html[lang=es] .lng [data-lang=es],html[lang=en] .lng [data-lang=en]{font-weight:700;color:var(--ink)}
+/* dentro de la app (Capacitor): los controles no se meten bajo la isla dinámica ni la barra de inicio; el mapa sí ocupa toda la pantalla */
+html.cap{--sat:env(safe-area-inset-top,0px);--sab:env(safe-area-inset-bottom,0px)}
+html.cap #s,html.cap #mcs,html.cap #north,html.cap #z,html.cap #inf,html.cap #mbtn,html.cap #sbtn,html.cap #tbtn,html.cap #wabtn,html.cap #onb,html.cap #mcstab{translate:0 var(--sat)}
+html.cap #rc{translate:0 calc(-1*var(--sab))}
+html.cap #mcs{max-height:calc(var(--mcsmax,70vh) - var(--sat) - var(--sab))}
+/* en pantallas estrechas la cabecera de cada panel se queda en lo esencial: «Sal en 4 min · 10:16 → 10:44» */
+@media(max-width:430px){.htit small .lla{display:none}}
 /* ---------- modo noche ---------- */
 #tbtn{position:fixed;z-index:3;width:44px;height:44px;border-radius:50%;border:1px solid rgba(255,255,255,.6);background:var(--glass);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);box-shadow:0 4px 14px rgba(20,30,50,.12);font-size:18px;cursor:pointer;top:16px;left:556px;width:auto;height:auto;border-radius:16px;padding:5px 10px;font-size:14px}
 #mbtn:not(.show)~#sbtn~#tbtn,#mbtn:not(.show)~#tbtn{left:430px}
@@ -332,7 +339,7 @@ html.dark #rcgrab{color:var(--mut)}
 <script>if(innerWidth<=640)document.documentElement.classList.add("boot")</script>
 <script>@@I18N@@</script>
 <script>/* MonkiSoft · dentro de la app (Capacitor) la ubicación la pide iOS una sola vez: se usa el GPS nativo en lugar del de la web */
-(function(){var C=window.Capacitor;if(!C||!C.isNativePlatform||!C.isNativePlatform())return;var G=C.Plugins&&C.Plugins.Geolocation;if(!G)return;
+(function(){var C=window.Capacitor;if(!C||!C.isNativePlatform||!C.isNativePlatform())return;document.documentElement.classList.add('cap');var G=C.Plugins&&C.Plugins.Geolocation;if(!G)return;
 var opt=function(o){o=o||{};return{enableHighAccuracy:!!o.enableHighAccuracy,timeout:o.timeout||20000,maximumAge:o.maximumAge||0}};
 var bad=function(e,cb){if(cb)cb({code:/denied|permission|denegad/i.test(String(e&&e.message||e))?1:2,message:String(e&&e.message||e)})};
 var ids={},n=0;

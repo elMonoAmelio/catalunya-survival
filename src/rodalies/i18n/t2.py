@@ -94,4 +94,5 @@ T = {
 " y <b>": (" i <b>", " and <b>"),
 '" role="img" aria-label="Porcentaje de trenes puntuales a lo largo del día">\n      ': ('" role="img" aria-label="Percentatge de trens puntuals al llarg del dia">\n      ', '" role="img" aria-label="Share of trains on time throughout the day">\n      '),
 "· novedades y fuentes": ("· novetats i fonts", "· what's new and sources"),
+"llegas a las ": ("hi arribes a les ", "you arrive at "),
 }
