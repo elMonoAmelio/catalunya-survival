@@ -118,4 +118,9 @@ T = {
 "Tamaño del texto": ("Mida del text", "Text size"),
 "Grande": ("Gran", "Large"),
 "tren\u00a0": ("tren\u00a0", "train\u00a0"),
+'<small class="hro hro1">llegas a las ': ('<small class="hro hro1">hi arribes a les ', '<small class="hro hro1">arrive at '),
+' → <span class="lla">llegas a las </span><b>': (' → <span class="lla">hi arribes a les </span><b>', ' → <span class="lla">you arrive at </span><b>'),
+'</span><span class="lla"> hacia ': ('</span><span class="lla"> cap a ', '</span><span class="lla"> · to '),
+' · filtro de líneas activo · hacia ': (' · filtre de línies actiu · cap a ', ' · line filter on · to '),
+' (tu filtro no va hasta allí)</div>': (' (el teu filtre no hi arriba)</div>', " (your filter doesn't go there)</div>"),
 }
