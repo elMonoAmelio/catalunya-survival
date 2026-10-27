@@ -56,7 +56,7 @@ if not H or H.get('day') != day:
     if H and H.get('snaps'):
         with open(os.path.join(OUT, 'ayer.json'), 'w') as f:
             json.dump(H, f, ensure_ascii=False, separators=(',', ':'))
-        # historial de 30 días: retraso máximo de cada tren (por número) cada día, para «¿suele ir tarde mi tren?»
+        # historial de 30 días: retraso típico (mediana) de cada tren (por número) cada día, para «¿suele ir tarde mi tren?»
         HI = load('hist.json') or {'days': []}
         obs = {}
         for sn in H['snaps']:
