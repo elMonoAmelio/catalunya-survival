@@ -110,4 +110,5 @@ T = {
 " avisos": (" avisos", " notices"),
 "✓ Sin avisos": ("✓ Sense avisos", "✓ No notices"),
 "Toca aquí para recogerlo": ("Toca aquí per recollir-lo", "Tap here to collapse"),
+"actualizado ": ("actualitzat ", "updated "),
 }

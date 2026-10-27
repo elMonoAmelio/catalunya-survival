@@ -339,13 +339,15 @@ html.tabmode[data-tab=set] #tabA{display:block;padding:14px 16px}
 #tabA .tabAfoot{margin-top:22px;text-align:center;color:var(--mut);font-size:11px;letter-spacing:.08em}
 html.dark #tabs{border-top-color:rgba(255,255,255,.08)}html.dark #tabL button,html.dark #tabL a,html.dark #tabA .seg2 button,html.dark #tabA #bell,html.dark #tabA #dtoggle,html.dark #tabA #ver{border-color:rgba(255,255,255,.12)}
 #home .ln{display:inline-block;padding:1px 6px;border-radius:5px;color:#fff;font-weight:700;font-size:11px;background:var(--c);line-height:1.35}
+/* directo: hace cuánto llegaron los últimos datos (punto que se enciende con cada actualización) */
+.fresh{color:#0c8a3e;font-weight:600;white-space:nowrap}.fresh.new{animation:frs 1s ease}@keyframes frs{0%{opacity:.25}100%{opacity:1}}html.dark .fresh{color:#4ade80}
 /* Ahora: bloque de avisos de tus líneas */
 .hnow{display:none}
 html.tabmode .hnow{display:block;background:#eef1f6;border-radius:12px;padding:8px 10px;margin:0 0 8px;font-size:12.5px;color:var(--ink)}
 html.tabmode .hnow.warn{background:#fff4e5;color:#7a3d00}html.tabmode .hnow.bad{background:#fde2e2;color:#991b1b}
-.hnowh{display:flex;align-items:center;gap:6px;flex-wrap:wrap}.hnowh .ln{margin:0;background:var(--c)!important;color:#fff;padding:1px 6px;border-radius:5px;font-weight:700;font-size:11px}
+.hnowh{display:flex;align-items:center;gap:8px}.hnowl{flex:1;display:flex;align-items:center;gap:5px;flex-wrap:wrap;min-width:0}.hnowl>b{margin-right:2px}.hnowh .ln{margin:0;background:var(--c)!important;color:#fff;padding:1px 6px;border-radius:5px;font-weight:700;font-size:11px}
 .hnow p{margin:6px 0 0;line-height:1.4}.hnow{cursor:pointer}.hnowt{display:block;margin-top:6px;opacity:.6;font-size:11px}.hnow.col .hnowh>b::after{content:' ▸';opacity:.6}.hnow small{opacity:.75}
-.hwa{margin-left:auto;text-decoration:none;font-weight:700;color:inherit;border:1px solid currentColor;border-radius:12px;padding:3px 9px;font-size:12px;opacity:.85}
+.hwa{flex:none;display:flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.9);box-shadow:0 1px 4px rgba(0,0,0,.15)}html.dark .hwa{background:#1f2633}
 html.dark.tabmode .hnow{background:#161c27}html.dark.tabmode .hnow.warn{background:#3a2a12;color:#f8d9a8}html.dark.tabmode .hnow.bad{background:#3d1717;color:#fecaca}
 html.tabmode[data-tab=now] #home .hal,html.tabmode[data-tab=now] #home .hok{display:none}
 /* 2) con pestañas no se muestra la configuración del puente (la app ya conecta sola) */
