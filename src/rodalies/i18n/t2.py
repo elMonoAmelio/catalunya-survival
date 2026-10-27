@@ -123,4 +123,5 @@ T = {
 '</span><span class="lla"> hacia ': ('</span><span class="lla"> cap a ', '</span><span class="lla"> · to '),
 ' · filtro de líneas activo · hacia ': (' · filtre de línies actiu · cap a ', ' · line filter on · to '),
 ' (tu filtro no va hasta allí)</div>': (' (el teu filtre no hi arriba)</div>', " (your filter doesn't go there)</div>"),
+'</span> a ': ('</span> a ', '</span> to '),
 }
