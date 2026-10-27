@@ -1110,7 +1110,7 @@ export function initRail(A) {
         ${atSt ? `<div class="hwalk away">🚉 Estás en la estación: horas de salida del tren · <a data-hnotst="${P.key}">no, estoy en casa</a></div>` : onWay ? `<div class="hwalk away">🚶 De camino · te quedan unos <b>${Math.round(wayLeft)} min</b>${gpsOk && kmTo <= 3 ? ' (según tu ubicación)' : ''} · <a data-hgo="${P.key}:0">cancelar</a></div>` : ''}${away && P !== NEAR ? `<div class="hwalk away">📍 Estás a ${kmTo < 10 ? kmTo.toFixed(1).replace('.', ',') : Math.round(kmTo)} km: horas de salida del tren, sin contar el camino</div>` : ''}<div class="hwalk"${away || atSt || onWay ? ' hidden' : ''}><button type="button" class="hgo" data-hgo="${P.key}:1">🚶 Ya he salido</button> Tardo <button type="button" data-hw="${P.key}:-1">−</button><b>${W} min</b><button type="button" data-hw="${P.key}:1">+</button> a pie hasta la estación</div>
         ${(() => { const fs = FAV.filter(f => P.st.includes(f.sid)); if (!fs.length) return ''; return `<div class="hfav">${fs.map(f => { const ft = favTrip(f, R.days.indexOf(S.ymd)), x = ft && deps.find(y => String(y.num) === String(ft.num)); return `⭐ <b>${f.t}</b> ${esc(f.fam)} ${x ? (x.cancel ? '<em class="dl d-hi">cancelado</em>' : x.gone ? 'ya ha salido' : x.dl >= 1 ? `<em class="dl ${dlCls(x.dl)}">+${Math.round(x.dl)}</em> sale a las ${hhmm(x.est)}` : '<b class="okc">en hora</b>') : '<small>hoy no circula o aún falta</small>'}`; }).join('<br>')}</div>`; })()}
         ${filtered ? `<div class="hflt">Solo ${[...fams].sort(natural).map(chipL).join(' ')} · filtro de líneas activo${toAll ? ` · hacia ${refName} se muestran ${toAll} (tu filtro no va hasta allí)` : ''}</div>` : offF ? `<div class="hflt">El filtro (${[...famOn].sort(natural).slice(0, 3).map(chipL).join(' ')}) no pasa por aquí: se ven todas tus líneas</div>` : ''}
-        ${al.length ? `<div class="hal ${bad ? 'bad' : ''}">⚠️ ${srcB(al[0])} ${esc(al[0].txt)} <small>${whenTxt(al[0])}</small>${al.length > 1 ? ` <a data-hal>+${al.length - 1} avisos</a>` : ''}</div>` : `<div class="hok">✓ Sin avisos para ${[...fams].sort(natural).join(', ')}</div>`}
+        ${al.length ? `<div class="hal ${bad ? 'bad' : ''}${HALOPEN.v ? ' open' : ''}" data-halx>⚠️ ${srcB(al[0])} ${esc(al[0].txt)} <small>${whenTxt(al[0])}</small>${al.length > 1 ? ` <a data-hal>+${al.length - 1} avisos</a>` : ''}</div>` : `<div class="hok">✓ Sin avisos para ${[...fams].sort(natural).join(', ')}</div>`}
         ${(() => { const r = P.st.flatMap(id => repsFor('', id)); return r.length ? `<div class="hcr">${r.slice(0, 3).map(y => `${CK[y.kind]} <b>${esc(tipo(y.kind))}</b> <small>${y.up > 1 ? y.up + ' viajeros · ' : ''}${repAge(y)}</small>`).join('<br>')}</div>` : ''; })()}
         ${P === NEAR ? `<div class="hcols one">${col('all', verdict('all'))}</div>` : (P.hide === 'out' ? `<div class="hcols one">${col('to', vb)}</div><a class="hshow" data-hshow="${P.key}">↺ Mostrar la otra dirección</a>` : P.hide === 'to' ? `<div class="hcols one">${col(g2, vo)}</div><a class="hshow" data-hshow="${P.key}">↺ Mostrar la otra dirección</a>` : `<div class="hcols">${col('to', vb, 'to')}${col(g2, vo, 'out')}</div>`)}
         ${deps.length > (P === NEAR ? 7 : 8) ? `<button type="button" class="hmore" data-hmore="${P.key}">${P.more ? '▴ Menos trenes' : '▾ Más trenes · próximas horas'}</button>` : ''}
@@ -1291,6 +1291,9 @@ export function initRail(A) {
     if (want) { const w = norm(want); let best = -1, sc = 0; ST.forEach((s, i) => { if (!s.fams.size) return; const n = norm(s.n); const v = n === w ? 3 : n.startsWith(w) || w.startsWith(n) ? 2 : n.includes(w) || w.includes(n) ? 1 : 0; if (v > sc) { sc = v; best = i; } });
       if (best >= 0) setTimeout(() => { selStation = best; styleStations(); Object.assign(goal, { tx: ST[best].w[0], ty: ST[best].w[1], dist: 18, tilt: 0.5 }); renderCard(); invalidate(); }, 300); }
   } catch (e) {}
+  // avisos del panel: recortados a 3 líneas; al tocarlos se ven enteros (y al volver a tocar, se recortan)
+  const HALOPEN = { v: false };
+  document.addEventListener('click', e => { const h = e.target.closest && e.target.closest('[data-halx]'); if (!h || e.target.closest('a')) return; HALOPEN.v = !HALOPEN.v; renderHome(true); });
   // ---------- PESTAÑAS (móvil y app): Ahora · Mapa · Línea · Ajustes ----------
   // En el ordenador se mantiene el diseño con paneles flotantes; en el móvil y en la app, cuatro pestañas abajo.
   const TAB = { on: false, cur: 'ahora', home: new Map() };
@@ -1310,6 +1313,7 @@ export function initRail(A) {
     tabL.querySelectorAll('[data-tl]').forEach(b => b.onclick = () => { const w = b.dataset.tl; selStats = w === 'stats'; selAlerts = w === 'alr'; selLine = w === 'line' ? one : ''; selNews = false; selTrip = null; selStation = -1; if (selStats) HIST.at = 0; mcs._h = ''; renderCard(); renderLineaBar(); });
   }
   function renderAjustes() {
+    unpark();   // primero se devuelven a su sitio los elementos prestados (si no, se borrarían al rehacer la hoja)
     const L = window.__L || 'es', th = THEME.mode;
     tabA.innerHTML = `<h3>${'Ajustes'}</h3>
       <h4>🌐 ${'Idioma'}</h4><div class="seg2">${[['ca', 'Català'], ['es', 'Castellano'], ['en', 'English']].map(([k, n]) => `<button type="button" data-lang="${k}" class="${L === k ? 'on' : ''}">${n}</button>`).join('')}</div>
@@ -1319,11 +1323,11 @@ export function initRail(A) {
       <h4>ℹ️ ${'Información'}</h4><div id="tabAinf"></div>
       <p class="tabAfoot">MonkiSoft</p>`;
     tabA.querySelectorAll('[data-th]').forEach(b => b.onclick = () => { THEME.mode = b.dataset.th; try { localStorage.setItem('rod_theme', THEME.mode); } catch (e) {} applyTheme(); renderAjustes(); });
-    park($('#bell'), $('#tabAbell')); park($('#dtoggle'), $('#tabArt')); park($('#dp'), $('#tabArt')); park($('#src'), $('#tabAinf')); park($('#ver'), $('#tabAinf'));
+    park($('#bell'), $('#tabAbell')); park($('#src'), $('#tabArt')); park($('#ver'), $('#tabAinf'));
   }
   function setTab(k) {
     if (!TAB.on) return;
-    const was = TAB.cur; TAB.cur = k; document.documentElement.dataset.tab = k;
+    const was = TAB.cur; TAB.cur = k; document.documentElement.dataset.tab = k; window.__mapHidden = k !== 'mapa';
     tabbar.querySelectorAll('[data-tab]').forEach(b => b.classList.toggle('on', b.dataset.tab === k));
     if (k === 'linea') { if (!selStats && !selAlerts && !selLine) { selStats = true; HIST.at = 0; } selTrip = null; selStation = -1; selNews = false; mcs._h = ''; renderCard(); renderLineaBar(); }
     else if (was === 'linea') { selStats = selAlerts = false; selLine = ''; mcs._h = ''; renderCard(); }
@@ -1336,7 +1340,7 @@ export function initRail(A) {
   window.__rodTabSync = () => { if (!TAB.on) return; const sk = selTrip ? 't' + (selTrip.num || selTrip.vtid) : selStation >= 0 ? 's' + selStation : ''; const nueva = sk !== TAB.sk; TAB.sk = sk; if (sk && nueva && TAB.cur !== 'mapa') setTab('mapa'); else if ((selAlerts || selLine || selNews) && TAB.cur !== 'linea' && TAB.cur !== 'mapa') setTab('linea'); if (TAB.cur === 'linea') renderLineaBar(); };
   function tabMode() {
     const on = tabsMQ.matches || document.documentElement.classList.contains('cap');
-    if (on === TAB.on) return; TAB.on = on; document.documentElement.classList.toggle('tabmode', on);
+    if (on === TAB.on) return; TAB.on = on; document.documentElement.classList.toggle('tabmode', on); if (!on) window.__mapHidden = false;
     if (on) setTab('ahora'); else { delete document.documentElement.dataset.tab; unpark(); }
   }
   tabsMQ.addEventListener ? tabsMQ.addEventListener('change', tabMode) : tabsMQ.addListener(tabMode);

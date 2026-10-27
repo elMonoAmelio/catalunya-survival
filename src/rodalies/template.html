@@ -308,7 +308,13 @@ html.tabmode #rc{bottom:calc(var(--tbh) + 10px)}
 html.tabmode #rc{translate:0 calc(-1*var(--sab0))}
 /* hojas a pantalla completa (Ahora, Línea, Ajustes) */
 html.tabmode[data-tab=ahora] #inf,html.tabmode #tabA,html.tabmode[data-tab=linea] #mcs{position:fixed;left:10px;right:10px;top:calc(10px + var(--sat0));bottom:calc(var(--tbh) + 10px + var(--sab0));max-width:none;max-height:none;overflow:auto;-webkit-overflow-scrolling:touch;translate:none;z-index:20}
-html.tabmode[data-tab=ahora] #inf{display:block;padding:8px}
+html.tabmode[data-tab=ahora] #inf{display:flex;flex-direction:column;padding:8px;background:none;border:0;box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none}
+html.tabmode[data-tab=ahora] #home{margin:auto 0}
+html.tabmode:not([data-tab=mapa]) #c,html.tabmode:not([data-tab=mapa]) .plab,html.tabmode:not([data-tab=mapa]) .mlab,html.tabmode:not([data-tab=mapa]) #tip{visibility:hidden}
+html.tabmode:not([data-tab=mapa]) body{background:#eef1f5}html.dark.tabmode:not([data-tab=mapa]) body{background:#0d1117}
+html.tabmode #tabA{background:none;border:0;box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none}
+.hal{line-height:1.4;cursor:pointer}.hal .asrc{line-height:1;vertical-align:baseline}.hal.open{display:block;-webkit-line-clamp:unset;overflow:visible}
+html.tabmode #mcs .tc .x,html.tabmode #mcs .tc .mn{position:sticky;top:4px;float:right;z-index:3;margin-left:6px}html.tabmode #mcs .tc .x{background:var(--card);box-shadow:0 1px 4px rgba(0,0,0,.15)}
 html.tabmode[data-tab=ahora] #inf .l1,html.tabmode[data-tab=ahora] #inf .more{display:none!important}
 html.tabmode[data-tab=ahora] #s,html.tabmode[data-tab=ahora] #z,html.tabmode[data-tab=ahora] #north,html.tabmode[data-tab=ahora] #mbtn,html.tabmode[data-tab=ahora] #rc,html.tabmode[data-tab=ahora] #mcs,html.tabmode[data-tab=ahora] #chip{display:none!important}
 html.tabmode[data-tab=mapa] #inf{display:none!important}

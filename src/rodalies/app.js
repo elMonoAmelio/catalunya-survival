@@ -183,6 +183,7 @@ function frame(now) {
   for (const o of munis) { const d = o.zt - o.z; if (Math.abs(d) > 0.002) { o.z += d * Math.min(1, a * 0.8); o.group.scale.z = o.z; o.og.position.z = o.z + 0.04; moving = true; } else if (o.z !== o.zt) { o.z = o.zt; o.group.scale.z = o.z; o.og.position.z = o.z + 0.04; } }
   for (const [o, t0] of pulses) { const k = (now - t0) / 1800; if (k >= 1) { pulses.delete(o); refreshEm(o); } else { refreshEm(o, 0.5 * Math.sin(Math.PI * k)); } moving = true; }
   if (window.__rodTick && window.__rodTick(now)) dirty = true;
+  if (window.__mapHidden) { dirty = true; return; }   // pestañas sin mapa: no se dibuja (fluidez y batería)
   if (moving || dirty) { northR.style.transform = `rotate(${cur.yaw}rad) scaleY(${(0.55 + 0.45 * Math.cos(cur.tilt)).toFixed(3)})`; { const off = Math.abs(Math.sin(goal.yaw / 2)) < 0.02 && goal.tilt < 0.03; const nb = document.getElementById('north'); if (nb.classList.contains('flat') !== off) { nb.classList.toggle('flat', off); nb.title = off ? 'El norte ya está arriba' : 'Poner el norte arriba y el mapa plano'; } } placeCamera(); updateBorders(); placeLabels(); if (window.__rodFrame) window.__rodFrame(); renderer.render(scene, camera); dirty = moving; $('#tilt').value = Math.round(goal.tilt * 180 / Math.PI); $('#yaw').value = Math.round(((goal.yaw * 180 / Math.PI + 180) % 360 + 360) % 360 - 180); }
 }
 function resize() {
