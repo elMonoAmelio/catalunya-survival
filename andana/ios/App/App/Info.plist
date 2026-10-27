@@ -33,7 +33,7 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Andana fa servir la teva ubicació per trobar l'estació més propera, calcular quan has de sortir i detectar el tren on vas.</string>
+	<string>Andana uses your location to find the nearest station, work out when you should leave and detect the train you're on.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

@@ -331,6 +331,15 @@ html.dark #rcgrab{color:var(--mut)}
 </style>
 <script>if(innerWidth<=640)document.documentElement.classList.add("boot")</script>
 <script>@@I18N@@</script>
+<script>/* MonkiSoft · dentro de la app (Capacitor) la ubicación la pide iOS una sola vez: se usa el GPS nativo en lugar del de la web */
+(function(){var C=window.Capacitor;if(!C||!C.isNativePlatform||!C.isNativePlatform())return;var G=C.Plugins&&C.Plugins.Geolocation;if(!G)return;
+var opt=function(o){o=o||{};return{enableHighAccuracy:!!o.enableHighAccuracy,timeout:o.timeout||20000,maximumAge:o.maximumAge||0}};
+var bad=function(e,cb){if(cb)cb({code:/denied|permission|denegad/i.test(String(e&&e.message||e))?1:2,message:String(e&&e.message||e)})};
+var ids={},n=0;
+try{Object.defineProperty(navigator,'geolocation',{configurable:true,value:{
+getCurrentPosition:function(ok,ko,o){G.getCurrentPosition(opt(o)).then(ok,function(e){bad(e,ko)})},
+watchPosition:function(ok,ko,o){var k=++n;ids[k]=0;G.watchPosition(opt(o),function(p,e){if(e)bad(e,ko);else if(p)ok(p)}).then(function(id){if(ids[k]===null)G.clearWatch({id:id});else ids[k]=id});return k},
+clearWatch:function(k){var id=ids[k];if(id)G.clearWatch({id:id});ids[k]=null}}})}catch(e){}})();</script>
 <style>@media(max-width:640px){html.boot #inf .more,html.boot #inf .l1,html.boot #rc>*:not(#rcgrab){display:none!important}html.boot #rcgrab span{visibility:hidden}}</style>
 <script>try{var m=localStorage.getItem("rod_theme")||"auto";if(m==="dark"||(m==="auto"&&matchMedia("(prefers-color-scheme: dark)").matches))document.documentElement.classList.add("dark")}catch(e){}</script>
 </head>

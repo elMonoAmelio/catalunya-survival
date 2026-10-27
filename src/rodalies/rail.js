@@ -948,7 +948,7 @@ export function initRail(A) {
   }
   // ---------- Casa y Trabajo: dos paneles de referencia ----------
   const mkPlace = (key, ico, name, def) => { const P = { key, ico, name, st: [], i: 0, walk: 10, open: false }; try { const h = JSON.parse(localStorage.getItem('rod_' + key) || 'null'); if (h) Object.assign(P, h); } catch (e) {} if (!P.st.length && def) P.st = def; return P; };
-  const HOME = mkPlace('home', '🏠', 'Casa', ['79410', '79412']), WORK = mkPlace('work', '💼', 'Trabajo', null);
+  const HOME = mkPlace('home', '🏠', 'Casa', null), WORK = mkPlace('work', '💼', 'Trabajo', null);
   // 📍 Cerca de ti: estación más cercana según el GPS; al abrir la app es el panel que se ve primero
   const NEAR = { key: 'near', ico: '📍', name: 'Cerca de ti', st: [], i: 0, walk: 0, open: false, dist: {}, fix: 0, err: '' };
   const PLACES = [NEAR, HOME, WORK];

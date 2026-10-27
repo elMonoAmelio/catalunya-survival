@@ -6,5 +6,7 @@
 		"contentInset": "always",
 		"backgroundColor": "#eef1f5"
 	},
-	"packageClassList": []
+	"packageClassList": [
+		"GeolocationPlugin"
+	]
 }

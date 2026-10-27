@@ -1,0 +1,3 @@
+/* MonkiSoft · Andana */
+"NSLocationWhenInUseUsageDescription" = "Andana usa tu ubicación para encontrar la estación más cercana, calcular cuándo debes salir y detectar el tren en el que vas.";
+"CFBundleDisplayName" = "Andana";
