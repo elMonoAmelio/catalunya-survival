@@ -1,0 +1,1 @@
+module.exports=async(cdp,x,y0,y1)=>{await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x,y:y0}]});for(let i=1;i<=12;i++){await cdp.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x,y:y0+(y1-y0)*i/12}]});await new Promise(r=>setTimeout(r,16));}await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});};
