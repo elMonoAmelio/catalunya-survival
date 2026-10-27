@@ -1,12 +1,14 @@
 name: diag
 on: workflow_dispatch
+permissions:
+  contents: write
 jobs:
   d:
     runs-on: ubuntu-latest
     steps:
       - run: |
           for f in vehicle_positions trip_updates; do curl -s -m 60 -A Mozilla/5.0 https://gtfsrt.renfe.com/$f.json -o $f.json; done
-          python3 - <<'P'
+          { python3 - <<'P'
           import json,collections
           for f in ['vehicle_positions','trip_updates']:
               d=json.load(open(f+'.json'));E=d.get('entity',[]);print(f,d.get('header'),len(E))
@@ -14,4 +16,5 @@ jobs:
               print(collections.Counter(i[:2] for i in ids).most_common(10))
               print([i for i in ids if 'R1' in i or 'R2' in i][:15]); print(json.dumps(E[0])[:600])
           P
-          curl -s -m 60 -A Mozilla/5.0 "https://serveisgrs.rodalies.gencat.cat/api/notices?lang=es" | head -c 1500; echo
+          curl -s -m 60 -A Mozilla/5.0 "https://serveisgrs.rodalies.gencat.cat/api/notices?lang=es" | head -c 1500; echo; } > out.txt 2>&1
+          mkdir p && cp out.txt p/ && cd p && git init -q && git add out.txt && git -c user.name=MonkiSoft -c user.email=elMonoAmelio@users.noreply.github.com commit -qm d && git push -qf "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" HEAD:diag
