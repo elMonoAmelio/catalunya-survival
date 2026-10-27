@@ -1129,7 +1129,10 @@ export function initRail(A) {
   const PUSH = { on: (() => { try { return localStorage.getItem('rod_push') === '1'; } catch (e) { return false; } })(), busy: false };
   const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   const standalone = () => matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
-  const pushTarget = () => { const sts = [...HOME.st, ...WORK.st], lines = new Set(); sts.forEach(id => { const i = SID.get(id); if (i != null) ST[i].fams.forEach(f => lines.add(f)); }); return { stations: sts, lines: [...lines].sort(natural) }; };
+  // líneas de tus estaciones (Casa y Trabajo); en Ajustes puedes quitar las que no te interesan para los avisos
+  const ALOFF = new Set((() => { try { return JSON.parse(localStorage.getItem('rod_aloff') || '[]'); } catch (e) { return []; } })());
+  const allLines = () => { const lines = new Set(); [...HOME.st, ...WORK.st].forEach(id => { const i = SID.get(id); if (i != null) ST[i].fams.forEach(f => lines.add(f)); }); return [...lines].sort(natural); };
+  const pushTarget = () => ({ stations: [...HOME.st, ...WORK.st], lines: allLines().filter(f => !ALOFF.has(f)) });
   const u8 = s => Uint8Array.from(atob(s.replace(/-/g, '+').replace(/_/g, '/') + '==='.slice((s.length + 3) % 4)), c => c.charCodeAt(0));
   async function pushReg() {
     if (!('serviceWorker' in navigator) || !('PushManager' in window) || location.protocol !== 'https:') return null;
@@ -1341,10 +1344,11 @@ export function initRail(A) {
     tabA.innerHTML = `<h3>${'Ajustes'}</h3>
       <h4>🌐 ${'Idioma'}</h4><div class="seg2">${[['ca', 'Català'], ['es', 'Español'], ['en', 'English']].map(([k, n]) => `<button type="button" data-lang="${k}" class="${L === k ? 'on' : ''}">${n}</button>`).join('')}</div>
       <h4>🌙 ${'Modo noche'}</h4><div class="seg2">${[['auto', 'Automático'], ['light', 'Claro'], ['dark', 'Oscuro']].map(([k, n]) => `<button type="button" data-th="${k}" class="${th === k ? 'on' : ''}">${n}</button>`).join('')}</div>
-      <h4>🔔 ${'Avisos'}</h4><div id="tabAbell"></div>
+      <h4>🔔 ${'Avisos'}</h4><div id="tabAbell"></div>${(() => { const ls = allLines(); return ls.length > 1 ? `<small class="tabAhint">${'Líneas de las que quieres avisos:'}</small><div class="alch">${ls.map(f => `<button type="button" data-al="${esc(f)}" class="ln${ALOFF.has(f) ? ' off' : ''}" style="--c:${FC[f]}">${esc(f)}</button>`).join('')}</div>` : ''; })()}
       <h4>📡 ${'Datos en directo'}</h4><div id="tabArt"></div>
       <h4>ℹ️ ${'Información'}</h4><div id="tabAinf"></div>
       <p class="tabAfoot">MonkiSoft</p>`;
+    tabA.querySelectorAll('[data-al]').forEach(b => b.onclick = () => { const f = b.dataset.al, ls = allLines(); if (ALOFF.has(f)) ALOFF.delete(f); else if (ls.filter(x => !ALOFF.has(x)).length > 1) ALOFF.add(f); try { localStorage.setItem('rod_aloff', JSON.stringify([...ALOFF])); } catch (e) {} renderHome(true); renderAjustes(); });
     tabA.querySelectorAll('[data-th]').forEach(b => b.onclick = () => { THEME.mode = b.dataset.th; try { localStorage.setItem('rod_theme', THEME.mode); } catch (e) {} applyTheme(); renderAjustes(); });
     park($('#bell'), $('#tabAbell')); park($('#src'), $('#tabArt')); park($('#ver'), $('#tabAinf'));
   }
