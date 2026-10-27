@@ -132,4 +132,6 @@ T = {
 "🚉 En el andén": ("🚉 A l'andana", "🚉 On the platform"),
 "🚉 En el andén · esperando el tren: horas de salida, sin contar el camino · ": ("🚉 A l'andana · esperant el tren: hores de sortida, sense comptar el camí · ", "🚉 On the platform · waiting for the train: departure times, no walking time · "),
 "Tiempo que tardas a pie hasta la estación": ("Temps que trigues a peu fins a l'estació", "Time it takes you to walk to the station"),
+"Tardo": ("Trigo", "I take"),
+"a pie": ("a peu", "on foot"),
 }
