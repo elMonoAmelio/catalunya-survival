@@ -4,7 +4,7 @@
 const RENFE = 'https://gtfsrt.renfe.com', GRS = 'https://serveisgrs.rodalies.gencat.cat/api';
 const ADIF = 'https://www.adif.es/viajeros/estado-de-la-red/-/categories/53897344?p_r_p_categoryId=53897344&resetCur=true';   // Adif · estado de la red · Cataluña
 const NOTICES = GRS + '/notices?limit=500&sort=date,desc&sort=time,desc';
-const PERMITIDOS = ['https://elmonoamelio.github.io', 'null'];
+const PERMITIDOS = ['https://elmonoamelio.github.io', 'null', 'capacitor://localhost', 'https://localhost'];   // web, archivo local, app iOS y app Android
 const APP = 'https://elmonoamelio.github.io/catalunya-survival/rodalies.html';
 // tipos de aviso de viajeros (solo botones, sin texto libre)
 const TIPOS = { vacio: 'Va con sitio', lleno: 'Va lleno', petado: 'Muy lleno, cuesta subir', parado: 'Parado sin moverse', calor: 'Sin aire acondicionado', abordo: 'Incidencia a bordo',

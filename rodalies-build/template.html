@@ -295,6 +295,40 @@ html.cap #rc{translate:0 calc(-1*var(--sab))}
 html.cap #mcs{max-height:calc(var(--mcsmax,70vh) - var(--sat) - var(--sab))}
 /* en pantallas estrechas la cabecera de cada panel se queda en lo esencial: «Sal en 4 min · 10:16 → 10:44» */
 @media(max-width:430px){.htit small .lla{display:none}}
+/* ---------- pestañas (móvil y app) ---------- */
+#tabs,#tabL,#tabA{display:none}
+html.tabmode{--tbh:58px;--sat0:var(--sat,0px);--sab0:var(--sab,0px)}
+html.tabmode #tabs{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:40;padding:4px 6px calc(4px + var(--sab0));background:var(--glass);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-top:1px solid rgba(29,35,48,.12)}
+html.tabmode #tabs button{flex:1;display:flex;flex-direction:column;align-items:center;gap:1px;border:0;background:none;font:inherit;color:var(--mut);padding:5px 0;border-radius:12px;cursor:pointer}
+html.tabmode #tabs button span{font-size:20px;line-height:1.1;filter:grayscale(.6);opacity:.75}
+html.tabmode #tabs button small{font-size:10.5px;font-weight:600}
+html.tabmode #tabs button.on{color:var(--ink)}html.tabmode #tabs button.on span{filter:none;opacity:1}
+html.tabmode #sbtn,html.tabmode #tbtn,html.tabmode #wabtn,html.tabmode #mcstab{display:none!important}
+html.tabmode #rc{bottom:calc(var(--tbh) + 10px)}
+html.tabmode #rc{translate:0 calc(-1*var(--sab0))}
+/* hojas a pantalla completa (Ahora, Línea, Ajustes) */
+html.tabmode[data-tab=ahora] #inf,html.tabmode #tabA,html.tabmode[data-tab=linea] #mcs{position:fixed;left:10px;right:10px;top:calc(10px + var(--sat0));bottom:calc(var(--tbh) + 10px + var(--sab0));max-width:none;max-height:none;overflow:auto;-webkit-overflow-scrolling:touch;translate:none;z-index:20}
+html.tabmode[data-tab=ahora] #inf{display:block;padding:8px}
+html.tabmode[data-tab=ahora] #inf .l1,html.tabmode[data-tab=ahora] #inf .more{display:none!important}
+html.tabmode[data-tab=ahora] #s,html.tabmode[data-tab=ahora] #z,html.tabmode[data-tab=ahora] #north,html.tabmode[data-tab=ahora] #mbtn,html.tabmode[data-tab=ahora] #rc,html.tabmode[data-tab=ahora] #mcs,html.tabmode[data-tab=ahora] #chip{display:none!important}
+html.tabmode[data-tab=mapa] #inf{display:none!important}
+html.tabmode[data-tab=mapa] #mcs{top:calc(64px + var(--sat0))!important;translate:none;max-height:calc(100vh - 64px - var(--tbh) - 70px - var(--sat0) - var(--sab0))!important}
+html.tabmode[data-tab=linea] #s,html.tabmode[data-tab=linea] #z,html.tabmode[data-tab=linea] #north,html.tabmode[data-tab=linea] #mbtn,html.tabmode[data-tab=linea] #rc,html.tabmode[data-tab=linea] #inf,html.tabmode[data-tab=linea] #chip{display:none!important}
+html.tabmode[data-tab=linea] #tabL{display:flex;gap:6px;flex-wrap:wrap;position:fixed;left:10px;right:10px;top:calc(10px + var(--sat0));z-index:21}
+html.tabmode[data-tab=linea] #mcs{top:calc(58px + var(--sat0))!important;bottom:calc(var(--tbh) + 10px + var(--sab0))!important;left:10px!important;right:10px!important;width:auto!important;max-height:none!important;height:auto!important;display:flex!important;flex-direction:column}
+html.tabmode[data-tab=linea] #mcs>.tc{flex:1 1 auto;max-height:none!important;overflow:auto}
+html.tabmode[data-tab=linea] #mcs .x,html.tabmode[data-tab=linea] #mcs .mn{display:none}
+#tabL button,#tabL a{border:1px solid rgba(29,35,48,.12);background:var(--glass);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border-radius:16px;padding:7px 12px;font:inherit;font-size:12.5px;font-weight:600;color:var(--ink);text-decoration:none;cursor:pointer}
+#tabL .on{background:var(--ink);color:var(--card)}
+html.tabmode[data-tab=ajustes] #s,html.tabmode[data-tab=ajustes] #z,html.tabmode[data-tab=ajustes] #north,html.tabmode[data-tab=ajustes] #mbtn,html.tabmode[data-tab=ajustes] #rc,html.tabmode[data-tab=ajustes] #inf,html.tabmode[data-tab=ajustes] #mcs,html.tabmode[data-tab=ajustes] #chip{display:none!important}
+html.tabmode[data-tab=ajustes] #tabA{display:block;padding:14px 16px}
+#tabA h3{margin:0 0 6px;font-size:18px}#tabA h4{margin:16px 0 6px;font-size:13px;color:var(--mut)}
+#tabA .seg2{display:flex;gap:6px;flex-wrap:wrap}#tabA .seg2 button{flex:1;min-width:80px;border:1px solid rgba(29,35,48,.15);background:none;border-radius:12px;padding:9px 6px;font:inherit;font-weight:600;color:var(--ink);cursor:pointer}
+#tabA .seg2 button.on{background:var(--ink);color:var(--card);border-color:var(--ink)}
+#tabA #bell,#tabA #dtoggle,#tabA #ver{display:block;width:100%;text-align:left;border:1px solid rgba(29,35,48,.15);background:none;border-radius:12px;padding:10px 12px;font:inherit;font-weight:600;color:var(--ink);cursor:pointer;margin:0}
+#tabA #dp{position:static;max-height:none;margin-top:6px;box-shadow:none}#tabA #src{display:block;color:var(--mut);margin:0 0 8px;white-space:normal}
+#tabA .tabAfoot{margin-top:22px;text-align:center;color:var(--mut);font-size:11px;letter-spacing:.08em}
+html.dark #tabs{border-top-color:rgba(255,255,255,.08)}html.dark #tabL button,html.dark #tabL a,html.dark #tabA .seg2 button,html.dark #tabA #bell,html.dark #tabA #dtoggle,html.dark #tabA #ver{border-color:rgba(255,255,255,.12)}
 /* ---------- modo noche ---------- */
 #tbtn{position:fixed;z-index:3;width:44px;height:44px;border-radius:50%;border:1px solid rgba(255,255,255,.6);background:var(--glass);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);box-shadow:0 4px 14px rgba(20,30,50,.12);font-size:18px;cursor:pointer;top:16px;left:556px;width:auto;height:auto;border-radius:16px;padding:5px 10px;font-size:14px}
 #mbtn:not(.show)~#sbtn~#tbtn,#mbtn:not(.show)~#tbtn{left:430px}
@@ -378,7 +412,7 @@ clearWatch:function(k){var id=ids[k];if(id)G.clearWatch({id:id});ids[k]=null}}})
 const RENFE = 'https://gtfsrt.renfe.com', GRS = 'https://serveisgrs.rodalies.gencat.cat/api';
 const ADIF = 'https://www.adif.es/viajeros/estado-de-la-red/-/categories/53897344?p_r_p_categoryId=53897344&amp;resetCur=true';   // Adif · estado de la red · Cataluña
 const NOTICES = GRS + '/notices?limit=500&amp;sort=date,desc&amp;sort=time,desc';
-const PERMITIDOS = ['https://elmonoamelio.github.io', 'null'];
+const PERMITIDOS = ['https://elmonoamelio.github.io', 'null', 'capacitor://localhost', 'https://localhost'];   // web, archivo local, app iOS y app Android
 const APP = 'https://elmonoamelio.github.io/catalunya-survival/rodalies.html';
 // tipos de aviso de viajeros (solo botones, sin texto libre)
 const TIPOS = { vacio: 'Va con sitio', lleno: 'Va lleno', petado: 'Muy lleno, cuesta subir', parado: 'Parado sin moverse', calor: 'Sin aire acondicionado', abordo: 'Incidencia a bordo',

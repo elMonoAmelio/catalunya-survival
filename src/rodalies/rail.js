@@ -732,7 +732,8 @@ export function initRail(A) {
     const css = [...new Set(Object.values(FC))].filter(c => lum(c) > 0.3).map(c => `.ln[style*="--c:${c}"],[data-f][style*="--c:${c}"].on,[data-f][style*="--c:${c}"]:not(.off){color:#14203a!important}`).join('');
     if (css) { const st = document.createElement('style'); st.textContent = css; document.head.appendChild(st); } }
   function lateTxt(d, live_) { if (!live_) return '<span class="st sch">Según horario · sin dato en directo</span>'; if (d === 'X') return '<span class="st late">Cancelado</span>'; return d >= 60 ? `<span class="st late ${dlCls(d / 60)}">Retraso de ${Math.round(d / 60)} min</span>` : '<span class="st ok">Puntual</span>'; }
-  function renderCard() {
+  function renderCard() { try { renderCard0(); } finally { if (window.__rodTabSync) window.__rodTabSync(); } }
+  function renderCard0() {
     if (!selTrip && selStation < 0 && !selAlerts && !selNews && !selStats && !selLine) { CARDHID = false; mcs.innerHTML = ''; mcs._h = ''; mcs.style.display = 'none'; mcs.classList.remove('peek'); syncCompact(); return; }
     const S = nowState(); let h = ''; const useLive = live() && S.live;
     const alertsFor = (fams, stop) => RT.alerts.filter(a => [...a.fams].some(f => fams.has(f)) || (stop != null && a.stops.has(stop)));
@@ -1290,5 +1291,55 @@ export function initRail(A) {
     if (want) { const w = norm(want); let best = -1, sc = 0; ST.forEach((s, i) => { if (!s.fams.size) return; const n = norm(s.n); const v = n === w ? 3 : n.startsWith(w) || w.startsWith(n) ? 2 : n.includes(w) || w.includes(n) ? 1 : 0; if (v > sc) { sc = v; best = i; } });
       if (best >= 0) setTimeout(() => { selStation = best; styleStations(); Object.assign(goal, { tx: ST[best].w[0], ty: ST[best].w[1], dist: 18, tilt: 0.5 }); renderCard(); invalidate(); }, 300); }
   } catch (e) {}
+  // ---------- PESTAÑAS (móvil y app): Ahora · Mapa · Línea · Ajustes ----------
+  // En el ordenador se mantiene el diseño con paneles flotantes; en el móvil y en la app, cuatro pestañas abajo.
+  const TAB = { on: false, cur: 'ahora', home: new Map() };
+  const tabsMQ = matchMedia('(max-width:640px)');
+  const tabbar = document.createElement('nav'); tabbar.id = 'tabs';
+  const TABS = [['ahora', '🕒', 'Ahora'], ['mapa', '🗺️', 'Mapa'], ['linea', '📊', 'Línea'], ['ajustes', '⚙️', 'Ajustes']];
+  tabbar.innerHTML = TABS.map(([k, i, l]) => `<button type="button" data-tab="${k}"><span>${i}</span><small>${l}</small></button>`).join('');
+  document.body.appendChild(tabbar);
+  const tabL = document.createElement('div'); tabL.id = 'tabL'; document.body.appendChild(tabL);
+  const tabA = document.createElement('div'); tabA.id = 'tabA'; tabA.className = 'box'; document.body.appendChild(tabA);
+  const park = (el, box) => { if (!el) return; if (!TAB.home.has(el)) TAB.home.set(el, [el.parentNode, el.nextSibling]); box.appendChild(el); };
+  const unpark = () => { for (const [el, [pa, nx]] of TAB.home) { try { pa.insertBefore(el, nx && nx.parentNode === pa ? nx : null); } catch (e) {} } TAB.home.clear(); };
+  function renderLineaBar() {
+    const one = famOn.size === 1 ? [...famOn][0] : '', n = RT.alerts.filter(a => [...a.fams].some(f => famOn.has(f))).length;
+    const k = [selStats, selAlerts, selLine, one, n].join('|'); if (tabL._k === k) return; tabL._k = k;
+    tabL.innerHTML = `<button type="button" data-tl="stats" class="${selStats ? 'on' : ''}">📊 ${'Puntualidad'}</button><button type="button" data-tl="alr" class="${selAlerts ? 'on' : ''}">⚠️ ${n}${n === 1 ? ' aviso' : ' avisos'}</button>${one ? `<button type="button" data-tl="line" class="${selLine ? 'on' : ''}">📋 ${esc(one)}</button>` : ''}<a href="https://www.whatsapp.com/channel/0029Vav4hGTId7nPenKMuo2C" target="_blank" rel="noopener" title="${'Canal de avisos de Rodalies en WhatsApp'}">💬 WhatsApp</a>`;
+    tabL.querySelectorAll('[data-tl]').forEach(b => b.onclick = () => { const w = b.dataset.tl; selStats = w === 'stats'; selAlerts = w === 'alr'; selLine = w === 'line' ? one : ''; selNews = false; selTrip = null; selStation = -1; if (selStats) HIST.at = 0; mcs._h = ''; renderCard(); renderLineaBar(); });
+  }
+  function renderAjustes() {
+    const L = window.__L || 'es', th = THEME.mode;
+    tabA.innerHTML = `<h3>${'Ajustes'}</h3>
+      <h4>🌐 ${'Idioma'}</h4><div class="seg2">${[['ca', 'Català'], ['es', 'Castellano'], ['en', 'English']].map(([k, n]) => `<button type="button" data-lang="${k}" class="${L === k ? 'on' : ''}">${n}</button>`).join('')}</div>
+      <h4>🌙 ${'Modo noche'}</h4><div class="seg2">${[['auto', 'Automático'], ['light', 'Claro'], ['dark', 'Oscuro']].map(([k, n]) => `<button type="button" data-th="${k}" class="${th === k ? 'on' : ''}">${n}</button>`).join('')}</div>
+      <h4>🔔 ${'Avisos'}</h4><div id="tabAbell"></div>
+      <h4>📡 ${'Datos en directo'}</h4><div id="tabArt"></div>
+      <h4>ℹ️ ${'Información'}</h4><div id="tabAinf"></div>
+      <p class="tabAfoot">MonkiSoft</p>`;
+    tabA.querySelectorAll('[data-th]').forEach(b => b.onclick = () => { THEME.mode = b.dataset.th; try { localStorage.setItem('rod_theme', THEME.mode); } catch (e) {} applyTheme(); renderAjustes(); });
+    park($('#bell'), $('#tabAbell')); park($('#dtoggle'), $('#tabArt')); park($('#dp'), $('#tabArt')); park($('#src'), $('#tabAinf')); park($('#ver'), $('#tabAinf'));
+  }
+  function setTab(k) {
+    if (!TAB.on) return;
+    const was = TAB.cur; TAB.cur = k; document.documentElement.dataset.tab = k;
+    tabbar.querySelectorAll('[data-tab]').forEach(b => b.classList.toggle('on', b.dataset.tab === k));
+    if (k === 'linea') { if (!selStats && !selAlerts && !selLine) { selStats = true; HIST.at = 0; } selTrip = null; selStation = -1; selNews = false; mcs._h = ''; renderCard(); renderLineaBar(); }
+    else if (was === 'linea') { selStats = selAlerts = false; selLine = ''; mcs._h = ''; renderCard(); }
+    if (k === 'ajustes') renderAjustes();
+    if (k === 'ahora') { renderHome(true); if (!$('#home .hbody')) { const h = $('#home .hhead[data-ht]'); if (h) h.click(); } }   // en Ahora, el panel principal ya abierto
+    lastT = 0; invalidate();
+  }
+  tabbar.onclick = e => { const b = e.target.closest('[data-tab]'); if (b) setTab(b.dataset.tab); };
+  // al abrir un tren o una estación desde Ahora o Ajustes, se pasa al mapa; desde Línea, un tren también lleva al mapa
+  window.__rodTabSync = () => { if (!TAB.on) return; const sk = selTrip ? 't' + (selTrip.num || selTrip.vtid) : selStation >= 0 ? 's' + selStation : ''; const nueva = sk !== TAB.sk; TAB.sk = sk; if (sk && nueva && TAB.cur !== 'mapa') setTab('mapa'); else if ((selAlerts || selLine || selNews) && TAB.cur !== 'linea' && TAB.cur !== 'mapa') setTab('linea'); if (TAB.cur === 'linea') renderLineaBar(); };
+  function tabMode() {
+    const on = tabsMQ.matches || document.documentElement.classList.contains('cap');
+    if (on === TAB.on) return; TAB.on = on; document.documentElement.classList.toggle('tabmode', on);
+    if (on) setTab('ahora'); else { delete document.documentElement.dataset.tab; unpark(); }
+  }
+  tabsMQ.addEventListener ? tabsMQ.addEventListener('change', tabMode) : tabsMQ.addListener(tabMode);
+  tabMode();
   window.__rod = { TID, SID, byDay, get days() { return R.days; }, get hist() { return HIST; }, get past() { return PAST.cur; }, get cols() { return COLS.mesh ? COLS.mesh.count : -1; }, get dist() { return cur.dist; }, get follow() { return follow; }, get selTrip() { return selTrip; }, ST, TR, FAM, act: () => act, setSpeed, RT, pollRT, nowState, posAt, activeTrips, LL, select: tr => { selTrip = tr; renderCard(); } };
 }
