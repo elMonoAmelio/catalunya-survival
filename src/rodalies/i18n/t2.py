@@ -153,4 +153,5 @@ T = {
 "Sin posición": ("Sense posició", "No position"),
 "Renfe no da su posición: hora según horario": ("Renfe no en dona la posició: hora segons l'horari", "Renfe gives no position: time by timetable"),
 "Sin posición de Renfe · hora en directo de Rodalies": ("Sense posició de Renfe · hora en directe de Rodalies", "No Renfe position · live time from Rodalies"),
+"Línea discontinua: media del día": ("Línia discontínua: mitjana del dia", "Dashed line: day average"),
 }

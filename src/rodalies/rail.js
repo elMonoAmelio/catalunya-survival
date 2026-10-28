@@ -489,13 +489,22 @@ export function initRail(A) {
   function lineChart(snaps) {
     snaps = (snaps || []).filter(x => x.n >= 10);   // de madrugada casi no hay trenes: esas fotos no dicen nada
     if (!snaps || snaps.length < 2) { const s0 = snaps && snaps[0]; return s0 ? `<p class="snote">Primera foto del día a las ${s0.t}: ${Math.round(s0.ok / s0.n * 100)} % puntuales de ${s0.n} trenes. El gráfico aparece con la segunda foto.</p>` : '<p class="snote">Aún no hay fotos de hoy.</p>'; }
-    const W2 = 300, H2 = 92, pad = 22, xs = i => pad + i * (W2 - pad - 6) / (snaps.length - 1), ys = p => 6 + (100 - p) / 100 * (H2 - 22);
-    const pts = snaps.map((sn, i) => [xs(i), ys(sn.n ? sn.ok / sn.n * 100 : 100), sn]);
+    // eje horizontal por hora real (los huecos sin fotos se ven como huecos), línea con área y solo el último punto marcado
+    const tm = sn => { const [h, m] = sn.t.split(':').map(Number); return h * 60 + m; }, t0 = tm(snaps[0]), t1 = Math.max(t0 + 60, tm(snaps[snaps.length - 1]));
+    const W2 = 300, H2 = 112, pad = 24, xs = t => pad + (t - t0) * (W2 - pad - 8) / (t1 - t0), ys = p => 8 + (100 - p) / 100 * (H2 - 26), pc = sn => sn.n ? sn.ok / sn.n * 100 : 100;
+    const pts = snaps.map(sn => [xs(tm(sn)), ys(pc(sn)), sn]), P = p => p[0].toFixed(1) + ',' + p[1].toFixed(1);
+    const segs = []; let cur = [];   // si faltan más de 45 min de fotos, la línea se corta
+    pts.forEach((p, k) => { if (k && tm(p[2]) - tm(pts[k - 1][2]) > 45) { segs.push(cur); cur = []; } cur.push(p); }); segs.push(cur);
+    const last = pts[pts.length - 1], hrs = []; for (let h = Math.ceil(t0 / 180) * 3; h * 60 < t1; h += 3) if (h * 60 > t0 + 20) hrs.push(h);
+    const avg = Math.round(snaps.reduce((a, sn) => a + sn.ok, 0) / Math.max(1, snaps.reduce((a, sn) => a + sn.n, 0)) * 100);
     return `<svg class="schart" viewBox="0 0 ${W2} ${H2}" role="img" aria-label="Porcentaje de trenes puntuales a lo largo del día">
-      ${[100, 75, 50].map(p => `<line x1="${pad}" x2="${W2 - 4}" y1="${ys(p)}" y2="${ys(p)}" class="gl"/><text x="2" y="${ys(p) + 3}" class="ax">${p}%</text>`).join('')}
-      <polyline points="${pts.map(p => p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' ')}" class="ln"/>
-      ${pts.map(([x, y, sn]) => `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="5" class="pt"><title>${sn.t} · ${sn.n ? Math.round(sn.ok / sn.n * 100) : 100}% puntuales · ${sn.n} trenes · ${sn.d5} con +5 min · retraso medio ${fmtMin(sn.avg)}${sn.nd ? ` · ${sn.nd} sin dato` : ''}</title></circle>`).join('')}
-      <text x="${pad}" y="${H2 - 3}" class="ax">${snaps[0].t}</text><text x="${W2 - 4}" y="${H2 - 3}" class="ax" text-anchor="end">${snaps[snaps.length - 1].t}</text></svg>`;
+      ${[100, 75, 50, 25].map(p => `<line x1="${pad}" x2="${W2 - 4}" y1="${ys(p)}" y2="${ys(p)}" class="gl"/><text x="2" y="${ys(p) + 3}" class="ax">${p}%</text>`).join('')}
+      <line x1="${pad}" x2="${W2 - 4}" y1="${ys(avg)}" y2="${ys(avg)}" class="avg"/>
+      ${segs.filter(g => g.length).map(g => `<polygon points="${P([g[0][0], ys(0)])} ${g.map(P).join(' ')} ${P([g[g.length - 1][0], ys(0)])}" class="ar"/><polyline points="${g.map(P).join(' ')}" class="ln"/>`).join('')}
+      ${pts.map(([x, y, sn]) => `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="6" class="hit"><title>${sn.t} · ${Math.round(pc(sn))}% puntuales · ${sn.n} trenes · ${sn.d5} con +5 min · retraso medio ${fmtMin(sn.avg)}${sn.nd ? ` · ${sn.nd} sin dato` : ''}</title></circle>`).join('')}
+      <circle cx="${last[0].toFixed(1)}" cy="${last[1].toFixed(1)}" r="3.5" class="pt"/><text x="${Math.min(last[0], W2 - 30).toFixed(1)}" y="${(last[1] - 7).toFixed(1)}" class="lv" text-anchor="middle">${Math.round(pc(last[2]))}%</text>
+      ${hrs.map(h => `<text x="${xs(h * 60).toFixed(1)}" y="${H2 - 4}" class="ax" text-anchor="middle">${String(h).padStart(2, '0')}h</text>`).join('')}
+      <text x="${pad}" y="${H2 - 4}" class="ax">${snaps[0].t}</text></svg><small class="snote">${'Línea discontinua: media del día'} (${avg}%)</small>`;
   }
   function statsHtml() {
     loadHist();
