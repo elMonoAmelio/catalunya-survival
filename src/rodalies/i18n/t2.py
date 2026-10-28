@@ -150,4 +150,6 @@ T = {
 "Según horario: entre ": ("Segons l'horari: entre ", "By timetable: between "),
 " y ": (" i ", " and "),
 "Aún no ha salido de ": ("Encara no ha sortit de ", "Not yet left "),
+"Sin posición": ("Sense posició", "No position"),
+"Renfe no da su posición: hora según horario": ("Renfe no en dona la posició: hora segons l'horari", "Renfe gives no position: time by timetable"),
 }
