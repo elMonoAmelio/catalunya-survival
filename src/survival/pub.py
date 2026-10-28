@@ -10,8 +10,10 @@ for f in ('bundle.js','template.html','i18n.js'): shutil.copy('/tmp/ms-work/rod/
 for f in ('assemble.py','worker.js') if False else ('assemble.py',): shutil.copy(B+'/'+f, REPO+'/rodalies-build/'+f)
 open(B+'/VERSION','w').write(ver); open(REPO+'/rodalies-build/VERSION','w').write(ver)
 now=datetime.datetime.now(zoneinfo.ZoneInfo('Europe/Madrid')).strftime('%d/%m/%Y %H:%M')
-log=[l.split('\t') for l in g('log','-8','--format=%ad\t%s','--date=format:%d/%m/%Y').splitlines()]
-items=[(f'{ver} · {now[:10]}',msg)]+[(f'1.{n-1-i} · {d}',s) for i,(d,s) in enumerate(log)]
+log=[l.split('\t') for l in g('log','-40','--format=%ad\t%s','--date=format:%d/%m/%Y').splitlines()]
+# en «novedades» solo los cambios de verdad: fuera las tareas automáticas (horarios de cada noche, estadísticas)
+AUTO=re.compile(r'^(Horarios de Rodalies|Horario de Rodalies|Estadísticas de Rodalies|Acción de horarios|Horarios: publicar|Estadísticas: resumen)')
+items=[(f'{ver} · {now[:10]}',msg)]+[(f'1.{n-1-i} · {d}',s) for i,(d,s) in enumerate(log) if not AUTO.match(s)][:8]
 import re as _re
 clean=lambda m: _re.sub(r'^(v?\d+\.\d+:\s*)?(Rodalies:\s*)?','',m).strip()
 ch=''.join(f'<li><b>{html.escape(v.split(" · ")[0])}</b><small>{html.escape(v.split(" · ")[1])}</small><p>{html.escape(clean(s))}</p></li>' for v,s in items)
