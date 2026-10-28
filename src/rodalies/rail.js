@@ -1145,7 +1145,7 @@ export function initRail(A) {
         + `<span class="hrt"><b>${x.cancel ? '✕' : miss ? hhmm(x.est) : mins(x.est - S.min)}</b><small>${x.cancel ? 'cancelado' : x.late ? 'aún no ha salido' : miss ? 'no llegas' : x.ghost ? '<i class="ghs" title="Debería estar circulando y Renfe no da su posición">sin señal</i>' : hhmm(x.est)}</small></span>`
         + `<span class="hrd">${x.bus ? '<i class="bus" title="Autobús que sustituye al tren por obras">🚌</i>' : ''}${dstP((oneLine ? '' : x.fam + ' · ') + x.dest, x.fam)}${r.length ? `<i class="cr" title="${esc(r.map(y => tipo(y.kind)).join(' · '))}">${r.slice(0, 2).map(y => CK[y.kind]).join('')}</i>` : ''}${x.arr != null ? `<small class="hro hro1">llegas a las ${hhmm(x.arr)}${x.num ? ' · ' + 'tren\u00a0' + esc(x.num) : ''}${(() => { const th = x.num && trainHist(x.num); return th && th.n >= 3 && th.late / th.n >= 0.5 ? ` · <b class="slate">suele ir tarde (${th.late}/${th.n})</b>` : ''; })()}</small>` : ''}${x.obs ? `<small class="hro">${esc(x.obs)}</small>` : ''}</span>`
         + `<span class="hrm">${!x.cancel && x.dl >= 1 ? `<em class="dl ${dlCls(x.dl)}">+${Math.round(x.dl)}</em>` : ''}${x.plat ? `<i class="via">vía ${esc(x.plat)}</i>` : ''}</span></li>`; };
-    const col = (g, v, hk) => `<div class="hcol"><div class="hdir">${label(g)}${hk ? `<button type="button" class="hhide" data-hhide="${P.key}:${hk}" title="Ocultar esta dirección">✕</button>` : ''}</div><div class="hv ${v.cls}${v.ghost ? ' gh' : ''}${v.x ? ' go' : ''}"${v.x ? ` data-dk="${DK.push(v.x) - 1}"` : ''}><b>${v.big}</b>${v.pin ? `<button type="button" class="hunpin" data-unpin="${P.key}" title="${'Volver al próximo tren'}">📌 ${'Elegido'} ✕</button>` : ''}<small>${esc(v.small)}</small>${v.warn ? `<span class="hvw">${esc(v.warn)}</span>` : ''}</div><ol>${groups[g].slice(0, (P.more ? (g === 'all' || P.hide ? 20 : 10) : g === 'all' ? 7 : P.hide ? 8 : 4) + groups[g].filter(x => x.gone).length).map(row).join('') || '<li><span>—</span></li>'}</ol></div>`;
+    const col = (g, v, hk) => `<div class="hcol"><div class="hdir">${label(g)}${hk ? `<button type="button" class="hhide" data-hhide="${P.key}:${hk}" title="Ocultar esta dirección">✕</button>` : ''}</div><div class="hv ${v.cls}${v.ghost ? ' gh' : ''}${v.x ? ' go' : ''}"${v.x ? ` data-dk="${DK.push(v.x) - 1}"` : ''}><b>${v.big}</b>${v.pin ? `<button type="button" class="hunpin" data-unpin="${P.key}" title="${'Volver al próximo tren'}">📌 ${'Elegido'} ✕</button>` : ''}<small>${esc(v.small)}</small>${v.pin && v.x && v.x.num ? (w => w ? `<span class="hwhere">📍 ${esc(w)}</span>` : '')(trainWhere(v.x.num)) : ''}${v.warn ? `<span class="hvw">${esc(v.warn)}</span>` : ''}</div><ol>${groups[g].slice(0, (P.more ? (g === 'all' || P.hide ? 20 : 10) : g === 'all' ? 7 : P.hide ? 8 : 4) + groups[g].filter(x => x.gone).length).map(row).join('') || '<li><span>—</span></li>'}</ol></div>`;
     if (P === NEAR) { const va = verdict('all'); var sumN = va.x ? `<span class="nw">${va.big}</span> · <span class="nw"><b>${hhmm(va.x.est)}</b> ${esc(va.x.fam)}</span> a ${esc(va.x.dest)}${va.x.plat ? '<span class="nw">' + ' · vía ' + esc(va.x.plat) + '</span>' : ''}` : va.big; }
     const sum = P === NEAR ? sumN : vb.x ? `<span class="nw">${vb.big}${vb.x.plat ? ' · vía ' + esc(vb.x.plat) : ''}</span> · <span class="nw"><b>${hhmm(vb.x.est)}</b>${vb.x.arr != null ? ` → <span class="lla">llegas a las </span><b>${hhmm(vb.x.arr)}</b>` : ''}</span><span class="lla"> hacia ${esc(refName)}</span>` : 'Sin trenes hacia ' + esc(refName);
     const vp = P === NEAR ? (v => v.pin ? v : null)(verdict('all')) : vb.pin ? vb : vo.pin ? vo : null;
@@ -1285,6 +1285,17 @@ export function initRail(A) {
   // tren elegido a mano en Ahora (por casa / trabajo / cerca): se guarda hasta que sale
   function pinSet(k, num) { if (num) PIN.set(k, num); else PIN.delete(k); try { localStorage.setItem('rod_pin', JSON.stringify([...PIN])); } catch (e) {} }
   // vas en un tren (detectado por el GPS): ficha con por dónde va y a qué hora llegas
+  // ¿dónde está ahora un tren? (para el tren elegido en Ahora)
+  function trainWhere(num) {
+    const a = act.find(x => x.tr && String(x.tr.num) === String(num)); if (!a) { const t = tripByNum(num), S = nowState(), k = R.days.indexOf(S.ymd); if (!t) return ''; const off = t.day === k - 1 ? 1440 : 0, d0 = t.t0 + t.pat.t[1] - off; return d0 > S.min ? 'Aún no ha salido de ' + ST[t.pat.stops[0]].n + ' (' + hhmm(d0) + ')' : ''; }
+    const tr = a.tr, nm = i => ST[tr.pat.stops[i]].n;
+    if (a.real) { const v = a.v; if (v.pre) return 'Aún no ha empezado su viaje';
+      if (v.atStop >= 0 && (v.st === 'STOPPED_AT' || v.still > 30)) return 'Parado en ' + nm(v.atStop);
+      if (a.stop === 'via' && v.next > 0) return '⏸ ' + 'Detenido entre ' + nm(v.next - 1) + ' y ' + nm(v.next);
+      if (v.next > 0) return 'Entre ' + nm(v.next - 1) + ' y ' + nm(v.next);
+      return v.next === 0 ? 'Hacia ' + nm(0) : ''; }
+    const nx = a.p && a.p.next; return nx > 0 ? 'Según horario: entre ' + nm(nx - 1) + ' y ' + nm(nx) : '';
+  }
   function onbHtml(S) {
     if (!ONB.tid) return '';
     const t = act.find(x => x.tr && String(x.tr.num) === ONB.tid) || activeTrips(S).out.find(x => x.tr && String(x.tr.num) === ONB.tid); if (!t) return '';

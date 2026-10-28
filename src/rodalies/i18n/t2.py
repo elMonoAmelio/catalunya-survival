@@ -144,4 +144,10 @@ T = {
 "El siguiente": ("El següent", "Next one"),
 "sal en": ("marxa d'aquí a", "leave in"),
 "No llegas": ("No hi arribes", "You won't make it"),
+"Aún no ha empezado su viaje": ("Encara no ha començat el viatge", "Hasn't started its trip yet"),
+"Detenido entre ": ("Aturat entre ", "Stopped between "),
+"Entre ": ("Entre ", "Between "),
+"Según horario: entre ": ("Segons l'horari: entre ", "By timetable: between "),
+" y ": (" i ", " and "),
+"Aún no ha salido de ": ("Encara no ha sortit de ", "Not yet left "),
 }
