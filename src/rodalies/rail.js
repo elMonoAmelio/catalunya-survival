@@ -1458,7 +1458,7 @@ export function initRail(A) {
   const unpark = () => { for (const [el, [pa, nx]] of TAB.home) { try { pa.insertBefore(el, nx && nx.parentNode === pa ? nx : null); } catch (e) {} } TAB.home.clear(); };
   function renderLineaBar() {
     const one = famOn.size === 1 ? [...famOn][0] : '', n = RT.alerts.filter(a => [...a.fams].some(f => famOn.has(f))).length;
-    const k = [selStats, selAlerts, selLine, one, n].join('|'); if (tabL._k === k) return; tabL._k = k;
+    const k = [selStats, selAlerts, selLine, selNews, one, n].join('|'); if (tabL._k === k) return; tabL._k = k;
     tabL.innerHTML = `<button type="button" data-tl="stats" class="${selStats ? 'on' : ''}">📊 ${'Puntualidad'}</button><button type="button" data-tl="alr" class="${selAlerts ? 'on' : ''}">⚠️ ${n}${n === 1 ? ' aviso' : ' avisos'}</button>${one ? `<button type="button" data-tl="line" class="${selLine ? 'on' : ''}">📋 ${esc(one)}</button>` : ''}<a href="https://www.whatsapp.com/channel/0029Vav4hGTId7nPenKMuo2C" target="_blank" rel="noopener" title="${'Canal de avisos de Rodalies en WhatsApp'}">💬</a>`;
     tabL.querySelectorAll('[data-tl]').forEach(b => b.onclick = () => { const w = b.dataset.tl; selStats = w === 'stats'; selAlerts = w === 'alr'; selLine = w === 'line' ? one : ''; selNews = false; selTrip = null; selStation = -1; if (selStats) HIST.at = 0; mcs._h = ''; renderCard(); renderLineaBar(); });
   }
@@ -1501,8 +1501,8 @@ export function initRail(A) {
     if (!TAB.on) return;
     const was = TAB.cur; TAB.cur = k; document.documentElement.dataset.tab = k; window.__mapHidden = k !== 'map';
     tabbar.querySelectorAll('[data-tab]').forEach(b => b.classList.toggle('on', b.dataset.tab === k));
-    if (k === 'line') { if (selTrip || selStation >= 0) TAB.keep = { t: selTrip, s: selStation, sk: TAB.sk }; if (!selStats && !selAlerts && !selLine) { selStats = true; HIST.at = 0; } selTrip = null; selStation = -1; selNews = false; mcs._h = ''; renderCard(); renderLineaBar(); }
-    else if (was === 'line') { selStats = selAlerts = false; selLine = ''; const kp = TAB.keep; TAB.keep = null; if (kp && k === 'map' && !selTrip && selStation < 0) { selTrip = kp.t; selStation = kp.s; TAB.sk = kp.sk; } mcs._h = ''; renderCard(); }
+    if (k === 'line') { if (selTrip || selStation >= 0) TAB.keep = { t: selTrip, s: selStation, sk: TAB.sk }; if (!selStats && !selAlerts && !selLine && !selNews) { selStats = true; HIST.at = 0; } selTrip = null; selStation = -1;   /* «novedades y fuentes» (desde Ajustes) se abre en Línea */ mcs._h = ''; renderCard(); renderLineaBar(); }
+    else if (was === 'line') { selStats = selAlerts = selNews = false; selLine = ''; const kp = TAB.keep; TAB.keep = null; if (kp && k === 'map' && !selTrip && selStation < 0) { selTrip = kp.t; selStation = kp.s; TAB.sk = kp.sk; } mcs._h = ''; renderCard(); }
     if (k === 'map') requestAnimationFrame(() => requestAnimationFrame(() => { try { peekH(); } catch (e) {} dispatchEvent(new Event('resize')); }));   // al volver a verse el mapa, se recalcula la altura de la ficha (oculta medía mal)
     if (k === 'set') renderAjustes();
     if (k === 'now') { renderHome(true); requestAnimationFrame(fitHome); }
