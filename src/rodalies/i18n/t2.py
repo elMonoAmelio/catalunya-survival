@@ -141,4 +141,7 @@ T = {
 "No es este": ("No és aquest", "Not this one"),
 "siguiente": ("següent", "next"),
 "Sin señal": ("Sense senyal", "No signal"),
+"El siguiente": ("El següent", "Next one"),
+"sal en": ("marxa d'aquí a", "leave in"),
+"No llegas": ("No hi arribes", "You won't make it"),
 }
