@@ -1319,21 +1319,22 @@ export function initRail(A) {
     el.querySelectorAll('[data-hplat]').forEach(b => b.onclick = e => { e.stopPropagation(); const [k, v] = b.dataset.hplat.split(':'), P = P_(k); P.platAt = v === '1' ? Date.now() : 0; if (P.platAt) P.goAt = 0; saveP(P); renderHome(true); });
     el.querySelectorAll('[data-hnotst]').forEach(b => b.onclick = e => { e.stopPropagation(); NEAR.homeW = NEAR.w; try { localStorage.setItem('rod_homew', JSON.stringify(NEAR.w)); } catch (e2) {} renderHome(true); });
     el.querySelectorAll('[data-hdel]').forEach(b => b.onclick = () => { WORK.st = []; WORK.open = false; saveP(WORK); renderHome(true); pushSync(); });
-    el.querySelectorAll('[data-dk]').forEach(b => b.onclick = () => { const x = DK[+b.dataset.dk]; if (TAB.on && b.matches('li.hr') && !x.gone && x.num != null) { const pk = b.closest('.hplace')?.querySelector('[data-ht]')?.dataset.ht; if (pk) { const off = PIN.get(pk) === String(x.num); pinSet(pk, off ? null : String(x.num)); renderHome(true); if (off) return; } } goTrain(x); });   // en pestañas: tocar un tren lo elige y lo enseña en el mapa; tocarlo otra vez lo suelta
+    el.querySelectorAll('[data-dk]').forEach(b => b.onclick = () => { const x = DK[+b.dataset.dk]; if (TAB.on && b.matches('li.hr') && !x.gone && x.num != null) { const pk = b.closest('.hplace')?.querySelector('[data-ht]')?.dataset.ht; if (pk) { const off = PIN.get(pk) === String(x.num); pinSet(pk, off ? null : String(x.num)); if (off) { if (selTrip && String(selTrip.num) === String(x.num)) { selTrip = null; follow = null; TAB.sk = ''; mcs._h = ''; renderCard(); } } else goTrain(x, true); renderHome(true); return; } } goTrain(x); });   // en pestañas: tocar un tren lo elige y lo deja seguido en el mapa (sin cambiar de pestaña); tocarlo otra vez lo suelta
     el.querySelectorAll('[data-unpin]').forEach(b => b.onclick = e => { e.stopPropagation(); pinSet(b.dataset.unpin, null); renderHome(true); });
     el.querySelectorAll('[data-hal]').forEach(b => b.onclick = () => $('#alr').click());
     // campana pequeña junto a los avisos (en vez de una fila entera)
     bindCrowd(el);
   }
   // tocar una salida → seleccionar ese tren y llevar el mapa hasta él
-  function goTrain(x) {
+  function goTrain(x, quiet) {
     if (!x) return;
     const k = R.days.indexOf(nowState().ymd);
     let a = act.find(a => a.real ? (x.tid && a.v.tid === x.tid) || (x.num && String(a.tr ? a.tr.num : a.v.num) === String(x.num)) : (x.tr && a.tr === x.tr) || (x.num && a.tr && String(a.tr.num) === String(x.num)));
     let tr = x.tr || (a && a.tr) || (byDay[k] || []).find(t => String(t.num) === String(x.num));
-    selNews = selAlerts = selStats = false; selStation = -1; closeHome();
+    selNews = selAlerts = selStats = false; selStation = -1; if (!quiet) closeHome();
     selTrip = a ? (a.tr || { vtid: a.v.tid }) : tr || null;
     if (!selTrip) return;
+    if (quiet) TAB.sk = 't' + (selTrip.num || selTrip.vtid);   // seguido en el mapa, pero sin saltar a esa pestaña
     follow = a && a.tr ? a.tr : null;
     if (follow && innerWidth <= 640) { mcs.classList.add('peek'); const rc = $('#rc'); if (!rc.classList.contains('min')) $('#rcgrab').click(); }
     const w = a ? a.p.w : null; if (w) Object.assign(goal, { tx: w[0], ty: w[1], dist: Math.min(goal.dist, 22) });
