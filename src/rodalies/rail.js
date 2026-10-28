@@ -370,6 +370,7 @@ export function initRail(A) {
   // ---------- bucle ----------
   const DEPS = new Map();
   let selNews = false, selStats = false, selLine = '';
+  const BACK = { st: -1 };   // estación desde la que se abrió un tren (para volver al cerrarlo)
   let act = [], lastT = 0, follow = null, selTrip = null, selStation = -1, selAlerts = false, lastCard = 0, lastClock = '';
   function tick(now) {
     const fast = speed > 0 || (live() && simMin == null) || !!selTrip, gap = window.__mapHidden ? 1000 : fast ? 50 : 250;   // sin mapa a la vista basta con recalcular una vez por segundo (batería)
@@ -528,9 +529,12 @@ export function initRail(A) {
     const H = HIST.hoy;
     h += `<button type="button" class="hmore" data-cols>${COLS.on ? '▾ Quitar columnas del mapa' : '🏙️ Ver el retraso de cada estación en 3D'}</button>`;
     { famCov(''); const cv = [...COV.m].filter(([f, o]) => FC[f] && o[0] >= 3).map(([f, o]) => [f, o[1] / o[0]]).sort((a, b) => a[1] - b[1]);
-      if (cv.length) h += `<h4>¿De qué trenes da posición Renfe?</h4><small class="snote">De los trenes que según horario circulan ahora, cuántos se ven en directo. Si es bajo, en esa línea el mapa usa el horario y no avisamos de «sin señal».</small>` + bars(cv.slice(0, 8).map(([f, p]) => ({ lab: chipL(f), w: p, c: PC[pctCls(p * 100)], val: `${Math.round(p * 100)}%`, tip: `${f}: ${Math.round(p * 100)} % de los trenes en circulación con posición de Renfe` }))); }
-    { const pc = H0 => { const sn = (H0 && H0.snaps || []).filter(x => x.n); const n = sn.reduce((a, x) => a + x.n, 0), ok = sn.reduce((a, x) => a + x.ok, 0); return n ? ok / n * 100 : null; }; const a = pc(HIST.hoy), b = pc(HIST.ayer);
-      if (a != null) h += `<div class="cmp"><span>Hoy <b class="${pctCls(a)}">${Math.round(a)} %</b> puntuales</span>${b != null ? `<span>Ayer <b class="${pctCls(b)}">${Math.round(b)} %</b></span><span>${a >= b ? '▲ mejor' : '▼ peor'} que ayer</span>` : ''}</div>`; }
+      if (cv.length && !live()) h += `<h4>${'¿De qué trenes da posición Renfe?'}</h4><small class="snote">${'Ahora no llegan datos en directo de Renfe: el mapa usa el horario.'}</small>`;
+      else if (cv.length) h += `<h4>¿De qué trenes da posición Renfe?</h4><small class="snote">De los trenes que según horario circulan ahora, cuántos se ven en directo. Si es bajo, en esa línea el mapa usa el horario y no avisamos de «sin señal».</small>` + bars(cv.slice(0, 8).map(([f, p]) => ({ lab: chipL(f), w: p, c: PC[pctCls(p * 100)], val: `${Math.round(p * 100)}%`, tip: `${f}: ${Math.round(p * 100)} % de los trenes en circulación con posición de Renfe` }))); }
+    { const pc = (H0, upTo) => { const sn = (H0 && H0.snaps || []).filter(x => x.n && (!upTo || x.t <= upTo)); const n = sn.reduce((a, x) => a + x.n, 0), ok = sn.reduce((a, x) => a + x.ok, 0); return n ? ok / n * 100 : null; };
+      // se compara con ayer HASTA LA MISMA HORA (comparar media mañana con el día entero no sería justo)
+      const lastT = ((HIST.hoy && HIST.hoy.snaps) || []).filter(x => x.n).map(x => x.t).pop(), a = pc(HIST.hoy), b = pc(HIST.ayer, lastT), ra = a != null ? Math.round(a) : null, rb = b != null ? Math.round(b) : null;
+      if (a != null) h += `<div class="cmp"><span>Hoy <b class="${pctCls(a)}">${Math.round(a)} %</b> puntuales</span>${b != null ? `<span>${lastT ? 'Ayer a esta hora' : 'Ayer'} <b class="${pctCls(b)}">${rb} %</b></span><span>${ra > rb ? '▲ mejor que ayer' : ra < rb ? '▼ peor que ayer' : '= igual que ayer'}</span>` : ''}</div>`; }
     h += `<h4>Hoy, a lo largo del día</h4>`;
     if (H && H.snaps) {
       h += lineChart(H.snaps);
@@ -634,6 +638,7 @@ export function initRail(A) {
     let lb = null, ld = 1e9; for (const el of pool) { if (el.style.display === 'none') continue; const r = el.getBoundingClientRect(); if (x >= r.left - 4 && x <= r.right + 4 && y >= r.top - 4 && y <= r.bottom + 4) { const d = Math.abs(y - (r.top + r.bottom) / 2) * 4 + (x - r.left); if (d < ld) { ld = d; lb = el; } } } if (lb) { window.__rodPickStation(+lb.dataset.i); return true; }   // tocar el nombre = tocar la estación
     const h = nearest(x, y, 24, 18);
     if (h && (h.a || h.s != null)) CARDHID = false;
+    if (h && (h.a || h.s != null)) BACK.st = -1;
     if (h && h.a) { selNews = false; selAlerts = false; selStats = false; selTrip = h.a.tr || { vtid: h.a.v.tid }; selStation = -1; follow = null; closeHome(); styleStations(); renderCard(); lastT = 0; invalidate(); return true; }
     if (h && h.s != null) { selNews = false; selAlerts = false; selStats = false; selStation = h.s; selTrip = null; follow = null; closeHome(); styleStations(); renderCard(); invalidate(); return true; }
     return false;
@@ -644,7 +649,7 @@ export function initRail(A) {
     if (h && h.s != null) return `<b>${esc(ST[h.s].n)}</b><small>${[...ST[h.s].fams].sort(natural).join(' · ')}</small>`;
     return null;
   };
-  window.__rodPickStation = i => { CARDHID = false; selNews = selAlerts = selStats = false; selTrip = null; follow = null; selStation = i; closeHome(); styleStations(); mcs._h = ''; renderCard(); invalidate(); };
+  window.__rodPickStation = i => { BACK.st = -1; CARDHID = false; selNews = selAlerts = selStats = false; selTrip = null; follow = null; selStation = i; closeHome(); styleStations(); mcs._h = ''; renderCard(); invalidate(); };
   { const rc = $('#rc'), fit = () => { const top = rc.getBoundingClientRect().top; document.documentElement.style.setProperty('--mcsmax', Math.max(160, top - 64 - 10) + 'px'); }; try { new ResizeObserver(fit).observe(rc); } catch (e) {} addEventListener('resize', fit); setTimeout(fit, 300); }
   // actualización automática: comprueba si hay versión nueva al abrir y al volver a la app; si la hay, recarga sola una vez
   if ('serviceWorker' in navigator && location.protocol === 'https:') {
@@ -792,7 +797,7 @@ export function initRail(A) {
       const rows = [];
       if (tr) { const i0 = la.idx >= 0 ? la.idx : 0, D = v.pre ? Math.max(la.dl, v.preDl || 0) : la.dl, T = i => tr.t0 + tr.pat.t[i] + D; for (let i = i0; i < n; i++) rows.push(`<li class="${myIco(tr.pat.stops[i]) ? 'mine' : ''}${isAlarm(tr, i) ? ' alm' : ''}"><b>${hhmm(T(i === 0 ? 1 : 2 * i))}</b><span title="${nm(i)}">${myIco(tr.pat.stops[i])}${nm(i)}</span>${D >= 1 ? `<em class="dl ${dlCls(D)}">${v.pre ? '≈' : ''}+${Math.round(D)}</em>` : ''}${i > 0 ? `<button type="button" class="abtn" data-alarm="${i}" title="Avísame 2 min antes de llegar aquí">${isAlarm(tr, i) ? '🔔' : '🔕'}</button>` : ''}</li>`); }
       h = `<div class="tc" style="--c:${la.c}"><button class="x" data-cx>×</button><div>${chipL(la.fam)}<b>Tren ${esc(tr ? tr.num : v.num)}</b> <span class="lv">● en directo</span></div>${tr ? `<h3 class="rt"><span class="o" title="${nm(0)}">${nm(0)}</span><span class="ar">→</span>${dstP(ST[tr.pat.stops[n - 1]].n, tr.fam)}</h3>` : ''}
-        <p>${stTxt}${eta ? ` · prevista ${eta}` : ''}${v.plat && v.st === 'STOPPED_AT' && near ? ` · <b>vía ${esc(v.plat)}</b>` : ''}</p><p>${v.pre && v.prevTr ? (v.preDl >= 1 ? `<span class="st late">Saldrá con unos ${Math.round(v.preDl)} min de retraso (estimado)</span>` : '<span class="st ok">Le da tiempo a salir a su hora (estimado)</span>') : lateTxt(RT.delays.get(v.tid), RT.delays.has(v.tid))}${(() => { const th = tr && trainHist(tr.num); return th && th.n >= 2 ? `<span class="thist">📊 Últimos ${th.n} días: ${th.late ? `llegó con 5 min o más <b>${th.late} de ${th.n}</b>` : '<b>ningún día con 5 min o más</b>'} · retraso medio ${th.avg < 0.5 ? '0' : '+' + Math.round(th.avg)} min</span>` : ''; })()}${(() => { const w = tr && whyOf(tr.num); return w ? `<span class="why" title="${esc(w.txt)}">${w.why ? 'Motivo: ' + esc(w.why) : 'Rodalies ha publicado un aviso de este tren'}</span>` : ''; })()}</p>
+        <p>${stTxt}${eta ? ` · prevista ${eta}` : ''}${v.plat && v.st === 'STOPPED_AT' && near ? ` · <b>vía ${esc(v.plat)}</b>` : ''}</p><p>${v.pre && v.prevTr ? (v.preDl >= 1 ? `<span class="st late">Saldrá con unos ${Math.round(v.preDl)} min de retraso (estimado)</span>` : '<span class="st ok">Le da tiempo a salir a su hora (estimado)</span>') : lateTxt(RT.delays.get(v.tid), RT.delays.has(v.tid))}${(() => { const th = tr && trainHist(tr.num); return th && th.n >= 2 ? `<span class="thist">📊 Últimos ${th.n} días: ${th.late ? `${'en'} <b>${th.late} ${'de'} ${th.n} ${'días'}</b> ${'llevó 5 min o más de retraso'}` : '<b>ningún día con 5 min o más</b>'} · ${'retraso típico'} ${th.avg < 0.5 ? '0' : '+' + Math.round(th.avg)} min</span>` : ''; })()}${(() => { const w = tr && whyOf(tr.num); return w ? `<span class="why" title="${esc(w.txt)}">${w.why ? 'Motivo: ' + esc(w.why) : 'Rodalies ha publicado un aviso de este tren'}</span>` : ''; })()}</p>
         <small>${v.pre ? `Renfe ya le pone el número de su próximo viaje. Posición real enviada ${ago(Math.round(la.age) + ' s')}` : v.est ? 'Renfe da una posición que no encaja con su recorrido: se muestra donde debería estar según el horario y su retraso' : `Posición enviada por Renfe ${ago(Math.round(la.age) + ' s')}${la.age > 120 ? ' · <b>sin actualizar</b>' : ''}`}</small>
         ${rows.length ? `${la.dl >= 1 || (v.pre && v.preDl >= 1) ? `<small style="margin-top:6px">Horas con el retraso actual</small>` : ''}<ol class="stops">${rows.join('')}</ol>` : ''}${alertHtml(alertsFor(new Set([la.fam])))}
         ${crowdHtml(tr ? tr.num : v.num, '', la.fam)}${tr ? `<div class="rtb two"><button type="button" data-fav>${isFav(tr) ? '⭐ Es tu tren de cada día' : '☆ Mi tren de cada día'}</button><button type="button" data-follow>${follow === tr ? 'Dejar de seguir' : 'Seguir este tren'}</button></div>` : ''}</div>`;
@@ -807,7 +812,7 @@ export function initRail(A) {
       const nx = p ? p.next : 0, rows = [];
       for (let i = nx; i < n; i++) rows.push(`<li class="${myIco(P.stops[i]) ? 'mine' : ''}${isAlarm(tr, i) ? ' alm' : ''}"><b>${hhmm(T(2 * i))}</b><span title="${nm(i)}">${myIco(P.stops[i])}${nm(i)}</span>${dl >= 1 ? `<em class="dl ${dlCls(dl)}">+${Math.round(dl)}</em>` : ''}${i > 0 ? `<button type="button" class="abtn" data-alarm="${i}" title="Avísame 2 min antes de llegar aquí">${isAlarm(tr, i) ? '🔔' : '🔕'}</button>` : ''}</li>`);
       h = `<div class="tc" style="--c:${tr.c}"><button class="x" data-cx>×</button><div>${chipL(tr.fam)}<b>Tren ${esc(tr.num)}</b> <span class="pv">previsión</span></div><h3 class="rt"><span class="o" title="${nm(0)}">${nm(0)}</span><span class="ar">→</span>${dstP(ST[tr.pat.stops[n - 1]].n, tr.fam)}</h3>
-        <p>${state}</p><p>${lateTxt(d, d != null)}${(() => { const th = trainHist(tr.num); return th && th.n >= 2 ? `<span class="thist">📊 Últimos ${th.n} días: ${th.late ? `llegó con 5 min o más <b>${th.late} de ${th.n}</b>` : '<b>ningún día con 5 min o más</b>'} · retraso medio ${th.avg < 0.5 ? '0' : '+' + Math.round(th.avg)} min</span>` : ''; })()}</p><small>Sale ${hhmm(tr.t0 + P.t[1])} · llega ${hhmm(tr.t0 + P.t[2 * n - 2])} (horario)</small>
+        <p>${state}</p><p>${lateTxt(d, d != null)}${(() => { const th = trainHist(tr.num); return th && th.n >= 2 ? `<span class="thist">📊 Últimos ${th.n} días: ${th.late ? `${'en'} <b>${th.late} ${'de'} ${th.n} ${'días'}</b> ${'llevó 5 min o más de retraso'}` : '<b>ningún día con 5 min o más</b>'} · ${'retraso típico'} ${th.avg < 0.5 ? '0' : '+' + Math.round(th.avg)} min</span>` : ''; })()}</p><small>Sale ${hhmm(tr.t0 + P.t[1])} · llega ${hhmm(tr.t0 + P.t[2 * n - 2])} (horario)</small>
         ${dl >= 1 ? '<small style="margin-top:6px">Horas con el retraso actual</small>' : ''}<ol class="stops">${rows.join('')}</ol>${crowdHtml(tr.num, '', tr.fam)}<div class="rtb two"><button type="button" data-fav>${isFav(tr) ? '⭐ Es tu tren de cada día' : '☆ Mi tren de cada día'}</button><button type="button" data-follow>${follow === tr ? 'Dejar de seguir' : 'Seguir este tren'}</button></div></div>`;
     } else {
       const s = selStation, k = R.days.indexOf(S.ymd), deps = [];
@@ -828,9 +833,12 @@ export function initRail(A) {
       const off = offOk && OD && OD.d && Array.isArray(OD.d.trains) ? OD.d.trains : null;
       if (off) {
         const byNum = new Map([...RT.vp.values()].map(v => [String((TID.get(v.tid) || {}).num || v.num), v]));
+        // misma hora y mismo retraso que en Ahora (la hora oficial ya lleva el retraso); los que ya pasaron se apagan
+        const DF = new Map(departuresFor(s).map(y => [String(y.num), y]));
         const rows = off.filter(x => okF((x.line || {}).id || '')).slice(0, 40).map(x => {
-          const t = (x.departureDateHourSelectedStation || '').slice(11, 16), f = (x.line || {}).id || '', num = String(x.commercialNumber || x.technicalNumber || ''), v = byNum.get(num), d = v ? RT.delays.get(v.tid) : null;
-          return `<li class="go${isSel({ num, tid: v ? v.tid : '' }) ? ' sel' : ''}" data-gt="${esc(num)}|${v ? esc(v.tid) : ''}"><b>${esc(t)}</b>${FC[f] ? chipL(f) : `<span class="ln" style="--c:#6b7385">${esc(f || '?')}</span>`}<span>${dstP((x.destinationStation || {}).name || '', f)}${x.trainObservations ? ` · <i>${esc(x.trainObservations)}</i>` : ''}</span>${x.trainCancelled ? '<em>cancelado</em>' : typeof d === 'number' && d >= 60 ? `<em class="dl ${dlCls(d / 60)}">+${Math.round(d / 60)}</em>` : ''}${x.platformSelectedStation ? `<i class="via">vía ${esc(x.platformSelectedStation)}</i>` : ''}${v ? '<i class="lvd" title="circulando, posición real">●</i>' : '<i class="lvd ph">●</i>'}</li>`;
+          const num = String(x.commercialNumber || x.technicalNumber || ''), y = DF.get(num), t = y ? hhmm(y.est) : (x.departureDateHourSelectedStation || '').slice(11, 16), f = (x.line || {}).id || '', v = byNum.get(num), d = y ? Math.round(y.dl) * 60 : v ? RT.delays.get(v.tid) : null;
+          const old = y && (y.gone || (!y.live && y.est < S.min - 1));
+          return `<li class="go${old ? ' old' : ''}${isSel({ num, tid: v ? v.tid : '' }) ? ' sel' : ''}" data-gt="${esc(num)}|${v ? esc(v.tid) : ''}"><b>${esc(t)}</b>${FC[f] ? chipL(f) : `<span class="ln" style="--c:#6b7385">${esc(f || '?')}</span>`}<span>${dstP((x.destinationStation || {}).name || '', f)}${x.trainObservations ? ` · <i>${esc(x.trainObservations)}</i>` : ''}${old ? ` <small class="oldt">${y.gone ? 'ya ha salido' : 'hora pasada · sin dato en directo'}</small>` : ''}</span>${x.trainCancelled ? '<em>cancelado</em>' : typeof d === 'number' && d >= 60 ? `<em class="dl ${dlCls(d / 60)}">+${Math.round(d / 60)}</em>` : ''}${x.platformSelectedStation ? `<i class="via">vía ${esc(x.platformSelectedStation)}</i>` : ''}${v ? '<i class="lvd" title="circulando, posición real">●</i>' : '<i class="lvd ph">●</i>'}</li>`;
         }).join('');
         h = `<div class="tc" style="--c:#1d2330"><button class="x" data-cx>×</button><h3>${esc(ST[s].n)}</h3>${stChips(s)}${crowdHtml('', ST[s].id, '')}
           <small style="margin-top:6px">Próximas salidas oficiales de Rodalies · hora prevista · <span class="lvk">●</span> tren circulando</small>
@@ -850,7 +858,8 @@ export function initRail(A) {
     else if (innerHeight <= 500) { const ib = $('#inf').getBoundingClientRect().bottom; mcs.style.top = Math.round(ib + 8) + 'px'; mcs.style.width = 'min(290px, 40vw)'; mcs.style.maxHeight = (innerHeight - ib - 20) + 'px'; }
     else { mcs.style.top = ''; mcs.style.width = selStats ? '390px' : '300px'; mcs.style.maxHeight = ''; }
     const x = mcs.querySelector('[data-cx]'); if (x) x.onclick = e => { e.stopPropagation(); renderCard.done = 0; if (selStats || selNews || selAlerts || (selLine && !selTrip && selStation < 0)) { selStats = selNews = selAlerts = false; if (!(selTrip || selStation >= 0)) selLine = ''; mcs._h = ''; renderCard(); invalidate(); return; } /* cerrar estadísticas, avisos o novedades devuelve a la ficha que tenías */
-      selAlerts = false; selNews = false; selStats = false; selTrip = null; selStation = -1; follow = null; styleStations(); renderCard(); lastT = 0; invalidate(); };
+      if (selTrip && BACK.st >= 0) { const b = BACK.st; BACK.st = -1; selTrip = null; follow = null; selStation = b; styleStations(); mcs._h = ''; renderCard(); lastT = 0; invalidate(); return; }   // tren abierto desde una estación: se vuelve a la estación
+      BACK.st = -1; selAlerts = false; selNews = false; selStats = false; selTrip = null; selStation = -1; follow = null; styleStations(); renderCard(); lastT = 0; invalidate(); };
     bindCrowd(mcs);
     mcs.querySelectorAll('[data-alarm]').forEach(b => b.onclick = e => { e.stopPropagation(); const tr = selTrip && selTrip.pat ? selTrip : (TID.get(selTrip && selTrip.vtid) || null); if (!tr) return; const i = +b.dataset.alarm, sid = ST[tr.pat.stops[i]].id;
       if (ALARM && ALARM.num === String(tr.num) && ALARM.sid === sid) { ALARM = null; if (window.__schedOff) window.__schedOff(7701); toast('Aviso de llegada quitado'); } else { ALARM = { num: String(tr.num), sid, at: Date.now() }; toast(`🔔 Te aviso 2 min antes de llegar a ${ST[tr.pat.stops[i]].n}`); if ('Notification' in window && Notification.permission === 'default') Notification.requestPermission(); }
@@ -864,7 +873,7 @@ export function initRail(A) {
     { const cb = mcs.querySelector('[data-cols]'); if (cb) cb.onclick = () => { COLS.on = !COLS.on; buildCols(); mcs._h = ''; renderCard(); }; }
     mcs.querySelectorAll('[data-gs]').forEach(e => e.onclick = () => { const i = +e.dataset.gs; selStats = false; window.__rodPickStation(i); Object.assign(goal, { tx: ST[i].w[0], ty: ST[i].w[1], dist: Math.min(goal.dist, 20) }); invalidate(); });
     mcs.querySelectorAll('[data-sf]').forEach(b => b.onclick = e => { e.stopPropagation(); const f = b.dataset.sf; if (!f) stF.f.clear(); else if (stF.f.has(f)) stF.f.delete(f); else stF.f.add(f); mcs._h = ''; renderCard(); });
-    mcs.querySelectorAll('[data-gt]').forEach(li => li.onclick = () => { const [num, tid] = li.dataset.gt.split('|'); const tr = TID.get(tid); goTrain({ num, tid: RT.vp.has(tid) ? tid : '', tr: tr || null }); });
+    mcs.querySelectorAll('[data-gt]').forEach(li => li.onclick = () => { BACK.st = selStation; const [num, tid] = li.dataset.gt.split('|'); const tr = TID.get(tid); goTrain({ num, tid: RT.vp.has(tid) ? tid : '', tr: tr || null }); });
     mcs.querySelectorAll('[data-sethome]').forEach(b => b.onclick = () => setHome(selStation, b.dataset.sethome));
     const fb = mcs.querySelector('[data-follow]'); if (fb) fb.onclick = () => { follow = follow === selTrip ? null : selTrip; if (follow) { goal.dist = Math.min(goal.dist, 22); if (innerWidth <= 640) { mcs.classList.add('peek'); mcs.scrollTop = 0; const rc = $('#rc'); if (!rc.classList.contains('min')) $('#rcgrab').click(); } } else mcs.classList.remove('peek'); mcs._h = ''; renderCard(); invalidate(); };
   }
@@ -1296,12 +1305,13 @@ export function initRail(A) {
     return `<div class="hnow${sv === 3 ? ' bad' : sv === 2 ? ' warn' : sv === 1 ? ' info' : ''}${al.length && !exp ? ' col' : ''}" data-nowx="${esc(al.map(a => a.id).join('|'))}">${head}${exp ? al.slice().sort((a, b) => sevOf(b) - sevOf(a)).map(a => `<p class="sv${sevOf(a)}">${srcB(a)} ${esc(a.txt)} <small>${whenTxt(a)}</small></p>`).join('') + `<small class="hnowt">${'Toca aquí para recogerlo'}</small>` : ''}</div>`;
   }
   // Ahora: la línea «Sal en… · vía · hora → hora» siempre en una sola línea; si no cabe, se reduce un poco la letra (mín. 86 %)
-  const PIN = new Map((() => { try { return JSON.parse(localStorage.getItem('rod_pin') || '[]'); } catch (e) { return []; } })());
+  // el tren elegido vale solo para hoy (el mismo número circula cada día): se guarda con la fecha
+  const PIN = new Map((() => { try { const d = madrid(new Date()).ymd; return JSON.parse(localStorage.getItem('rod_pin') || '[]').filter(e => e[2] === d).map(e => [e[0], e[1]]); } catch (e) { return []; } })());
   function fitHome() { if (!document.documentElement.classList.contains('tabmode')) return; const L = [...document.querySelectorAll('#home .hhead .htit small:not(.nofit)')]; const sz = (s, k) => { s.style.fontSize = k === 1 ? '' : (s._f0 * k).toFixed(1) + 'px'; s.querySelectorAll('b').forEach(b => b.style.fontSize = k === 1 ? '' : (s._b0 * k).toFixed(1) + 'px'); }; let k = 1; for (const s of L) { s.style.whiteSpace = ''; sz(s, 1); if (!s.clientWidth) continue; s._f0 = parseFloat(getComputedStyle(s).fontSize); const b = s.querySelector('b'); s._b0 = b ? parseFloat(getComputedStyle(b).fontSize) : 0; while (s.scrollWidth > s.clientWidth + 1 && k > 0.86) { k -= 0.02; sz(s, k); } } if (k < 1) for (const s of L) if (s._f0) sz(s, k); for (const s of L) if (s.scrollWidth > s.clientWidth + 1) s.style.whiteSpace = 'normal'; }   /* si ni así cabe, pasa a 2 líneas (la ficha mide lo mismo) */   /* mismo tamaño en todas las fichas */
   addEventListener('resize', () => { try { fitHome(); } catch (e) {} });
   // tren elegido a mano en Ahora (por casa / trabajo / cerca): se guarda hasta que sale
   const deps0 = (k, n) => { const P = k === 'work' ? WORK : k === 'near' ? NEAR : HOME, s = P && curSt(P); return s == null ? null : departuresFor(s).find(y => String(y.num) === String(n)) || null; };
-  function pinSet(k, num) { if (num) PIN.set(k, num); else PIN.delete(k); try { localStorage.setItem('rod_pin', JSON.stringify([...PIN])); } catch (e) {} }
+  function pinSet(k, num) { if (num) PIN.set(k, num); else PIN.delete(k); try { const d = madrid(new Date()).ymd; localStorage.setItem('rod_pin', JSON.stringify([...PIN].map(([k, n]) => [k, n, d]))); } catch (e) {} }
   // vas en un tren (detectado por el GPS): ficha con por dónde va y a qué hora llegas
   // ¿dónde está ahora un tren? (para el tren elegido en Ahora)
   function trainWhere(num) {
@@ -1437,7 +1447,7 @@ export function initRail(A) {
   // ---------- PESTAÑAS (móvil y app): Ahora · Mapa · Línea · Ajustes ----------
   // En el ordenador se mantiene el diseño con paneles flotantes; en el móvil y en la app, cuatro pestañas abajo.
   const TAB = { on: false, cur: 'now', home: new Map() };
-  const tabsMQ = matchMedia('(max-width:640px)');
+  const tabsMQ = matchMedia('(max-width:640px), (max-height:500px) and (pointer:coarse)');   // móvil, también en horizontal
   const tabbar = document.createElement('nav'); tabbar.id = 'tabs';
   const TABS = [['now', '🕒', 'Ahora'], ['map', '🗺️', 'Mapa'], ['line', '📊', 'Línea'], ['set', '⚙️', 'Ajustes']];
   tabbar.innerHTML = TABS.map(([k, i, l]) => `<button type="button" data-tab="${k}"><span>${i}</span><small>${l}</small></button>`).join('');

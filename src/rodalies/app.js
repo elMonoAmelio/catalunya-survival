@@ -455,7 +455,7 @@ function swipe(el, { onMove, onEnd, axis }) {
   addEventListener('pointerup', end, true); addEventListener('pointercancel', end, true);
 }
 $('#rcgrab').onclick = () => rcMin(!rcEl.classList.contains('min'));
-if (innerWidth <= 640) rcMin(true);   // en el móvil los controles empiezan escondidos
+if (innerWidth <= 640 || matchMedia('(max-height:500px) and (pointer:coarse)').matches || document.documentElement.classList.contains('cap')) rcMin(true);   // en el móvil los controles empiezan escondidos
 requestAnimationFrame(() => document.documentElement.classList.remove('boot'));   // ya está todo colocado: fuera la pantalla de arranque
 const land = () => innerWidth > 640;
 swipe(rcEl, { axis: 'y', onEnd: (dx, dy) => { if (land()) return; if (dy > 40 && !rcEl.classList.contains('min')) { const sc = $('#dp.open #dbody'); if (!sc || sc.scrollTop <= 0 || dy > 120) rcMin(true); } else if (dy < -30 && rcEl.classList.contains('min')) rcMin(false); } });
