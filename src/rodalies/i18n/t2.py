@@ -172,4 +172,10 @@ T = {
 "llevó 5 min o más de retraso": ("va dur 5 min o més de retard", "it ran 5+ min late"),
 "retraso típico": ("retard típic", "typical delay"),
 "Automático sigue el tamaño de letra del iPhone (Ajustes › Pantalla y brillo › Tamaño del texto).": ("Automàtic segueix la mida de lletra de l'iPhone (Configuració › Pantalla i brillantor › Mida del text).", "Automatic follows the iPhone text size (Settings › Display & Brightness › Text Size)."),
+"Avísame 2 min antes de llegar aquí": ("Avisa'm 2 min abans d'arribar aquí", "Alert me 2 min before arriving here"),
+"Ocultar esta dirección": ("Amagar aquesta direcció", "Hide this direction"),
+"tren circulando": ("tren circulant", "running train"),
+"Ya llega": ("Ja arriba", "Arriving now"),
+"En unos ": ("D'aquí a uns ", "In about "),
+" a ": (" a ", " to "),
 }
