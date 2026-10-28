@@ -566,6 +566,12 @@ export function initRail(A) {
     if (!out.length) { const m = new Map(); act.forEach(a => { if (!a.real || !a.tr || a.v.next == null || a.v.next < 0 || a.v.pre || !RT.delays.has(a.v.tid)) return; const si = a.tr.pat.stops[a.v.next], o = m.get(si) || [0, 0]; o[0] += Math.max(0, a.dl); o[1]++; m.set(si, o); }); m.forEach((o, i) => out.push([i, o[0] / o[1], o[1]])); }
     return out;
   }
+  // grosor de las columnas según el zoom: finas en la ciudad (estaciones juntas), más gruesas de lejos
+  const colR = () => Math.min(1, Math.max(0.22, cur.dist / 110));
+  function colsRadius() {
+    if (!COLS.mesh || !COLS.d) return; const r = colR(); if (Math.abs(r - COLS.r) < 0.04) return; COLS.r = r;
+    const M4 = new THREE.Matrix4(); COLS.d.forEach(([i, mn], k) => { M4.makeScale(r, r, 0.3 + Math.min(mn, 40) * 0.3); M4.setPosition(ST[i].w[0], ST[i].w[1], Z); COLS.mesh.setMatrixAt(k, M4); }); COLS.mesh.instanceMatrix.needsUpdate = true; invalidate();
+  }
   function buildCols() {
     if (COLS.mesh) { scene.remove(COLS.mesh); COLS.mesh.geometry.dispose(); COLS.mesh.material.dispose(); COLS.mesh = null; }
     if (!COLS.on) { invalidate(); return; }
@@ -573,7 +579,8 @@ export function initRail(A) {
     const g = new THREE.CylinderGeometry(0.32, 0.32, 1, 16); g.rotateX(Math.PI / 2); g.translate(0, 0, 0.5);
     const m = new THREE.MeshBasicMaterial({ fog: false });
     const mesh = new THREE.InstancedMesh(g, m, d.length), M4 = new THREE.Matrix4(), col = new THREE.Color();
-    d.forEach(([i, mn], k) => { const h = 0.3 + Math.min(mn, 40) * 0.3; M4.makeScale(1, 1, h); M4.setPosition(ST[i].w[0], ST[i].w[1], Z); mesh.setMatrixAt(k, M4); col.set(mn > 10 ? '#dc2626' : mn > 5 ? '#ea7a0c' : mn >= 1 ? '#eab308' : '#16a34a'); mesh.setColorAt(k, col); });
+    COLS.d = d; COLS.r = colR();
+    d.forEach(([i, mn], k) => { const h = 0.3 + Math.min(mn, 40) * 0.3; M4.makeScale(COLS.r, COLS.r, h); M4.setPosition(ST[i].w[0], ST[i].w[1], Z); mesh.setMatrixAt(k, M4); col.set(mn > 10 ? '#dc2626' : mn > 5 ? '#ea7a0c' : mn >= 1 ? '#eab308' : '#16a34a'); mesh.setColorAt(k, col); });
     mesh.renderOrder = 25; mesh.frustumCulled = false; scene.add(mesh); COLS.mesh = mesh;
     if (goal.tilt < 0.5) goal.tilt = 0.85;   // inclinar para que se vea el volumen
     invalidate();
@@ -583,6 +590,7 @@ export function initRail(A) {
   document.body.appendChild(sbtn);
   function frameHook() {
     if ((cur.dist < 45) !== (lastDist < 45)) { lastDist = cur.dist; styleStations(); }
+    colsRadius();
     placeStationLabels();
     placeMuniLabels();
   }
@@ -1154,14 +1162,14 @@ export function initRail(A) {
         + `<span class="hrt"><b>${x.cancel ? '✕' : miss ? hhmm(x.est) : mins(x.est - S.min)}</b><small>${x.cancel ? 'cancelado' : x.late ? 'aún no ha salido' : miss ? 'no llegas' : x.ghost ? '<i class="ghs" title="Debería estar circulando y Renfe no da su posición">sin señal</i>' : hhmm(x.est)}</small></span>`
         + `<span class="hrd">${x.bus ? '<i class="bus" title="Autobús que sustituye al tren por obras">🚌</i>' : ''}${dstP((oneLine ? '' : x.fam + ' · ') + x.dest, x.fam)}${r.length ? `<i class="cr" title="${esc(r.map(y => tipo(y.kind)).join(' · '))}">${r.slice(0, 2).map(y => CK[y.kind]).join('')}</i>` : ''}${x.arr != null ? `<small class="hro hro1">llegas a las ${hhmm(x.arr)}${x.num ? ' · ' + 'tren\u00a0' + esc(x.num) : ''}${(() => { const th = x.num && trainHist(x.num); return th && th.n >= 3 && th.late / th.n >= 0.5 ? ` · <b class="slate">suele ir tarde (${th.late}/${th.n})</b>` : ''; })()}</small>` : ''}${x.obs ? `<small class="hro">${esc(x.obs)}</small>` : ''}</span>`
         + `<span class="hrm">${!x.cancel && x.dl >= 1 ? `<em class="dl ${dlCls(x.dl)}">+${Math.round(x.dl)}</em>` : ''}${x.plat ? `<i class="via">vía ${esc(x.plat)}</i>` : ''}</span></li>`; };
-    const col = (g, v, hk) => `<div class="hcol"><div class="hdir">${label(g)}${hk ? `<button type="button" class="hhide" data-hhide="${P.key}:${hk}" title="Ocultar esta dirección">✕</button>` : ''}</div><div class="hv ${v.cls}${v.ghost || (v.pin && v.x && v.x.noPos) ? ' gh' : ''}${v.x ? ' go' : ''}"${v.x ? ` data-dk="${DK.push(v.x) - 1}"` : ''}><b>${v.big}</b>${v.pin ? `<button type="button" class="hunpin" data-unpin="${P.key}" title="${'Volver al próximo tren'}">📌 ${'Elegido'} ✕</button>` : ''}<small>${esc(v.small)}</small>${v.pin && v.x && v.x.num ? (w => w ? `<span class="hwhere">📍 ${esc(w)}</span>` : '')(trainWhere(v.x.num)) : ''}${v.warn ? `<span class="hvw">${esc(v.warn)}</span>` : ''}</div><ol>${groups[g].slice(0, (P.more ? (g === 'all' || P.hide ? 20 : 10) : g === 'all' ? 7 : P.hide ? 8 : 4) + groups[g].filter(x => x.gone).length).map(row).join('') || '<li><span>—</span></li>'}</ol></div>`;
+    const col = (g, v, hk) => `<div class="hcol"><div class="hdir">${label(g)}${hk ? `<button type="button" class="hhide" data-hhide="${P.key}:${hk}" title="Ocultar esta dirección">✕</button>` : ''}</div><div class="hv ${v.cls}${v.ghost || (v.pin && v.x && v.x.noPos) ? ' gh' : ''}${v.x ? ' go' : ''}"${v.miss && v.nxt && v.nxt.num ? ` data-pinnext="${P.key}:${esc(v.nxt.num)}" title="${'Elegir el siguiente'}"` : v.x ? ` data-dk="${DK.push(v.x) - 1}"` : ''}><b>${v.big}</b>${v.pin ? `<button type="button" class="hunpin" data-unpin="${P.key}" title="${'Volver al próximo tren'}">📌 ${'Elegido'} ✕</button>` : ''}<small>${esc(v.small)}</small>${v.pin && v.x && v.x.num ? (w => w ? `<span class="hwhere">📍 ${esc(w)}</span>` : '')(trainWhere(v.x.num)) : ''}${v.warn ? `<span class="hvw">${esc(v.warn)}</span>` : ''}</div><ol>${groups[g].slice(0, (P.more ? (g === 'all' || P.hide ? 20 : 10) : g === 'all' ? 7 : P.hide ? 8 : 4) + groups[g].filter(x => x.gone).length).map(row).join('') || '<li><span>—</span></li>'}</ol></div>`;
     if (P === NEAR) { const va = verdict('all'); var sumN = va.x ? `<span class="nw">${va.big}</span> · <span class="nw"><b>${hhmm(va.x.est)}</b> ${esc(va.x.fam)}</span> a ${esc(va.x.dest)}${va.x.plat ? '<span class="nw">' + ' · vía ' + esc(va.x.plat) + '</span>' : ''}` : va.big; }
     const sum = P === NEAR ? sumN : vb.x ? `<span class="nw">${vb.big}${vb.x.plat ? ' · vía ' + esc(vb.x.plat) : ''}</span> · <span class="nw"><b>${hhmm(vb.x.est)}</b>${vb.x.arr != null ? ` → <span class="lla">llegas a las </span><b>${hhmm(vb.x.arr)}</b>` : ''}</span><span class="lla"> hacia ${esc(refName)}</span>` : 'Sin trenes hacia ' + esc(refName);
     const vp = P === NEAR ? (v => v.pin ? v : null)(verdict('all')) : vb.pin ? vb : vo.pin ? vo : null;
     // tren elegido sin señal de Renfe o cancelado: ficha en gris rayado y el siguiente tren que sí circula
     const vgG = vp ? (P === NEAR ? 'all' : vp === vb ? 'to' : g2) : '', vgBad = !!(vp && (vp.ghost || vp.x.noPos || vp.x.cancel)), vgMiss = !!(vp && vp.miss);
     const vgNext = vgBad ? groups[vgG].find(y => !y.cancel && !y.ghost && !y.gone && y.est > vp.x.est - 0.01 && y !== vp.x && y.est - S.min >= (away || atSt ? 0 : W)) : null;
-    const sumMiss = vgMiss ? `<span class="nw">${'No llegas'}</span>${vp.nxt ? ` · <span class="nw">${'siguiente'} <b>${hhmm(vp.nxt.est)}</b>${vp.nxt.arr != null ? ` → <b>${hhmm(vp.nxt.arr)}</b>` : ''}</span>` : ''}` : '';
+    const sumMiss = vgMiss ? `<span class="nw">${'No llegas a las'} <b>${hhmm(vp.x.est)}</b></span>${vp.nxt ? ` · <span class="nw">${'siguiente'} <b>${hhmm(vp.nxt.est)}</b>${vp.nxt.arr != null ? ` → <b>${hhmm(vp.nxt.arr)}</b>` : ''}</span>` : ''}` : '';
     const sumBad = vgBad ? `<span class="nw">⚠️ ${vp.x.cancel ? 'Cancelado' : vp.ghost ? 'Sin señal' : 'Sin posición'}</span>${vgNext ? ` · <span class="nw">${'siguiente'} <b>${hhmm(vgNext.est)}</b>${vgNext.arr != null ? ` → <b>${hhmm(vgNext.arr)}</b>` : ''}${vgNext.plat ? ' · vía ' + esc(vgNext.plat) : ''}</span>` : ''}` : '';
     return `<div class="hplace ${P.open ? 'open' : ''}${vp ? ' pinned' : ''}${vgBad ? ' pgh' : ''}"><button type="button" class="hhead" data-ht="${P.key}"><span class="hico">${P.ico}</span><span class="htit"><b>${esc(ST[sidx].n)}${vp && vp.x.num ? `<i class="hpn">📌 ${esc(vp.x.num)}</i>` : ''}</b><small class="c${vgBad || vgMiss ? 'warn' : bad ? 'bad' : vb.cls.slice(2)}">${vgBad ? sumBad : vgMiss ? sumMiss : sum}</small>${vp && vp.x && vp.x.num ? (w => w ? `<small class="nofit hwh2">📍 ${esc(w)}</small>` : '')(trainWhere(vp.x.num)) : ''}</span><span class="hchev">▾</span></button>` + (P.open ? `
       <div class="hbody">
@@ -1292,6 +1300,7 @@ export function initRail(A) {
   function fitHome() { if (!document.documentElement.classList.contains('tabmode')) return; const L = [...document.querySelectorAll('#home .hhead .htit small:not(.nofit)')]; const sz = (s, k) => { s.style.fontSize = k === 1 ? '' : (s._f0 * k).toFixed(1) + 'px'; s.querySelectorAll('b').forEach(b => b.style.fontSize = k === 1 ? '' : (s._b0 * k).toFixed(1) + 'px'); }; let k = 1; for (const s of L) { s.style.whiteSpace = ''; sz(s, 1); if (!s.clientWidth) continue; s._f0 = parseFloat(getComputedStyle(s).fontSize); const b = s.querySelector('b'); s._b0 = b ? parseFloat(getComputedStyle(b).fontSize) : 0; while (s.scrollWidth > s.clientWidth + 1 && k > 0.86) { k -= 0.02; sz(s, k); } } if (k < 1) for (const s of L) if (s._f0) sz(s, k); for (const s of L) if (s.scrollWidth > s.clientWidth + 1) s.style.whiteSpace = 'normal'; }   /* si ni así cabe, pasa a 2 líneas (la ficha mide lo mismo) */   /* mismo tamaño en todas las fichas */
   addEventListener('resize', () => { try { fitHome(); } catch (e) {} });
   // tren elegido a mano en Ahora (por casa / trabajo / cerca): se guarda hasta que sale
+  const deps0 = (k, n) => { const P = k === 'work' ? WORK : k === 'near' ? NEAR : HOME, s = P && curSt(P); return s == null ? null : departuresFor(s).find(y => String(y.num) === String(n)) || null; };
   function pinSet(k, num) { if (num) PIN.set(k, num); else PIN.delete(k); try { localStorage.setItem('rod_pin', JSON.stringify([...PIN])); } catch (e) {} }
   // vas en un tren (detectado por el GPS): ficha con por dónde va y a qué hora llegas
   // ¿dónde está ahora un tren? (para el tren elegido en Ahora)
@@ -1300,6 +1309,7 @@ export function initRail(A) {
     const tr = a.tr, nm = i => ST[tr.pat.stops[i]].n;
     if (a.real) { const v = a.v; if (v.pre) return 'Aún no ha empezado su viaje';
       if (v.atStop >= 0 && (v.st === 'STOPPED_AT' || v.still > 30)) return 'Parado en ' + nm(v.atStop);
+      if (v.atStop >= 0) return 'En ' + nm(v.atStop);   // llegando o saliendo de esa estación
       if (a.stop === 'via' && v.next > 0) return '⏸ ' + 'Detenido entre ' + nm(v.next - 1) + ' y ' + nm(v.next);
       if (v.next > 0) return 'Entre ' + nm(v.next - 1) + ' y ' + nm(v.next);
       return v.next === 0 ? 'Hacia ' + nm(0) : ''; }
@@ -1341,6 +1351,7 @@ export function initRail(A) {
     el.querySelectorAll('[data-hnotst]').forEach(b => b.onclick = e => { e.stopPropagation(); NEAR.homeW = NEAR.w; try { localStorage.setItem('rod_homew', JSON.stringify(NEAR.w)); } catch (e2) {} renderHome(true); });
     el.querySelectorAll('[data-hdel]').forEach(b => b.onclick = () => { WORK.st = []; WORK.open = false; saveP(WORK); renderHome(true); pushSync(); });
     el.querySelectorAll('[data-dk]').forEach(b => b.onclick = () => { const x = DK[+b.dataset.dk]; if (TAB.on && b.matches('li.hr') && !x.gone && x.num != null) { const pk = b.closest('.hplace')?.querySelector('[data-ht]')?.dataset.ht; if (pk) { const off = PIN.get(pk) === String(x.num); pinSet(pk, off ? null : String(x.num)); if (off) { if (selTrip && String(selTrip.num) === String(x.num)) { selTrip = null; follow = null; TAB.sk = ''; mcs._h = ''; renderCard(); } } else goTrain(x, true); renderHome(true); return; } } goTrain(x); });   // en pestañas: tocar un tren lo elige y lo deja seguido en el mapa (sin cambiar de pestaña); tocarlo otra vez lo suelta
+    el.querySelectorAll('[data-pinnext]').forEach(b => b.onclick = e => { if (e.target.closest('[data-unpin]')) return; const [k, n] = b.dataset.pinnext.split(':'); pinSet(k, n); const x = deps0(k, n); if (x) goTrain(x, true); renderHome(true); });
     el.querySelectorAll('[data-unpin]').forEach(b => b.onclick = e => { e.stopPropagation(); pinSet(b.dataset.unpin, null); renderHome(true); });
     el.querySelectorAll('[data-hal]').forEach(b => b.onclick = () => $('#alr').click());
     // campana pequeña junto a los avisos (en vez de una fila entera)
