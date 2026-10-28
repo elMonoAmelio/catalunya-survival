@@ -135,4 +135,8 @@ T = {
 "Tardo": ("Trigo", "I take"),
 "a pie": ("a peu", "on foot"),
 "Prepárate para bajar": ("Prepara't per baixar", "Get ready to get off"),
+"Parado en ": ("Aturat a ", "Stopped at "),
+"Hacia ": ("Cap a ", "Towards "),
+"llegas a": ("arribes a", "you reach"),
+"No es este": ("No és aquest", "Not this one"),
 }
