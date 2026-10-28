@@ -178,4 +178,5 @@ T = {
 "Ya llega": ("Ja arriba", "Arriving now"),
 "En unos ": ("D'aquí a uns ", "In about "),
 " a ": (" a ", " to "),
+"¡sal ya!": ("surt ja!", "leave now!"),
 }
