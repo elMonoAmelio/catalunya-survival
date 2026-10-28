@@ -417,6 +417,9 @@ html.tabmode #tabs button{flex-direction:row;justify-content:center;gap:6px;padd
 html.tabmode #tabs button span{font-size:17px}
 html.tabmode[data-tab=now] #inf,html.tabmode #tabA,html.tabmode[data-tab=line] #mcs{left:calc(10px + var(--sal0))!important;right:calc(10px + var(--sar0))!important}
 html.tabmode #rc{left:calc(10px + var(--sal0))!important;right:calc(10px + var(--sar0))!important}
+html.cap #z,html.cap #north{translate:calc(-1 * var(--sar0)) var(--sat0)}
+html.cap #s,html.cap #mbtn,html.cap #chip{translate:var(--sal0) var(--sat0)}
+html.tabmode[data-tab=map] #mcs{translate:var(--sal0) 0!important}
 html.tabmode[data-tab=now] #home{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;align-items:start;margin:0}
 html.tabmode[data-tab=now] #home>.hnow,html.tabmode[data-tab=now] #home>.hplace.open{grid-column:1/-1}
 html.tabmode[data-tab=now] #home .hhead{min-height:84px}html.tabmode[data-tab=now] #home>.hplace{margin-top:0!important}
