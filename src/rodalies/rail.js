@@ -1462,7 +1462,25 @@ export function initRail(A) {
     tabL.innerHTML = `<button type="button" data-tl="stats" class="${selStats ? 'on' : ''}">📊 ${'Puntualidad'}</button><button type="button" data-tl="alr" class="${selAlerts ? 'on' : ''}">⚠️ ${n}${n === 1 ? ' aviso' : ' avisos'}</button>${one ? `<button type="button" data-tl="line" class="${selLine ? 'on' : ''}">📋 ${esc(one)}</button>` : ''}<a href="https://www.whatsapp.com/channel/0029Vav4hGTId7nPenKMuo2C" target="_blank" rel="noopener" title="${'Canal de avisos de Rodalies en WhatsApp'}">💬</a>`;
     tabL.querySelectorAll('[data-tl]').forEach(b => b.onclick = () => { const w = b.dataset.tl; selStats = w === 'stats'; selAlerts = w === 'alr'; selLine = w === 'line' ? one : ''; selNews = false; selTrip = null; selStation = -1; if (selStats) HIST.at = 0; mcs._h = ''; renderCard(); renderLineaBar(); });
   }
-  document.addEventListener('visibilitychange', () => { if (!document.hidden && window.__txt) window.__txt(); });   // al volver a la app, por si has cambiado el tamaño de letra del iPhone
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && window.__txt) window.__txt(); });
+  // ---------- horario al día: se descarga el más reciente de GitHub (lo genera la tarea de cada noche) ----------
+  const PACKURL = 'https://raw.githubusercontent.com/elMonoAmelio/catalunya-survival/horarios/rod_pack.json';
+  const todayYmd = () => madrid(new Date()).ymd.replace(/-/g, '');
+  function packRefresh() {
+    if (navigator.onLine === false) return;
+    fetch(PACKURL, { cache: 'no-store' }).then(r => r.ok ? r.text() : null).then(t => {
+      if (!t) return; let p; try { p = JSON.parse(t); } catch (e) { return; }
+      if (!p || !p.gen || !Array.isArray(p.days) || !p.trips || p.gen <= R.gen) return;
+      try { localStorage.setItem('rod_pack', t); } catch (e) { return; }   // sin espacio: se queda con el de dentro
+      // si el horario que se está usando ya no cubre hoy, se recarga ya; si no, el nuevo se usa la próxima vez que abras la app
+      if (!R.days.includes(todayYmd()) || R.days.indexOf(todayYmd()) >= R.days.length - 2) location.reload();
+    }).catch(() => {});
+  }
+  setTimeout(packRefresh, 4000);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && Date.now() - (packRefresh.at || 0) > 6 * 3600e3) { packRefresh.at = Date.now(); packRefresh(); } });
+  packRefresh.at = Date.now();
+  // el pie «horario oficial descargado el …» dice de qué día es el horario que se usa de verdad
+  if (window.__RODNEW__) { const g = window.__RODNEW__, v = $('#ver'); if (v && v.firstChild && v.firstChild.nodeType === 3) v.firstChild.textContent = v.firstChild.textContent.replace(/(\d\d\/\d\d \d\d:\d\d)/, g.slice(8, 10) + '/' + g.slice(5, 7) + ' ' + g.slice(11, 16)); }   // al volver a la app, por si has cambiado el tamaño de letra del iPhone
   function renderAjustes() {
     unpark();   // primero se devuelven a su sitio los elementos prestados (si no, se borrarían al rehacer la hoja)
     const L = window.__L || 'es', th = THEME.mode;
