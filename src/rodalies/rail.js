@@ -1130,7 +1130,7 @@ export function initRail(A) {
     const arrOf = x => { const tr = x.tr; if (!tr) return null; const st = tr.pat.stops, i = st.indexOf(sidx); if (i < 0) return null; let j = -1; for (let q = i + 1; q < st.length; q++) if (arrSet.has(st[q])) { j = q; break; } if (j < 0) return null; return x.est + (tr.pat.t[2 * j] - tr.pat.t[2 * i + 1]); };
     groups.to.forEach(x => { x.arr = arrOf(x); });
     const g2 = groups.out.length ? 'out' : 'otros', vb = verdict('to'), vo = verdict(g2);
-    if (!away && P !== NEAR && vb.x) delayNotify(P, vb.x, ST[sidx].n, W);
+    if (!away && P !== NEAR && vb.x && P === whereAmI()) delayNotify(P, vb.x, ST[sidx].n, W);   // solo del sitio donde estás (no del viaje de vuelta)
     // esperando en el andén: aviso con vibración cuando el próximo tren está a 2 min
     if (atSt || (P === NEAR && NEAR.acc <= 40 && (NEAR.dist[P.st[P.i]] || 9) < 0.08)) for (const x of [vb.x, vo.x].concat(P === NEAR ? [verdict('all').x] : [])) if (x && !x.cancel && x.est - S.min <= 2 && x.est - S.min > -0.5) { const key = 'w' + x.num + '|' + Math.round(x.sm); if (!DN.has(key)) { DN.add(key); buzz(`🚆 Llega tu tren · ${x.fam} a ${x.dest}`, `En unos ${Math.max(0, Math.round(x.est - S.min))} min a ${ST[sidx].n}${x.plat ? ' · vía ' + x.plat : ''}`); } }
     const useLive = live() && S.live;
@@ -1176,10 +1176,27 @@ export function initRail(A) {
   }
   async function pushSend(sub) { const r = await fetch(RT.url.replace(/\/+$/, '') + '/push/subscribe', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ sub: sub.toJSON(), ...pushTarget() }) }); const j = await r.json(); if (!j.ok) throw new Error(j.err || 'error'); }
   // sin servidor: avisos del propio navegador mientras la app está abierta (o en segundo plano)
+  // ¿desde dónde vas a salir? la estación de Casa o Trabajo más cercana a tu última ubicación (hasta 3 h);
+  // sin ubicación: por la mañana desde casa y por la tarde desde el trabajo
+  function whereAmI() {
+    const h = curSt(HOME), w = curSt(WORK); if (h == null || w == null) return h != null ? HOME : w != null ? WORK : null;
+    if (NEAR.w && Date.now() - NEAR.fix < 3 * 3600e3) { const d = i => Math.hypot(ST[i].w[0] - NEAR.w[0], ST[i].w[1] - NEAR.w[1]); return d(h) <= d(w) ? HOME : WORK; }
+    return new Date().getHours() < 13 ? HOME : WORK;
+  }
+  // un aviso que habla de un tren concreto o de los trenes «hacia X» solo interesa si va en tu sentido (de donde estás hacia el otro sitio)
+  function alertForMe(a) {
+    const P = whereAmI(), Q = P === HOME ? WORK : HOME, o = P && curSt(P), d = Q && curSt(Q); if (o == null || d == null) return true;
+    const t = (a.es || '') + ' ' + (a.txt || ''), k = R.days.indexOf(nowState().ymd), S = nowState();
+    const nums = [...new Set([...t.matchAll(/\btr(?:en|ain)s?\s*(?:n[º°o.]\s*)?(\d{4,6})\b/gi)].map(m => m[1]))];
+    if (nums.length) return nums.some(n => { const tr = tripByNum(n); if (!tr) return false; const st = tr.pat.stops, io = st.indexOf(o), id = st.indexOf(d); if (io < 0 || id < 0 || io > id) return false; const dep = tr.t0 + tr.pat.t[2 * io + 1]; return dep > S.min - 60 && dep < S.min + 150; });
+    const m = t.match(/(?:destino|destinaci[óo]|direcci[óo]n?|sentido|sentit|cap a|hacia)\s+(?:a\s+|de\s+)?([^.,;:()]{3,40})/i);
+    if (m) { const nm = m[1].toLowerCase(); const T = ST.findIndex(x => x.n && nm.startsWith(x.n.toLowerCase())); if (T >= 0) { const tr = (byDay[k] || []).find(x => { const st = x.pat.stops; return st[st.length - 1] === T && st.includes(o) && st.includes(d); }); if (tr) { const st = tr.pat.stops; return st.indexOf(o) < st.indexOf(d); } } }
+    return true;   // aviso general de la línea
+  }
   const LN = { on: (() => { try { return localStorage.getItem('rod_ln') === '1'; } catch (e) { return false; } })(), seen: null };
   function localNotify() {
     const { lines, stations } = pushTarget(), L = new Set(lines), S = new Set(stations.map(id => SID.get(id)));
-    const rel = RT.alerts.filter(a => [...a.fams].some(f => L.has(f)) || [...(a.stops || [])].some(i => S.has(i)));
+    const rel = RT.alerts.filter(a => ([...a.fams].some(f => L.has(f)) || [...(a.stops || [])].some(i => S.has(i))) && alertForMe(a));
     if (!LN.seen) { try { LN.seen = new Set(JSON.parse(localStorage.getItem('rod_lnseen') || '[]')); } catch (e) { LN.seen = new Set(); } if (!LN.seen.size) { rel.forEach(a => LN.seen.add(a.id + '|' + a.txt.length)); saveSeen(); return; } }
     const fresh = rel.filter(a => !LN.seen.has(a.id + '|' + a.txt.length)); if (!fresh.length) return;
     fresh.forEach(a => LN.seen.add(a.id + '|' + a.txt.length)); saveSeen();
@@ -1423,5 +1440,5 @@ export function initRail(A) {
   tabMode();
   // en Ahora, tus paneles se colocan siempre por encima de los controles (abiertos o cerrados): nada queda tapado
   { const rc = $('#rc'), upd = () => document.documentElement.style.setProperty('--rch', Math.round(rc.getBoundingClientRect().height) + 'px'); if (window.ResizeObserver) new ResizeObserver(upd).observe(rc); upd(); }
-  window.__rod = { departuresFor, DEPS, tripByNum, delayOf, TID, SID, byDay, get days() { return R.days; }, get hist() { return HIST; }, get past() { return PAST.cur; }, get cols() { return COLS.mesh ? COLS.mesh.count : -1; }, get dist() { return cur.dist; }, get follow() { return follow; }, get selTrip() { return selTrip; }, ST, TR, FAM, act: () => act, setSpeed, RT, pollRT, nowState, posAt, activeTrips, LL, select: tr => { selTrip = tr; renderCard(); } };
+  window.__rod = { alertForMe, whereAmI, departuresFor, DEPS, tripByNum, delayOf, TID, SID, byDay, get days() { return R.days; }, get hist() { return HIST; }, get past() { return PAST.cur; }, get cols() { return COLS.mesh ? COLS.mesh.count : -1; }, get dist() { return cur.dist; }, get follow() { return follow; }, get selTrip() { return selTrip; }, ST, TR, FAM, act: () => act, setSpeed, RT, pollRT, nowState, posAt, activeTrips, LL, select: tr => { selTrip = tr; renderCard(); } };
 }
