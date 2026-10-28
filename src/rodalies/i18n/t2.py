@@ -171,4 +171,5 @@ T = {
 "días": ("dies", "days"),
 "llevó 5 min o más de retraso": ("va dur 5 min o més de retard", "it ran 5+ min late"),
 "retraso típico": ("retard típic", "typical delay"),
+"Automático sigue el tamaño de letra del iPhone (Ajustes › Pantalla y brillo › Tamaño del texto).": ("Automàtic segueix la mida de lletra de l'iPhone (Configuració › Pantalla i brillantor › Mida del text).", "Automatic follows the iPhone text size (Settings › Display & Brightness › Text Size)."),
 }

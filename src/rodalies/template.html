@@ -352,7 +352,7 @@ html.tabmode[data-tab=now] #home .htit small b{font-size:18px}
 html.tabmode[data-tab=now] .hnowh>.hnowl>b{font-size:15px}
 .htit small .nw,.hro .nw{white-space:nowrap}.hro.hro1{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}html.big .hro.hro1{white-space:normal}
 /* Ajustes → Texto grande: todo Ahora un 18 % mayor */
-html.big.tabmode #inf,html.big.tabmode #mcs,html.big.tabmode #tabA{zoom:1.18}
+html.big.tabmode #inf,html.big.tabmode #mcs,html.big.tabmode #tabA{zoom:var(--tz,1.18)}
 /* Ahora: bloque de avisos de tus líneas */
 .hnow{display:none}
 html.tabmode .hnow{display:block;background:#eef1f6;border-radius:12px;padding:8px 10px;margin:0 0 8px;font-size:12.5px;color:var(--ink)}
@@ -450,7 +450,8 @@ window.Notification=Nt;
 window.__schedAt=function(k,title,body,at){N.cancel({notifications:[{id:k}]}).catch(function(){}).then(function(){return st==='granted'?0:N.requestPermissions().then(function(r){st=map(r)},function(){})}).then(function(){if(at>Date.now()+5000)N.schedule({notifications:[{id:k,title:String(title),body:String(body),schedule:{at:new Date(at),allowWhileIdle:true}}]}).catch(function(){})})};
 window.__schedOff=function(k){N.cancel({notifications:[{id:k}]}).catch(function(){})};try{Object.defineProperty(navigator,'serviceWorker',{configurable:true,value:undefined})}catch(e){}})();</script>
 <style>@media(max-width:640px){html.boot #inf .more,html.boot #inf .l1,html.boot #rc>*:not(#rcgrab){display:none!important}html.boot #rcgrab span{visibility:hidden}}</style>
-<script>try{if(localStorage.getItem("rod_big")==="1")document.documentElement.classList.add("big")}catch(e){}</script>
+<script>/* MonkiSoft · tamaño del texto: «Automático» sigue el tamaño de letra del iPhone (Ajustes › Pantalla y brillo › Tamaño del texto) */
+window.__txt=function(){try{var v=localStorage.getItem("rod_big"),h=document.documentElement,z=1;if(v==="1")z=1.18;else if(v!=="0"){var e=document.createElement("span");e.style.font="-apple-system-body";if(e.style.font){e.style.cssText+=";position:absolute;visibility:hidden";h.appendChild(e);var f=parseFloat(getComputedStyle(e).fontSize)||17;e.remove();if(f>17.5)z=Math.min(1.45,f/17)}}h.classList.toggle("big",z>1);h.style.setProperty("--tz",z.toFixed(2))}catch(e){}};window.__txt();</script>
 <script>try{var m=localStorage.getItem("rod_theme")||"auto";if(m==="dark"||(m==="auto"&&matchMedia("(prefers-color-scheme: dark)").matches))document.documentElement.classList.add("dark")}catch(e){}</script>
 </head>
 <body>

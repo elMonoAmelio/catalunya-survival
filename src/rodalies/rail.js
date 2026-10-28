@@ -1462,19 +1462,20 @@ export function initRail(A) {
     tabL.innerHTML = `<button type="button" data-tl="stats" class="${selStats ? 'on' : ''}">📊 ${'Puntualidad'}</button><button type="button" data-tl="alr" class="${selAlerts ? 'on' : ''}">⚠️ ${n}${n === 1 ? ' aviso' : ' avisos'}</button>${one ? `<button type="button" data-tl="line" class="${selLine ? 'on' : ''}">📋 ${esc(one)}</button>` : ''}<a href="https://www.whatsapp.com/channel/0029Vav4hGTId7nPenKMuo2C" target="_blank" rel="noopener" title="${'Canal de avisos de Rodalies en WhatsApp'}">💬</a>`;
     tabL.querySelectorAll('[data-tl]').forEach(b => b.onclick = () => { const w = b.dataset.tl; selStats = w === 'stats'; selAlerts = w === 'alr'; selLine = w === 'line' ? one : ''; selNews = false; selTrip = null; selStation = -1; if (selStats) HIST.at = 0; mcs._h = ''; renderCard(); renderLineaBar(); });
   }
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && window.__txt) window.__txt(); });   // al volver a la app, por si has cambiado el tamaño de letra del iPhone
   function renderAjustes() {
     unpark();   // primero se devuelven a su sitio los elementos prestados (si no, se borrarían al rehacer la hoja)
     const L = window.__L || 'es', th = THEME.mode;
     tabA.innerHTML = `<h3>${'Ajustes'}</h3>
       <h4>🌐 ${'Idioma'}</h4><div class="seg2">${[['ca', 'Català'], ['es', 'Español'], ['en', 'English']].map(([k, n]) => `<button type="button" data-lang="${k}" class="${L === k ? 'on' : ''}">${n}</button>`).join('')}</div>
       <h4>🌙 ${'Modo noche'}</h4><div class="seg2">${[['auto', 'Automático'], ['light', 'Claro'], ['dark', 'Oscuro']].map(([k, n]) => `<button type="button" data-th="${k}" class="${th === k ? 'on' : ''}">${n}</button>`).join('')}</div>
-      <h4>🔠 ${'Tamaño del texto'}</h4><div class="seg2">${[['0', 'Normal'], ['1', 'Grande']].map(([k, n]) => `<button type="button" data-big="${k}" class="${document.documentElement.classList.contains('big') === (k === '1') ? 'on' : ''}">${n}</button>`).join('')}</div>
+      <h4>🔠 ${'Tamaño del texto'}</h4><div class="seg2">${(() => { let v = ''; try { v = localStorage.getItem('rod_big') || ''; } catch (e) {} const cur = v === '1' ? '1' : v === '0' ? '0' : 'a'; return [['a', 'Automático'], ['0', 'Normal'], ['1', 'Grande']].map(([k, n]) => `<button type="button" data-big="${k}" class="${cur === k ? 'on' : ''}">${n}</button>`).join(''); })()}</div>${(() => { let v = ''; try { v = localStorage.getItem('rod_big') || ''; } catch (e) {} return v === '1' || v === '0' ? '' : `<small class="tabAhint">${'Automático sigue el tamaño de letra del iPhone (Ajustes › Pantalla y brillo › Tamaño del texto).'}</small>`; })()}
       <h4>🔔 ${'Avisos'}</h4><div id="tabAbell"></div>${allLines().length ? '' : `<small class="tabAhint">${'Elige tu estación de Casa o Trabajo (pestaña Ahora) para recibir avisos de sus líneas.'}</small>`}${(() => { const ls = allLines(); return ls.length > 1 ? `<small class="tabAhint">${'Líneas de las que quieres avisos:'}</small><div class="alch">${ls.map(f => `<button type="button" data-al="${esc(f)}" class="ln${ALOFF.has(f) ? ' off' : ''}" style="--c:${FC[f]}">${esc(f)}</button>`).join('')}</div>` : ''; })()}
       <h4>📡 ${'Datos en directo'}</h4><div id="tabArt"></div>
       <h4>ℹ️ ${'Información'}</h4><div id="tabAinf"></div>
       <p class="tabAfoot">MonkiSoft</p>`;
     tabA.querySelectorAll('[data-al]').forEach(b => b.onclick = () => { const f = b.dataset.al, ls = allLines(); if (ALOFF.has(f)) ALOFF.delete(f); else if (ls.filter(x => !ALOFF.has(x)).length > 1) ALOFF.add(f); try { localStorage.setItem('rod_aloff', JSON.stringify([...ALOFF])); } catch (e) {} renderHome(true); renderAjustes(); });
-    tabA.querySelectorAll('[data-big]').forEach(b => b.onclick = () => { const on = b.dataset.big === '1'; document.documentElement.classList.toggle('big', on); try { localStorage.setItem('rod_big', on ? '1' : ''); } catch (e) {} renderAjustes(); });
+    tabA.querySelectorAll('[data-big]').forEach(b => b.onclick = () => { const k = b.dataset.big; try { if (k === 'a') localStorage.removeItem('rod_big'); else localStorage.setItem('rod_big', k); } catch (e) {} if (window.__txt) window.__txt(); renderAjustes(); renderHome(true); });
     tabA.querySelectorAll('[data-th]').forEach(b => b.onclick = () => { THEME.mode = b.dataset.th; try { localStorage.setItem('rod_theme', THEME.mode); } catch (e) {} applyTheme(); renderAjustes(); });
     park($('#bell'), $('#tabAbell')); park($('#src'), $('#tabArt')); park($('#ver'), $('#tabAinf'));
   }
