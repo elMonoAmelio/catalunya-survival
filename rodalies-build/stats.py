@@ -54,6 +54,7 @@ day = now.strftime('%Y-%m-%d')
 H = load('hoy.json')
 if not H or H.get('day') != day:
     if H and H.get('snaps'):
+        A0 = load('ayer.json')   # el día anterior, antes de sobrescribirlo
         with open(os.path.join(OUT, 'ayer.json'), 'w') as f:
             json.dump(H, f, ensure_ascii=False, separators=(',', ':'))
         # historial de 30 días: retraso típico (mediana) de cada tren (por número) cada día, para «¿suele ir tarde mi tren?»
@@ -66,6 +67,20 @@ if not H or H.get('day') != day:
         tr = {k: round(sorted(v)[len(v) // 2]) for k, v in obs.items()}   # retraso típico del tren ese día (mediana de las fotos)
         if tr: HI['days'] = [x for x in HI['days'] if x['day'] != H['day']] + [{'day': H['day'], 'tr': tr}]
         HI['days'] = HI['days'][-30:]
+        # resumen de cada día, para siempre (≈1 KB/día): sirve para los resúmenes semanal, mensual y anual
+        DI = load('dias.json') or {'note': 'Resumen diario de Rodalies (MonkiSoft): fotos cada 15 min del tiempo real de Renfe; puntual = menos de 3 min de retraso; solo cuentan los trenes con dato de retraso.', 'days': []}
+        def resumen(X):
+            sn = X.get('snaps') or []; N = sum(x.get('n', 0) for x in sn)
+            if not N: return None
+            return {'day': X['day'], 'fotos': len(sn), 'n': N, 'ok': sum(x.get('ok', 0) for x in sn), 'd5': sum(x.get('d5', 0) for x in sn),
+                    'avg': round(sum(x.get('avg', 0) * x.get('n', 0) for x in sn) / N, 2), 'cx': len(set(t for x in sn for t in x.get('x', []))),
+                    'lines': {f: {'n': L['n'], 'ok': L['ok'], 'avg': round(L['sum'] / L['n'] / 60, 2), 'max': round(L['max'] / 60)} for f, L in (X.get('lines') or {}).items() if L.get('n')}}
+        for X in (A0, H):   # también el día anterior, si aún no estaba guardado
+            r = X and X.get('day') and not any(d['day'] == X['day'] for d in DI['days']) and resumen(X)
+            if r: DI['days'].append(r)
+        DI['days'].sort(key=lambda d: d['day'])
+        with open(os.path.join(OUT, 'dias.json'), 'w') as f:
+            json.dump(DI, f, ensure_ascii=False, separators=(',', ':'))
         with open(os.path.join(OUT, 'hist.json'), 'w') as f:
             json.dump(HI, f, ensure_ascii=False, separators=(',', ':'))
     H = {'day': day, 'snaps': [], 'lines': {}, 'st': {}, 'note': 'Foto cada 15 min del tiempo real de Renfe. Solo cuentan los trenes con dato de retraso.'}

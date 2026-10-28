@@ -33,6 +33,7 @@ jobs:
               git show FETCH_HEAD:hoy.json > /tmp/st/hoy.json 2>/dev/null || rm -f /tmp/st/hoy.json
               git show FETCH_HEAD:ayer.json > /tmp/st/ayer.json 2>/dev/null || rm -f /tmp/st/ayer.json
               git show FETCH_HEAD:hist.json > /tmp/st/hist.json 2>/dev/null || rm -f /tmp/st/hist.json
+              git show FETCH_HEAD:dias.json > /tmp/st/dias.json 2>/dev/null || rm -f /tmp/st/dias.json
             fi
             python3 /tmp/stats.py /tmp/st || echo "foto fallida"
             rm -rf /tmp/pub && mkdir /tmp/pub && cd /tmp/pub && git init -q && cp /tmp/st/*.json . \
