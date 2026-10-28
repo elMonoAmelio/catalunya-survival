@@ -41,6 +41,16 @@ jobs:
           python pack.py
           python assemble.py ../rodalies.html
           python assemble.py ../rodalies-original.html original   # copia congelada del diseño de la v1.148, con horarios al día
+      - name: Horario suelto para la app (rama horarios)
+        # la app Andana lo descarga al abrirse: así su horario no caduca aunque no se reinstale
+        if: github.ref == 'refs/heads/main'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          rm -rf /tmp/hor && mkdir /tmp/hor && cp rodalies-build/rod_pack.json /tmp/hor/rod_pack.json
+          cd /tmp/hor && git init -q && git add rod_pack.json \
+            && git -c user.name=MonkiSoft -c user.email=elMonoAmelio@users.noreply.github.com commit -qm "Horario de Rodalies $(TZ=Europe/Madrid date +%d/%m/%Y)" \
+            && git push -qf "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD:horarios || echo "subida del horario fallida"
       - name: Publicar si ha cambiado
         run: |
           git config user.name "MonkiSoft"
