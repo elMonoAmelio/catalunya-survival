@@ -139,4 +139,6 @@ T = {
 "Hacia ": ("Cap a ", "Towards "),
 "llegas a": ("arribes a", "you reach"),
 "No es este": ("No és aquest", "Not this one"),
+"siguiente": ("següent", "next"),
+"Sin señal": ("Sense senyal", "No signal"),
 }
