@@ -142,10 +142,13 @@ export function initRail(A) {
       ST.forEach((st, i) => { if (st.fams.size && st.n.length > 4 && nt2.includes(norm(st.n))) { stops.add(i); if (!fams.size) st.fams.forEach(f => fams.add(f)); } });
       if (!out.some(x => x.txt === tx)) out.push({ id: 'A' + k, fams, stops, txt: tx, when: RT.adif.upd || '', src: 'Adif', lvl: it.lvl });
     }
-    if (nt.status === 'fulfilled' || al.status === 'fulfilled' || RT.adif) { RT.alerts = out.sort((a, b) => (b.when > a.when ? 1 : -1)); try { localNotify(); } catch (e) {} }
+    if (nt.status === 'fulfilled' || al.status === 'fulfilled') { RT.alerts = out.sort((a, b) => (b.when > a.when ? 1 : -1)); try { localNotify(); } catch (e) {} }
     renderRT(); renderAlerts(); lastT = 0; invalidate();
   }
-  const feedUp = () => RT.okVP && Date.now() - RT.okVP < 90000;
+  // sin cobertura (túneles…): durante 10 min se siguen usando los últimos retrasos conocidos, con los trenes avanzando según
+  // su horario + ese retraso; la app lo dice («Sin conexión · último dato hace X»). Pasados 10 min, horario puro.
+  const feedUp = () => RT.okVP && Date.now() - RT.okVP < 10 * 60000;
+  const fresh = () => RT.okVP && Date.now() - RT.okVP < 90000;
   // Renfe a veces deja de publicar Rodalies en su tiempo real (el resto de núcleos sí sale): si según horario deberían
   // circular bastantes trenes y no llega ninguno, no es «sin señal» de cada tren sino un apagón de datos → horario.
   const DOWN = { at: 0, v: false };
@@ -157,7 +160,7 @@ export function initRail(A) {
   const live = () => feedUp() && !rtDown();
   function renderRT() {
     const st = $('#rtst'), m = $('#mode');
-    if (m) { const vis = [...famOn].filter(f => { famCov(''); const o = COV.m.get(f); return o && o[0] >= 2; }), np = noPosFams(vis), on = !!live() && nowState().live && !(vis.length && np.length === vis.length); m.classList.toggle('on', on); m.classList.toggle('pre', !on); m.textContent = on ? 'En directo' : PAST.cur ? 'Repaso real' : 'Previsión'; m.classList.toggle('past', !!PAST.cur); const g = $('#rcgrab'); if (g) { let d = g.querySelector('.rdot'); if (!d) { d = document.createElement('b'); d.className = 'rdot'; g.insertBefore(d, g.firstChild); } d.className = 'rdot ' + (PAST.cur ? 'past' : on ? 'on' : 'pre'); d.title = m.textContent; } m.title = PAST.cur ? `Retrasos reales de la foto de las ${PAST.cur.sn.t} (se toma una cada 15 min)` : ''; }
+    if (m) { const vis = [...famOn].filter(f => { famCov(''); const o = COV.m.get(f); return o && o[0] >= 2; }), np = noPosFams(vis), on = !!live() && nowState().live && !(vis.length && np.length === vis.length); m.classList.toggle('on', on && fresh()); m.classList.toggle('pre', !(on && fresh())); m.textContent = on && !fresh() ? 'Sin conexión' : on ? 'En directo' : PAST.cur ? 'Repaso real' : 'Previsión'; m.classList.toggle('past', !!PAST.cur); const g = $('#rcgrab'); if (g) { let d = g.querySelector('.rdot'); if (!d) { d = document.createElement('b'); d.className = 'rdot'; g.insertBefore(d, g.firstChild); } d.className = 'rdot ' + (PAST.cur ? 'past' : on && fresh() ? 'on' : 'pre'); d.title = m.textContent; } m.title = PAST.cur ? `Retrasos reales de la foto de las ${PAST.cur.sn.t} (se toma una cada 15 min)` : ''; }
     if (!st) return;
     if (!RT.url) st.textContent = RT.err || 'Sin puente: trenes según horario oficial.';
     else if (RT.err) st.textContent = 'No se pudo conectar con el puente (' + RT.err + '). Se usa el horario.';
@@ -340,13 +343,17 @@ export function initRail(A) {
           if (v.prevAt !== v.ts) { v.prevAt = v.ts; Object.assign(v, prevRun(tr, v, S0.min, k0)); }
           if (v.prevTr) { const pg2 = pg(v.prevTr.pat); w = at(pg2, v.dPrev); }
         }
+        else if (!fresh() && tr) {   // sin conexión: el último dato de Renfe ya es viejo → horario + último retraso conocido
+          const S2 = nowState(), k = R.days.indexOf(S2.ymd), off = tr.day === k - 1 ? 1440 : 0, pp = posAt(tr, S2.min + off - tr.t0 - dl);
+          if (pp) { w = pp.w; v.est = true; idx = pp.next; v.atStop = pp.moving ? -1 : pp.at; v.next = pp.next; v.before = false; } else { v.atStop = -1; v.next = -1; }
+        }
         else if (v.err <= 0.6) {   // ≤ 1,5 km de la vía: se coloca sobre ella
           // la parada siguiente sale de la posición real (Renfe a veces da como stopId la última estación pasada)
           let nx = sd.findIndex(x => x > v.dObs + 0.08); if (nx < 0) nx = sd.length - 1;
           const nearSt = sd.reduce((b, x, k) => (Math.abs(x - v.dObs) < Math.abs(sd[b] - v.dObs) ? k : b), 0);
           v.atStop = Math.abs(sd[nearSt] - v.dObs) < 0.16 ? nearSt : -1;
           { const j = v.st === 'STOPPED_AT' && v.sid ? tr.pat.stops.findIndex(si => ST[si].id === v.sid) : -1; if (j >= 0 && Math.abs(sd[j] - v.dObs) < 0.6) { v.atStop = j; if (nx <= j) nx = Math.min(j + 1, sd.length - 1); } }   // Renfe dice «parado en X»: está en la estación aunque la posición caiga un poco lejos
-          v.before = v.atStop >= 0 && v.dObs < sd[v.atStop] - 0.02;   // aún llegando a esa estación
+          v.before = v.atStop >= 0 && v.dObs < sd[v.atStop] - 0.15;   // aún llegando (Renfe a veces dice «parado» antes de llegar)
           v.next = nx; idx = nx;
           let pred = v.dObs;
           if (v.st === 'STOPPED_AT' && v.atStop >= 0) pred = sd[v.atStop];
@@ -418,7 +425,7 @@ export function initRail(A) {
     }
     // reloj y contador
     const c = hhmm(Math.floor(S.min + 1e-6)); /* como el reloj del móvil: sin redondear */ if (c !== lastClock) { lastClock = c; $('#ctime').textContent = c; }
-    $('#ntr').textContent = String(act.length); $('#ntrl').textContent = useLive ? 'trenes de Rodalies con posición real' : 'trenes previstos según el horario'; { const fl = famOn.size < FAM.length ? [...famOn].sort(natural).join(', ') : ''; const cc = $('#ccount'), txt = PAST.cur ? `⏪ ${act.length} trenes con los retrasos reales de las ${PAST.cur.sn.t} · ${Object.values(PAST.cur.sn.d).filter(x => x >= 60).length} iban con retraso` : !S.live && S.min < madrid(new Date()).min - 1 && !speed ? `⏪ Hora pasada según horario${HIST.hoy && HIST.hoy.snaps && HIST.hoy.snaps.some(x => x.d) ? ` · hay retrasos reales desde las ${HIST.hoy.snaps.find(x => x.d).t}` : ' · aún no hay fotos con retrasos reales de hoy'}` : useLive && !act.some(a => a.real) && noPosFams(famOn).length ? `📡 ${'Renfe no da la posición de los trenes ahora'}${fl ? ` <small>· ${esc(fl)}</small>` : ''} <small class="nopos">· ${'horas según el horario oficial'}</small>` : `🚆 ${act.length} ${useLive ? 'trenes con posición real' : 'trenes previstos'}${fl ? ` <small>· ${esc(fl)}</small>` : ''}${useLive && RT.okVP ? (() => { const s = Math.max(0, Math.round((Date.now() - RT.okVP) / 1000)); return ` <small class="fresh${s < 3 ? ' new' : ''}">● ${'actualizado '}${ago(s + ' s')}</small>`; })() : ''}`; if (cc && cc._t !== txt) { cc.innerHTML = txt; cc._t = txt; } }
+    $('#ntr').textContent = String(act.length); $('#ntrl').textContent = useLive ? 'trenes de Rodalies con posición real' : 'trenes previstos según el horario'; { const fl = famOn.size < FAM.length ? [...famOn].sort(natural).join(', ') : ''; const cc = $('#ccount'), txt = PAST.cur ? `⏪ ${act.length} trenes con los retrasos reales de las ${PAST.cur.sn.t} · ${Object.values(PAST.cur.sn.d).filter(x => x >= 60).length} iban con retraso` : !S.live && S.min < madrid(new Date()).min - 1 && !speed ? `⏪ Hora pasada según horario${HIST.hoy && HIST.hoy.snaps && HIST.hoy.snaps.some(x => x.d) ? ` · hay retrasos reales desde las ${HIST.hoy.snaps.find(x => x.d).t}` : ' · aún no hay fotos con retrasos reales de hoy'}` : useLive && !fresh() ? `📶 ${'Sin conexión'} · ${'último dato'} ${ago(Math.round((Date.now() - RT.okVP) / 60000) + ' min')} <small class="nopos">· ${'horas con el último retraso conocido'}</small>` : useLive && !act.some(a => a.real) && noPosFams(famOn).length ? `📡 ${'Renfe no da la posición de los trenes ahora'}${fl ? ` <small>· ${esc(fl)}</small>` : ''} <small class="nopos">· ${'horas según el horario oficial'}</small>` : `🚆 ${act.length} ${useLive ? 'trenes con posición real' : 'trenes previstos'}${fl ? ` <small>· ${esc(fl)}</small>` : ''}${useLive && RT.okVP ? (() => { const s = Math.max(0, Math.round((Date.now() - RT.okVP) / 1000)); return ` <small class="fresh${s < 3 ? ' new' : ''}">● ${'actualizado '}${ago(s + ' s')}</small>`; })() : ''}`; if (cc && cc._t !== txt) { cc.innerHTML = txt; cc._t = txt; } }
     const dd = new Date(); $('#cdate').textContent = S.live ? 'hora actual' : (speed ? 'simulación ×' + speed : paused ? 'en pausa' : 'hora elegida');
     if (r.k < 0) $('#src').innerHTML = `<b style="color:#c2410c">Sin horarios para hoy.</b> Los datos guardados van del ${ymd2(R.days[0])} al ${ymd2(R.days[R.days.length - 1])}: actualiza la app.`;
     else if (useLive) $('#src').textContent = `En directo · posiciones de Renfe de ${ago(Math.round(Math.max(0, Date.now() / 1000 - Math.max(...[...RT.vp.values()].map(v => v.ts), 0))) + ' s')}`;
@@ -797,7 +804,7 @@ export function initRail(A) {
       const v = la.v, tr = la.tr, nm = i => esc(ST[tr.pat.stops[i]].n), n = tr ? tr.pat.stops.length : 0, sidx = SID.get(v.sid), sName = sidx != null ? esc(ST[sidx].n) : esc(v.sid);
       const near = tr && v.atStop >= 0 ? nm(v.atStop) : '', nxt = tr && v.next >= 0 ? nm(v.next) : sName, prv = tr && v.next > 0 ? nm(v.next - 1) : '';
       const bk = la.broke || brokenInfo(la);
-      const stTxt = bk ? `<b class="stopv">⚠️ ${bk.why === 'aviso' ? 'Tren averiado según Rodalies' : `Posible avería: detenido en la vía desde hace ${bk.min} min`}</b>${tr && prv ? ` · entre ${prv} y <b>${nxt}</b>` : ''}` : la.stop === 'via' && tr ? `<b class="stopv">⏸ Detenido</b> ${prv ? `entre ${prv} y <b>${nxt}</b>` : `antes de <b>${nxt}</b>`} desde hace ${Math.max(1, Math.round(v.still / 60))} min` : v.pre && tr ? (v.prevTr ? `Aún no ha empezado este viaje. Está terminando el tren <b>${esc(v.prevTr.num)}</b> hacia <b>${nm(0)}</b>${v.prevDl >= 1 ? ` con <b>+${Math.round(v.prevDl)} min</b>` : ''}: llega hacia las <b>${hhmm(v.arrO)}</b> y saldría hacia las <b>${hhmm(v.depEst)}</b>${v.preDl >= 1 ? ` (horario ${hhmm(v.dep0)})` : ''}` : `Aún no ha empezado este viaje: va hacia <b>${nm(0)}</b>, de donde sale a las <b>${hhmm(v.dep0 + la.dl)}</b>`) : (v.st === 'STOPPED_AT' || la.stop === 'st') && near ? `Parado en <b>${near}</b>` : near && v.before ? `Llegando a <b>${near}</b>` : near && v.next >= 0 && v.atStop !== v.next ? `Saliendo de <b>${near}</b> hacia <b>${nxt}</b>` : prv ? `Entre ${prv} y <b>${nxt}</b>` : `Hacia <b>${nxt}</b>`;
+      const stTxt = bk ? `<b class="stopv">⚠️ ${bk.why === 'aviso' ? 'Tren averiado según Rodalies' : `Posible avería: detenido en la vía desde hace ${bk.min} min`}</b>${tr && prv ? ` · entre ${prv} y <b>${nxt}</b>` : ''}` : la.stop === 'via' && tr ? `<b class="stopv">⏸ Detenido</b> ${prv ? `entre ${prv} y <b>${nxt}</b>` : `antes de <b>${nxt}</b>`} desde hace ${Math.max(1, Math.round(v.still / 60))} min` : v.pre && tr ? (v.prevTr ? `Aún no ha empezado este viaje. Está terminando el tren <b>${esc(v.prevTr.num)}</b> hacia <b>${nm(0)}</b>${v.prevDl >= 1 ? ` con <b>+${Math.round(v.prevDl)} min</b>` : ''}: llega hacia las <b>${hhmm(v.arrO)}</b> y saldría hacia las <b>${hhmm(v.depEst)}</b>${v.preDl >= 1 ? ` (horario ${hhmm(v.dep0)})` : ''}` : `Aún no ha empezado este viaje: va hacia <b>${nm(0)}</b>, de donde sale a las <b>${hhmm(v.dep0 + la.dl)}</b>`) : near && v.before ? `Llegando a <b>${near}</b>` : (v.st === 'STOPPED_AT' || la.stop === 'st') && near ? `Parado en <b>${near}</b>` : near && v.next >= 0 && v.atStop !== v.next ? `Saliendo de <b>${near}</b> hacia <b>${nxt}</b>` : prv ? `Entre ${prv} y <b>${nxt}</b>` : `Hacia <b>${nxt}</b>`;
       const eta = tr && v.next >= 0 && !v.pre ? hhmm(cardEta(tr, v, v.next, tr.t0 + tr.pat.t[2 * v.next] + la.dl)) : '';   // misma hora que la lista de paradas
       const rows = [];
       if (tr) { const i0 = la.idx >= 0 ? la.idx : 0, D = v.pre ? Math.max(la.dl, v.preDl || 0) : la.dl, T = i => tr.t0 + tr.pat.t[i] + D; for (let i = i0; i < n; i++) rows.push(`<li class="${myIco(tr.pat.stops[i]) ? 'mine' : ''}${isAlarm(tr, i) ? ' alm' : ''}"><b>${hhmm(cardEta(tr, v, i, T(i === 0 ? 1 : 2 * i)))}</b><span title="${nm(i)}">${myIco(tr.pat.stops[i])}${nm(i)}</span>${D >= 1 ? `<em class="dl ${dlCls(D)}">${v.pre ? '≈' : ''}+${Math.round(D)}</em>` : ''}${i > 0 ? `<button type="button" class="abtn" data-alarm="${i}" title="${'Avísame 2 min antes de llegar aquí'}">${isAlarm(tr, i) ? '🔔' : '🔕'}</button>` : ''}</li>`); }
@@ -806,7 +813,7 @@ export function initRail(A) {
         <small>${v.pre ? `Renfe ya le pone el número de su próximo viaje. Posición real enviada ${ago(Math.round(la.age) + ' s')}` : v.est ? 'Renfe da una posición que no encaja con su recorrido: se muestra donde debería estar según el horario y su retraso' : `Posición enviada por Renfe ${ago(Math.round(la.age) + ' s')}${la.age > 120 ? ' · <b>sin actualizar</b>' : ''}`}</small>
         ${rows.length ? `${la.dl >= 1 || (v.pre && v.preDl >= 1) ? `<small style="margin-top:6px">Horas con el retraso actual</small>` : ''}<ol class="stops">${rows.join('')}</ol>` : ''}${alertHtml(alertsFor(new Set([la.fam])))}
         ${crowdHtml(tr ? tr.num : v.num, '', la.fam)}${tr ? `<div class="rtb two"><button type="button" data-fav>${isFav(tr) ? '⭐ Es tu tren de cada día' : '☆ Mi tren de cada día'}</button><button type="button" data-follow>${follow === tr ? 'Dejar de seguir' : 'Seguir este tren'}</button></div>` : ''}</div>`;
-    } else if (selTrip && useLive) {
+    } else if (selTrip && useLive && !selTrip.pat) {
       h = `<div class="tc" style="--c:#6b7385"><button class="x" data-cx>×</button><h3>Tren ${esc(selTrip.num || selTrip.vtid || '')}</h3><p>Renfe no da ahora la posición de este tren: puede haber terminado su viaje, no haber salido o no estar circulando.</p></div>`;
     } else if (selTrip) {
       const tr = selTrip, P = tr.pat, n = P.stops.length, d = delayOf(tr), dl = typeof d === 'number' ? d / 60 : 0, k = R.days.indexOf(S.ymd), off = tr.day === k - 1 ? 1440 : 0;
@@ -1353,8 +1360,9 @@ export function initRail(A) {
     const tr = a.tr, nm = i => ST[tr.pat.stops[i]].n;
     if (a.real) { const v = a.v; if (v.pre) return 'Aún no ha empezado su viaje';
       // mismas reglas que la ficha del mapa, para que nunca digan cosas distintas
-      if (v.atStop >= 0 && (v.st === 'STOPPED_AT' || a.stop === 'st')) return 'Parado en ' + nm(v.atStop);
       if (v.atStop >= 0 && v.before) return 'Llegando a ' + nm(v.atStop);
+      if (v.atStop >= 0 && (v.st === 'STOPPED_AT' || a.stop === 'st')) return (fresh() ? 'Parado en ' : 'Según el último dato: en ') + nm(v.atStop);
+      if (!fresh() && v.next > 0) return 'Según el último dato: entre ' + nm(v.next - 1) + ' y ' + nm(v.next);
       if (v.atStop >= 0 && v.next > v.atStop) return 'Saliendo de ' + nm(v.atStop) + ' hacia ' + nm(v.next);
       if (v.atStop >= 0) return 'En ' + nm(v.atStop);
       if (a.stop === 'via' && v.next > 0) return '⏸ ' + 'Detenido entre ' + nm(v.next - 1) + ' y ' + nm(v.next);

@@ -203,4 +203,9 @@ T = {
 "Saliendo de ": ("Sortint de ", "Leaving "),
 " hacia ": (" cap a ", " towards "),
 "¿Vas en el": ("Vas al", "Are you on"),
+"Sin conexión": ("Sense connexió", "No connection"),
+"último dato": ("última dada", "last data"),
+"horas con el último retraso conocido": ("hores amb l'últim retard conegut", "times with the last known delay"),
+"Según el último dato: en ": ("Segons l'última dada: a ", "Last data: at "),
+"Según el último dato: entre ": ("Segons l'última dada: entre ", "Last data: between "),
 }
