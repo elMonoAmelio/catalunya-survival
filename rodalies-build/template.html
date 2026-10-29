@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<link rel="manifest" href="rodalies.webmanifest"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Rodalies"><link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="manifest" href="rodalies.webmanifest"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Rodalies"><link rel="apple-touch-icon" href="icons/andana-apple-touch.png">
 <meta name="theme-color" content="#f1f1ef">
 <title>Rodalies en vivo</title>
 <meta name="author" content="MonkiSoft">
@@ -437,6 +437,7 @@ getCurrentPosition:function(ok,ko,o){G.getCurrentPosition(opt(o)).then(ok,functi
 watchPosition:function(ok,ko,o){var k=++n;ids[k]=0;G.watchPosition(opt(o),function(p,e){if(e)bad(e,ko);else if(p)ok(p)}).then(function(id){if(ids[k]===null)G.clearWatch({id:id});else ids[k]=id});return k},
 clearWatch:function(k){var id=ids[k];if(id)G.clearWatch({id:id});ids[k]=null}}})}catch(e){}})();</script>
 <script>/* MonkiSoft · vibración: en el iPhone la web no puede vibrar (navigator.vibrate no existe); en la app se usa la vibración nativa */
+window.__splashOff=function(){try{if(window.__splashDone)return;window.__splashDone=1;var C=window.Capacitor,P=C&&C.isNativePlatform&&C.isNativePlatform()&&C.Plugins&&C.Plugins.SplashScreen;if(P)P.hide({fadeOutDuration:250}).catch(function(){})}catch(e){}};setTimeout(window.__splashOff,4000);
 window.__vib=function(){try{var C=window.Capacitor,H=C&&C.isNativePlatform&&C.isNativePlatform()&&C.Plugins&&C.Plugins.Haptics;if(H){[0,700,1400].forEach(function(t){setTimeout(function(){H.vibrate({duration:500}).catch(function(){})},t)});return true}if(navigator.vibrate)return navigator.vibrate([400,150,400,150,600])}catch(e){}return false};</script>
 <script>/* MonkiSoft · dentro de la app, los avisos («Notification» de la web) son notificaciones nativas de iOS */
 (function(){var C=window.Capacitor;if(!C||!C.isNativePlatform||!C.isNativePlatform())return;var N=C.Plugins&&C.Plugins.LocalNotifications;if(!N)return;

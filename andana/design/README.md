@@ -28,6 +28,12 @@ Familia `Andana` = Barlow Semi Condensed 500 / 600 / 700, embebida (latin + lati
 
 27 iconos SVG de trazo, `stroke: currentColor`, que sustituyen a los emojis mediante el iconizador (`ICP` + `iconize()` en `rail.js`). Nunca emojis en la interfaz.
 
+## Icono y pantalla de carga
+
+- Icono oficial: **vía en perspectiva**. Fondo `bg` oscuro (#0a0a0a), raíles en `ink` (#ececec) que se estrechan hasta juntarse arriba, cuatro traviesas en `accent` (#ffb000) que se acortan. Plano, sin texturas, cuadrado de 1024 px sin esquinas (iOS pone la máscara). Archivo: `icono-1024.png`.
+- Alternativa guardada: el mismo dibujo en negro sobre fondo ámbar.
+- Pantalla de carga: el mismo dibujo, 120 pt, centrado sobre #0a0a0a. Se quita en cuanto llegan los datos en directo, como mucho a los 4 s.
+
 ## Contraste (WCAG 2.1)
 
 - `ink` sobre `bg`: 16,8:1 oscuro, 16,3:1 claro.

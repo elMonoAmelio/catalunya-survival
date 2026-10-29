@@ -435,6 +435,7 @@ export function initRail(A) {
     if (S.live) { const v = Math.round(S.min); const sl = $('#tsl'); if (document.activeElement !== sl) sl.value = v < 240 ? v + 1440 : v; }
     { const k = selTrip ? String(selTrip.num || selTrip.vtid || '') : ''; if (k !== tick._sk) { tick._sk = k; renderHome(true); } }
     renderHome();
+    if (!tick._sp && (useLive || !S.live || rtDown() || !RT.url)) { tick._sp = 1; window.__splashOff && window.__splashOff(); } /* icono de carga fuera cuando ya hay datos (máx. 4 s) */
     if (now - lastCard > 3000 && (selTrip || selStation >= 0 || selAlerts || selStats || selLine)) { lastCard = now; renderCard(); }
     renderRT();
     return true;
