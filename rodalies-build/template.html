@@ -526,6 +526,12 @@ html:not(.dark).tabmode #tabs button.on,html:not(.dark).tabmode #tabs button.on 
 html:not(.dark).tabmode #tabs .tind{background:rgba(255,176,0,.38)}
 html:not(.dark) .hwalk .hgo.hplat{color:#141414!important}
 html:not(.dark) #home .hwalk .hgo:not(.hplat){color:#141414!important}
+/* buscador sobre Ahora: fondo sólido y la página atenuada detrás (en el mapa sigue como estaba) */
+html.tabmode.srch[data-tab=now] #s,html.tabmode.srch[data-tab=now] #s #list{background:#141414!important;opacity:1}
+html:not(.dark).tabmode.srch[data-tab=now] #s,html:not(.dark).tabmode.srch[data-tab=now] #s #list{background:#ffffff!important}
+html.tabmode.srch[data-tab=now] body::before{content:'';position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:79}
+html:not(.dark).tabmode.srch[data-tab=now] body::before{background:rgba(20,20,20,.45)}
+#list li{justify-content:flex-start!important;align-items:center}#list li>.ico{margin-right:-2px}#list li>em{margin-left:auto}
 </style>
 </head>
 <body>
