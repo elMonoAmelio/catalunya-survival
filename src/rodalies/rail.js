@@ -1543,6 +1543,18 @@ export function initRail(A) {
   const TABS = [['now', '🕒', 'Ahora'], ['map', '🗺️', 'Mapa'], ['line', '📊', 'Línea'], ['set', '⚙️', 'Ajustes']];
   tabbar.innerHTML = TABS.map(([k, i, l]) => `<button type="button" data-tab="${k}"><span>${i}</span><small>${l}</small></button>`).join('');
   document.body.appendChild(tabbar);
+  // barra de pestañas: marca que se desliza y se puede arrastrar el dedo de una a otra (solo transform: barato en batería)
+  const tind = document.createElement('i'); tind.className = 'tind'; tind.setAttribute('aria-hidden', 'true'); tabbar.prepend(tind);
+  const tabAt = x => [...tabbar.querySelectorAll('[data-tab]')].find(b => { const r = b.getBoundingClientRect(); return x >= r.left && x < r.right; });
+  const tindTo = b => { if (!b || !b.offsetWidth) return; tind.style.width = b.offsetWidth + 'px'; tind.style.height = b.offsetHeight + 'px'; tind.style.top = b.offsetTop + 'px'; tind.style.transform = `translateX(${b.offsetLeft}px)`; };
+  const tindOn = () => tindTo(tabbar.querySelector('[data-tab].on'));
+  const hap = () => { try { const C = window.Capacitor, H = C && C.isNativePlatform && C.isNativePlatform() && C.Plugins && C.Plugins.Haptics; if (H) H.selectionChanged().catch(() => {}); } catch (e) {} };
+  const TD = { on: false, b: null, moved: false, until: 0 };
+  tabbar.addEventListener('pointerdown', e => { const b = tabAt(e.clientX); if (!b) return; TD.on = true; TD.b = b; TD.moved = false; tabbar.classList.add('drag'); tabbar.querySelectorAll('.hov').forEach(x => x.classList.remove('hov')); b.classList.add('hov'); tindTo(b); try { tabbar.setPointerCapture(e.pointerId); } catch (x) {} try { const C = window.Capacitor, H = C && C.Plugins && C.Plugins.Haptics; if (H && C.isNativePlatform()) H.selectionStart().catch(() => {}); } catch (x) {} });
+  tabbar.addEventListener('pointermove', e => { if (!TD.on) return; const b = tabAt(e.clientX); if (b && b !== TD.b) { TD.b.classList.remove('hov'); b.classList.add('hov'); TD.b = b; TD.moved = true; tindTo(b); hap(); } });
+  const tdEnd = ok => { if (!TD.on) return; TD.on = false; tabbar.classList.remove('drag'); tabbar.querySelectorAll('.hov').forEach(x => x.classList.remove('hov')); try { const C = window.Capacitor, H = C && C.Plugins && C.Plugins.Haptics; if (H && C.isNativePlatform()) H.selectionEnd().catch(() => {}); } catch (x) {} if (ok && TD.b) { TD.until = Date.now() + 500; if (TD.b.dataset.tab !== TAB.cur) setTab(TD.b.dataset.tab); else tindOn(); } else tindOn(); };
+  tabbar.addEventListener('pointerup', () => tdEnd(true)); tabbar.addEventListener('pointercancel', () => tdEnd(false));
+  addEventListener('resize', () => setTimeout(tindOn, 60)); try { new ResizeObserver(() => tindOn()).observe(tabbar); } catch (e) {}
   const tabL = document.createElement('div'); tabL.id = 'tabL'; document.body.appendChild(tabL);
   const tabA = document.createElement('div'); tabA.id = 'tabA'; tabA.className = 'box'; document.body.appendChild(tabA);
   const park = (el, box) => { if (!el) return; if (!TAB.home.has(el)) TAB.home.set(el, [el.parentNode, el.nextSibling]); box.appendChild(el); };
@@ -1598,7 +1610,7 @@ export function initRail(A) {
   function setTab(k) {
     if (!TAB.on) return;
     const was = TAB.cur; TAB.cur = k; document.documentElement.dataset.tab = k; window.__mapHidden = k !== 'map';
-    tabbar.querySelectorAll('[data-tab]').forEach(b => b.classList.toggle('on', b.dataset.tab === k));
+    tabbar.querySelectorAll('[data-tab]').forEach(b => b.classList.toggle('on', b.dataset.tab === k)); tindOn();
     if (k === 'line') { if (selTrip || selStation >= 0) TAB.keep = { t: selTrip, s: selStation, sk: TAB.sk }; if (!selStats && !selAlerts && !selLine && !selNews) { selStats = true; HIST.at = 0; } selTrip = null; selStation = -1;   /* «novedades y fuentes» (desde Ajustes) se abre en Línea */ mcs._h = ''; renderCard(); renderLineaBar(); }
     else if (was === 'line') { selStats = selAlerts = selNews = false; selLine = ''; const kp = TAB.keep; TAB.keep = null; if (kp && k === 'map' && !selTrip && selStation < 0) { selTrip = kp.t; selStation = kp.s; TAB.sk = kp.sk; } mcs._h = ''; renderCard(); }
     if (k === 'map') requestAnimationFrame(() => requestAnimationFrame(() => { try { peekH(); } catch (e) {} dispatchEvent(new Event('resize')); }));   // al volver a verse el mapa, se recalcula la altura de la ficha (oculta medía mal)
@@ -1606,12 +1618,12 @@ export function initRail(A) {
     if (k === 'now') { renderHome(true); requestAnimationFrame(fitHome); }
     lastT = 0; invalidate();
   }
-  tabbar.onclick = e => { const b = e.target.closest('[data-tab]'); if (b) setTab(b.dataset.tab); };
+  tabbar.onclick = e => { if (Date.now() < TD.until) return; const b = e.target.closest('[data-tab]'); if (b) setTab(b.dataset.tab); };   // el toque ya lo resolvió pointerup; el clic queda para teclado y lectores de pantalla
   // al abrir un tren o una estación desde Ahora o Ajustes, se pasa al mapa; desde Línea, un tren también lleva al mapa
   window.__rodTabSync = () => { if (!TAB.on) return; const sk = selTrip ? 't' + (selTrip.num || selTrip.vtid) : selStation >= 0 ? 's' + selStation : ''; const nueva = sk !== TAB.sk; TAB.sk = sk; if (sk && nueva && TAB.cur !== 'map') setTab('map'); else if ((selAlerts || selLine || selNews) && TAB.cur !== 'line' && TAB.cur !== 'map') setTab('line'); if (TAB.cur === 'line') renderLineaBar(); };
   function tabMode() {
     const on = tabsMQ.matches || document.documentElement.classList.contains('cap');
-    if (on === TAB.on) return; TAB.on = on; document.documentElement.classList.toggle('tabmode', on); if (!on) window.__mapHidden = false;
+    if (on === TAB.on) return; TAB.on = on; document.documentElement.classList.toggle('tabmode', on); requestAnimationFrame(() => requestAnimationFrame(tindOn)); if (!on) window.__mapHidden = false;
     if (on) setTab('now'); else { delete document.documentElement.dataset.tab; unpark(); }
   }
   tabsMQ.addEventListener ? tabsMQ.addEventListener('change', tabMode) : tabsMQ.addListener(tabMode);

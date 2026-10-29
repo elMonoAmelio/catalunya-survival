@@ -8,6 +8,7 @@ Trenes de Rodalies en directo. Diseño de andén: negro, gris neutro y un único
 - **Neutros, no azules.** Fondos y superficies son grises puros (`bg`, `surface`, `surface-2`). La paleta navy anterior está retirada.
 - **El color significa estado, nunca decoración.** Verde (`ok`) llegas, naranja (`warn`) retraso o servicios mínimos, rojo (`bad`) no hay tren. Una huelga con servicios mínimos es naranja, no roja.
 - **Sólido, sin cristal.** Sin `backdrop-filter` (retirado en 1.295 por batería). Sin degradados salvo los del bloque "Sal en".
+- **Mismo ámbar en claro y oscuro (#ffb000).** En claro nunca es texto: es relleno con texto negro encima (iconos de tarjeta en cuadrado ámbar, «Ya he salido», chip del tren, marca de la pestaña activa). El marrón #a35c00 queda retirado.
 - **La urgencia nunca es ámbar.** No llegas y cancelado en rojo (`v-miss` #7f1d1d→#b91c1c; texto #f87171 oscuro / #b91c1c claro); sin localizar y prisa en naranja (#fb923c / #c2410c). El ámbar queda para lo tuyo.
 - **Las líneas usan su color oficial** (`line-R1`…): solo en chips, trazado del mapa y columnas 3D, nunca como fondo de texto largo.
 
@@ -38,7 +39,7 @@ Familia `Andana` = Barlow Semi Condensed 500 / 600 / 700, embebida (latin + lati
 ## Contraste (WCAG 2.1)
 
 - `ink` sobre `bg`: 16,8:1 oscuro, 16,3:1 claro.
-- `accent` claro (#a35c00) sobre `bg`: 4,5:1, aprobado justo.
+- Texto #141414 sobre `accent` #ffb000: 11:1. `accent` como texto sobre blanco: 1,9:1, prohibido.
 - **Falla:** `muted` claro (#7a7a7a) da 3,8:1 sobre `bg`. Cambiar a #6b6b6b (4,7:1) en el próximo retoque.
 - **Ojo:** `bad` oscuro (#dc2626) da 3,8:1 como texto; válido solo en iconos o texto ≥18px.
 - Texto blanco sobre `ok-fill` claro (#16a34a): 3,3:1, válido solo porque el "Sal en" es ≥19px negrita.
