@@ -30,7 +30,7 @@ Familia `Andana` = Barlow Semi Condensed 500 / 600 / 700, embebida (latin + lati
 
 ## Icono y pantalla de carga
 
-- Icono oficial: **vía en perspectiva**. Fondo `bg` oscuro (#0a0a0a), raíles en `ink` (#ececec) que se estrechan hasta juntarse arriba, cuatro traviesas en `accent` (#ffb000) que se acortan. Plano, sin texturas, cuadrado de 1024 px sin esquinas (iOS pone la máscara). Archivo: `icono-1024.png`.
+- Icono oficial: **vía en perspectiva**. Fondo `bg` oscuro (#0a0a0a), raíles en `ink` (#ececec) que se estrechan hasta juntarse arriba, cuatro traviesas en `accent` que se acortan. Variante 1B «profundidad»: raíles en degradado de #6b6b6b (horizonte) a #f5f5f5 (delante) y traviesas de #a35c00 a #ffc233, como la luz que se apaga con la distancia. Es la única excepción a «sin degradados»: solo en el icono. Sin texturas, cuadrado de 1024 px sin esquinas (iOS pone la máscara). Archivo: `icono-1024.png`.
 - Alternativa guardada: el mismo dibujo en negro sobre fondo ámbar.
 - Pantalla de carga: el mismo dibujo, 120 pt, centrado sobre #0a0a0a. Se quita en cuanto llegan los datos en directo, como mucho a los 4 s.
 
