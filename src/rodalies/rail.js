@@ -669,7 +669,7 @@ export function initRail(A) {
   // actualización automática: comprueba si hay versión nueva al abrir y al volver a la app; si la hay, recarga sola una vez
   if ('serviceWorker' in navigator && location.protocol === 'https:') {
     let reloaded = false; const had = !!navigator.serviceWorker.controller;
-    navigator.serviceWorker.addEventListener('controllerchange', () => { if (had && !reloaded) { reloaded = true; location.reload(); } });
+    navigator.serviceWorker.addEventListener('controllerchange', () => { if (!had || reloaded) return; const mine = (($('#ver') || {}).textContent || '').match(/\d+\.\d+/); fetch('./sw.js', { cache: 'no-store' }).then(r => r.text()).then(t => { const v = (t.match(/VERSION = 'cs-(\d+\.\d+)'/) || [])[1]; if (v && mine && v !== mine[0] && !reloaded) { reloaded = true; location.reload(); } }).catch(() => {}); });   // solo recarga si esta página es de una versión anterior: al abrir ya se carga la última (red primero) y así no hay «doble carga»
     navigator.serviceWorker.register('./sw.js').then(r => { r.update().catch(() => {}); document.addEventListener('visibilitychange', () => { if (!document.hidden) r.update().catch(() => {}); }); }).catch(() => {});
   }
   setTimeout(() => { try { loadHist(); } catch (e) {} }, 2500); setInterval(() => { try { HIST.at = 0; loadHist(); } catch (e) {} }, 15 * 60000);   // historial para «¿suele ir tarde?»
