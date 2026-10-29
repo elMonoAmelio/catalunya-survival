@@ -19,6 +19,13 @@ clean=lambda m: _re.sub(r'^(v?\d+\.\d+:\s*)?(Rodalies:\s*)?','',m).strip()
 ch=''.join(f'<li><b>{html.escape(v.split(" · ")[0])}</b><small>{html.escape(v.split(" · ")[1])}</small><p>{html.escape(clean(s))}</p></li>' for v,s in items)
 open('ver.txt','w').write(f'{ver}|{now}|{ch}')
 open(B+'/CHANGES.html','w').write(ch); shutil.copy(B+'/CHANGES.html', REPO+'/rodalies-build/CHANGES.html')
+# horario embebido = el último publicado por la tarea diaria (rama horarios); si no, se queda el que hay. Así la app no arranca con uno viejo y no se recarga sola al bajar el nuevo
+try:
+    import urllib.request, json as _j
+    _t=urllib.request.urlopen('https://raw.githubusercontent.com/elMonoAmelio/catalunya-survival/horarios/rod_pack.json',timeout=30).read().decode('utf8'); _p=_j.loads(_t)
+    _o=_j.load(open(B+'/rod_pack.json',encoding='utf8'))
+    if _p.get('gen') and _p.get('days') and _p.get('trips') and _p['gen']>=_o.get('gen',''): open(B+'/rod_pack.json','w',encoding='utf8').write(_t); print('horario embebido', _p['gen'])
+except Exception as _e: print('horario embebido sin cambios:', _e)
 subprocess.run(['python3','assemble.py',os.path.abspath('pwa/rodalies.html')],cwd=B,check=True)
 shutil.copy('pwa/rodalies.html','/tmp/ms-out/rodalies.html')
 subprocess.run(['python3','mk.py'],check=True)
