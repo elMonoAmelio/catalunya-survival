@@ -181,4 +181,10 @@ T = {
 "¡sal ya!": ("surt ja!", "leave now!"),
 "según horario · Rodalies no lo anuncia": ("segons l'horari · Rodalies no l'anuncia", "by timetable · not announced by Rodalies"),
 "Rodalies no anuncia este tren: hora según el horario oficial": ("Rodalies no anuncia aquest tren: hora segons l'horari oficial", "Rodalies does not announce this train: time from the official timetable"),
+"Renfe no da la posición de los trenes ahora": ("Renfe no dona la posició dels trens ara", "Renfe is not giving train positions now"),
+"horas según el horario oficial": ("hores segons l'horari oficial", "times from the official timetable"),
+"Renfe no da la posición de los trenes de": ("Renfe no dona la posició dels trens de", "Renfe is not giving positions for"),
+"horas según el horario oficial, sin retrasos en directo": ("hores segons l'horari oficial, sense retards en directe", "times from the official timetable, no live delays"),
+"Rodalies tampoco anuncia salidas": ("Rodalies tampoc anuncia sortides", "Rodalies isn't announcing departures either"),
+"Fíate del panel de la estación.": ("Fia't del panell de l'estació.", "Trust the station display."),
 }
