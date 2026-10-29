@@ -187,4 +187,5 @@ T = {
 "horas según el horario oficial, sin retrasos en directo": ("hores segons l'horari oficial, sense retards en directe", "times from the official timetable, no live delays"),
 "Rodalies tampoco anuncia salidas": ("Rodalies tampoc anuncia sortides", "Rodalies isn't announcing departures either"),
 "Fíate del panel de la estación.": ("Fia't del panell de l'estació.", "Trust the station display."),
+"Horario de hoy actualizado: Renfe ha cambiado el servicio (huelga, obras o servicios mínimos)": ("Horari d'avui actualitzat: Renfe ha canviat el servei (vaga, obres o serveis mínims)", "Today's timetable updated: Renfe changed the service (strike, works or minimum services)"),
 }

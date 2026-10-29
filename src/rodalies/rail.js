@@ -1486,10 +1486,17 @@ export function initRail(A) {
       if (!t) return; let p; try { p = JSON.parse(t); } catch (e) { return; }
       if (!p || !p.gen || !Array.isArray(p.days) || !p.trips || p.gen <= R.gen) return;
       try { localStorage.setItem('rod_pack', t); } catch (e) { return; }   // sin espacio: se queda con el de dentro
-      // si el horario que se está usando ya no cubre hoy, se recarga ya; si no, el nuevo se usa la próxima vez que abras la app
-      if (!R.days.includes(todayYmd()) || R.days.indexOf(todayYmd()) >= R.days.length - 2) location.reload();
+      // ¿cambia el servicio de hoy (huelga, obras, servicios mínimos)? se compara cuántos viajes hay hoy en cada horario
+      const d = todayYmd(), kO = R.days.indexOf(d), kN = p.days.indexOf(d), nO = kO < 0 ? 0 : TR.filter(x => x.day === kO).length;
+      let nN = 0; if (kN >= 0) for (const x of p.trips) if (x[0] === kN) nN++;   // cada viaje: [día, patrón, ruta, hora, número]
+      const changed = kN >= 0 && nO && (Math.abs(nN - nO) / nO > 0.1 || !nN);
+      if (kO < 0 || kO >= R.days.length - 2 || changed) { try { sessionStorage.setItem('rod_packmsg', changed ? '1' : ''); } catch (e) {} location.reload(); return; }
+      PACKNEW.v = true;   // si no, se aplica al volver a la app
     }).catch(() => {});
   }
+  const PACKNEW = { v: false };
+  document.addEventListener('visibilitychange', () => { if (document.hidden && PACKNEW.v) { PACKNEW.v = false; PACKNEW.reload = true; } else if (!document.hidden && PACKNEW.reload) location.reload(); });
+  try { if (sessionStorage.getItem('rod_packmsg') === '1') { sessionStorage.removeItem('rod_packmsg'); setTimeout(() => toast('🗓️ ' + 'Horario de hoy actualizado: Renfe ha cambiado el servicio (huelga, obras o servicios mínimos)'), 1500); } } catch (e) {}
   setTimeout(packRefresh, 4000);
   document.addEventListener('visibilitychange', () => { if (!document.hidden && Date.now() - (packRefresh.at || 0) > 6 * 3600e3) { packRefresh.at = Date.now(); packRefresh(); } });
   packRefresh.at = Date.now();
