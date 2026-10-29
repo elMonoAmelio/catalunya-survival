@@ -188,4 +188,8 @@ T = {
 "Rodalies tampoco anuncia salidas": ("Rodalies tampoc anuncia sortides", "Rodalies isn't announcing departures either"),
 "Fíate del panel de la estación.": ("Fia't del panell de l'estació.", "Trust the station display."),
 "Horario de hoy actualizado: Renfe ha cambiado el servicio (huelga, obras o servicios mínimos)": ("Horari d'avui actualitzat: Renfe ha canviat el servei (vaga, obres o serveis mínims)", "Today's timetable updated: Renfe changed the service (strike, works or minimum services)"),
+"Hoy hay servicios mínimos por huelga": ("Avui hi ha serveis mínims per vaga", "Minimum services today due to a strike"),
+"Hoy el servicio es reducido": ("Avui el servei és reduït", "Reduced service today"),
+"el horario oficial de hoy ya lo incluye": ("l'horari oficial d'avui ja ho inclou", "today's official timetable already includes it"),
+"trenes de": ("trens de", "trains on"),
 }
