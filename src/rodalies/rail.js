@@ -1339,15 +1339,16 @@ export function initRail(A) {
   const RED = { k: '', v: null };
   function reducedToday(lines) {
     const S = nowState(), k = R.days.indexOf(S.ymd); if (k < 0 || !lines.length) return null;
-    const key = S.ymd + lines.join(); if (RED.k === key) return RED.v; RED.k = key;
-    const fs = new Set(lines), cnt = kk => byDay[kk].filter(t => fs.has(t.fam)).length, typ = ymd => { const d = new Date(+ymd.slice(0, 4), +ymd.slice(4, 6) - 1, +ymd.slice(6)).getDay(); return d === 0 ? 0 : d === 6 ? 6 : 1; };
+    // se cuenta en TU estación (casa, si no trabajo): «por Vilassar de Mar pasan 90 de 190»; si no hay, por líneas
+    const si = curSt(HOME) ?? curSt(WORK), key = S.ymd + lines.join() + si; if (RED.k === key) return RED.v; RED.k = key;
+    const fs = new Set(lines), cnt = si != null ? kk => byDay[kk].filter(t => { const i = t.pat.stops.indexOf(si); return i >= 0 && i < t.pat.stops.length - 1; }).length : kk => byDay[kk].filter(t => fs.has(t.fam)).length, typ = ymd => { const d = new Date(+ymd.slice(0, 4), +ymd.slice(4, 6) - 1, +ymd.slice(6)).getDay(); return d === 0 ? 0 : d === 6 ? 6 : 1; };
     const n = cnt(k), ref = Math.max(0, ...R.days.map((d, kk) => kk !== k && typ(d) === typ(S.ymd) ? cnt(kk) : 0));
-    RED.v = ref >= 20 && n < ref * 0.8 ? { n, ref, pct: Math.round(n / ref * 100) } : null; return RED.v;
+    RED.v = ref >= 20 && n < ref * 0.8 ? { n, ref, pct: Math.round(n / ref * 100), st: si != null ? ST[si].n : '' } : null; return RED.v;
   }
   function reducedHtml(tg) {
     const lines = tg.lines || [], r = reducedToday(lines); if (!r) return '';
     const strike = RT.alerts.some(a => [...a.fams].some(f => lines.includes(f)) && /huelga|vaga\b|servicios? m[ií]nimos|serveis m[ií]nims/i.test((a.es || '') + ' ' + a.txt));
-    return `<div class="hred">🗓️ <b>${strike ? 'Hoy hay servicios mínimos por huelga' : 'Hoy el servicio es reducido'}</b> · ${'el horario oficial de hoy ya lo incluye'}: ${r.n} ${'de'} ${r.ref} ${'trenes de'} ${lines.join(', ')} (${r.pct} %).</div>`;
+    return `<div class="hred">🗓️ <b>${strike ? 'Hoy hay servicios mínimos por huelga' : 'Hoy el servicio es reducido'}</b> · ${'el horario oficial de hoy ya lo incluye'}: ${r.st ? `${'por'} ${esc(r.st)} ${'pasan'} ${r.n} ${'de'} ${r.ref} ${'trenes'}` : `${r.n} ${'de'} ${r.ref} ${'trenes de'} ${lines.join(', ')}`} (${r.pct} % ${'de un día normal'}).</div>`;
   }
   function noPosHtml(tg) {
     const np = noPosFams(tg.lines || []); if (!np.length) return '';

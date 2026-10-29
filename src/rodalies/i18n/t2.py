@@ -192,4 +192,8 @@ T = {
 "Hoy el servicio es reducido": ("Avui el servei és reduït", "Reduced service today"),
 "el horario oficial de hoy ya lo incluye": ("l'horari oficial d'avui ja ho inclou", "today's official timetable already includes it"),
 "trenes de": ("trens de", "trains on"),
+"por": ("per", "through"),
+"pasan": ("passen", "run"),
+"trenes": ("trens", "trains"),
+"de un día normal": ("d'un dia normal", "of a normal day"),
 }
