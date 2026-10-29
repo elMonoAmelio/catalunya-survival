@@ -47,6 +47,15 @@ jobs:
               N=$(GH_TOKEN="$GITHUB_TOKEN" gh run list -R "$GITHUB_REPOSITORY" -w rodalies.yml -L 20 --json createdAt,event -q "[.[]|select(.event!=\"push\")|select(.createdAt>=\"$DESDE\")]|length" 2>/dev/null || echo 1)
               if [ "$N" = "0" ]; then echo "Horarios de hoy sin lanzar: se lanzan"; GH_TOKEN="$GITHUB_TOKEN" gh workflow run rodalies.yml --ref main -R "$GITHUB_REPOSITORY" || true; fi
             fi
+            # refrescos extra para cambios de última hora (huelgas, obras): Renfe a veces publica el horario nuevo la noche antes o de madrugada
+            for V in "06 05:30" "22 21:30"; do
+              set -- $V
+              if [ "$H" = "$1" ]; then
+                DESDE=$(date -u -d "TZ=\"Europe/Madrid\" $(TZ=Europe/Madrid date +%F) $2" +%FT%TZ)
+                N=$(GH_TOKEN="$GITHUB_TOKEN" gh run list -R "$GITHUB_REPOSITORY" -w rodalies.yml -L 20 --json createdAt,event -q "[.[]|select(.event!=\"push\")|select(.createdAt>=\"$DESDE\")]|length" 2>/dev/null || echo 1)
+                if [ "$N" = "0" ]; then echo "Refresco de horarios ($2)"; GH_TOKEN="$GITHUB_TOKEN" gh workflow run rodalies.yml --ref main -R "$GITHUB_REPOSITORY" || true; fi
+              fi
+            done
             if [ "$i" -lt 20 ]; then sleep 900; fi
           done
         env:
