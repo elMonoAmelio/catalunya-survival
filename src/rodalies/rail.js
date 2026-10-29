@@ -1474,7 +1474,7 @@ export function initRail(A) {
   const PACKURL = 'https://raw.githubusercontent.com/elMonoAmelio/catalunya-survival/horarios/rod_pack.json';
   const todayYmd = () => madrid(new Date()).ymd.replace(/-/g, '');
   function packRefresh() {
-    if (navigator.onLine === false) return;
+    if (navigator.onLine === false || (location.protocol === 'file:' && !/[?&]pack=1/.test(location.search))) return;   // copias locales de prueba: sin descargas
     fetch(PACKURL, { cache: 'no-store' }).then(r => r.ok ? r.text() : null).then(t => {
       if (!t) return; let p; try { p = JSON.parse(t); } catch (e) { return; }
       if (!p || !p.gen || !Array.isArray(p.days) || !p.trips || p.gen <= R.gen) return;
