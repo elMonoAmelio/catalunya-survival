@@ -219,7 +219,9 @@ export function initRail(A) {
       }
     }
     if (!P.length) P.push(0, 0, -50, 0, 0, -50), C.push(0, 0, 0, 0, 0, 0);
-    lgeo.setPositions(P); lgeo.setColors(C); cgeo.setPositions(P);
+    // geometría nueva cada vez: three.js recuerda cuántos tramos tenía la primera y, si luego hay más (p. ej. de «R1» a «Todas»), no dibuja el resto
+    const lg = new LineSegmentsGeometry(), cg = new LineSegmentsGeometry(); lg.setPositions(P); lg.setColors(C); cg.setPositions(P);
+    const ol = lline.geometry, oc = cline.geometry; lline.geometry = lg; cline.geometry = cg; if (ol) ol.dispose(); if (oc) oc.dispose();
     invalidate();
   }
   buildLines();
