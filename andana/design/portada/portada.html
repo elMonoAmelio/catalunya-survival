@@ -1,0 +1,33 @@
+<!-- @dsCard height=300 -->
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>
+html,body{margin:0;background:var(--bg)}
+.c{position:relative;width:960px;height:300px;overflow:hidden;background:var(--bg);font-family:"Andana","Barlow Semi Condensed",system-ui,sans-serif}
+.n{position:absolute;left:40px;bottom:40px;max-width:440px}
+.n h1{margin:0;font-size:112px;line-height:.92;font-weight:700;color:var(--ink);letter-spacing:.01em}
+.n p{margin:12px 0 0;font-size:14px;color:var(--muted);font-weight:500}
+svg{position:absolute;left:480px;top:0}
+.surf{fill:var(--surface)}.s2{fill:var(--surface-2)}.acc{fill:var(--accent)}.r1{fill:var(--line-R1)}.r2{fill:var(--line-R2)}.r3{fill:var(--line-R3)}.ln{fill:var(--line)}
+.tile{rx:var(--radius-md)}.pill{rx:6px}
+</style></head><body>
+<div class="c">
+<!-- blocks: surface 480×196 slab, surface-2 tile, accent platform band 480×24, line-R1/R2/R3 pills
+     arrangement: one tall dark slab bleeding off top and right, amber band across like the safety line on a platform
+     pattern: geometric/modular dense UI → row of 8px-radius tiles (train windows) cut from surface-2, chosen because the README calls the brand "diseño de andén" with 8px radii everywhere
+     steps/radii: space-3 12px gaps, space-2 8px, radius-md 8px, radius-pill → 6px = half of 12px pills -->
+<svg width="480" height="300" viewBox="0 0 480 300" aria-hidden="true">
+ <rect class="surf" x="24" y="-8" width="464" height="204"/>
+ <rect class="s2 tile" x="48" y="40" width="96" height="64"/>
+ <rect class="s2 tile" x="156" y="40" width="96" height="64"/>
+ <rect class="s2 tile" x="264" y="40" width="96" height="64"/>
+ <rect class="s2 tile" x="372" y="40" width="96" height="64"/>
+ <rect class="r1 pill" x="48" y="140" width="72" height="12"/>
+ <rect class="r2 pill" x="132" y="140" width="48" height="12"/>
+ <rect class="r3 pill" x="192" y="140" width="96" height="12"/>
+ <rect class="acc" x="0" y="196" width="480" height="24"/>
+ <rect class="ln" x="0" y="220" width="480" height="80"/>
+</svg>
+<div class="n"><h1>Andana</h1><p>Trenes de Rodalies en directo, con un solo acento: el ámbar del andén.</p></div>
+</div>
+</body></html>
