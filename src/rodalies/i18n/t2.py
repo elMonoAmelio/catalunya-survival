@@ -199,4 +199,8 @@ T = {
 "Servicios mínimos por huelga": ("Serveis mínims per vaga", "Strike minimum services"),
 "Servicio reducido hoy": ("Servei reduït avui", "Reduced service today"),
 "ya incluido en el horario": ("ja inclòs a l'horari", "already in the timetable"),
+"Llegando a ": ("Arribant a ", "Arriving at "),
+"Saliendo de ": ("Sortint de ", "Leaving "),
+" hacia ": (" cap a ", " towards "),
+"¿Vas en el": ("Vas al", "Are you on"),
 }

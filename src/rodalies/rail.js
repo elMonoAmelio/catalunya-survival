@@ -344,7 +344,10 @@ export function initRail(A) {
           // la parada siguiente sale de la posición real (Renfe a veces da como stopId la última estación pasada)
           let nx = sd.findIndex(x => x > v.dObs + 0.08); if (nx < 0) nx = sd.length - 1;
           const nearSt = sd.reduce((b, x, k) => (Math.abs(x - v.dObs) < Math.abs(sd[b] - v.dObs) ? k : b), 0);
-          v.atStop = Math.abs(sd[nearSt] - v.dObs) < 0.16 ? nearSt : -1; v.next = nx; idx = nx;
+          v.atStop = Math.abs(sd[nearSt] - v.dObs) < 0.16 ? nearSt : -1;
+          { const j = v.st === 'STOPPED_AT' && v.sid ? tr.pat.stops.findIndex(si => ST[si].id === v.sid) : -1; if (j >= 0 && Math.abs(sd[j] - v.dObs) < 0.6) { v.atStop = j; if (nx <= j) nx = Math.min(j + 1, sd.length - 1); } }   // Renfe dice «parado en X»: está en la estación aunque la posición caiga un poco lejos
+          v.before = v.atStop >= 0 && v.dObs < sd[v.atStop] - 0.02;   // aún llegando a esa estación
+          v.next = nx; idx = nx;
           let pred = v.dObs;
           if (v.st === 'STOPPED_AT' && v.atStop >= 0) pred = sd[v.atStop];
           else if (nx > 0) {
@@ -363,7 +366,7 @@ export function initRail(A) {
           if (pp) { w = pp.w; v.est = true; idx = pp.next; } v.atStop = -1; v.next = pp ? pp.next : -1;
         } else { v.atStop = -1; v.next = -1; }
       }
-      const stop = v.pre ? '' : v.st === 'STOPPED_AT' && v.atStop >= 0 || v.atStop >= 0 && v.still > 30 ? 'st' : v.still >= 90 ? 'via' : '';
+      const stop = v.pre ? '' : v.st === 'STOPPED_AT' && v.atStop >= 0 || v.atStop >= 0 && v.still > 30 ? 'st' : v.still >= 90 && v.atStop < 0 ? 'via' : '';
       out.push({ tr, v, w, stop, p: { w }, fam: fam || '?', c: tr ? tr.c : (FC[fam] || '#6b7385'), dl, live: true, real: true, idx, age, cancel: d === 'X' });
     }
     return out;
@@ -794,7 +797,7 @@ export function initRail(A) {
       const v = la.v, tr = la.tr, nm = i => esc(ST[tr.pat.stops[i]].n), n = tr ? tr.pat.stops.length : 0, sidx = SID.get(v.sid), sName = sidx != null ? esc(ST[sidx].n) : esc(v.sid);
       const near = tr && v.atStop >= 0 ? nm(v.atStop) : '', nxt = tr && v.next >= 0 ? nm(v.next) : sName, prv = tr && v.next > 0 ? nm(v.next - 1) : '';
       const bk = la.broke || brokenInfo(la);
-      const stTxt = bk ? `<b class="stopv">⚠️ ${bk.why === 'aviso' ? 'Tren averiado según Rodalies' : `Posible avería: detenido en la vía desde hace ${bk.min} min`}</b>${tr && prv ? ` · entre ${prv} y <b>${nxt}</b>` : ''}` : la.stop === 'via' && tr ? `<b class="stopv">⏸ Detenido</b> ${prv ? `entre ${prv} y <b>${nxt}</b>` : `antes de <b>${nxt}</b>`} desde hace ${Math.max(1, Math.round(v.still / 60))} min` : v.pre && tr ? (v.prevTr ? `Aún no ha empezado este viaje. Está terminando el tren <b>${esc(v.prevTr.num)}</b> hacia <b>${nm(0)}</b>${v.prevDl >= 1 ? ` con <b>+${Math.round(v.prevDl)} min</b>` : ''}: llega hacia las <b>${hhmm(v.arrO)}</b> y saldría hacia las <b>${hhmm(v.depEst)}</b>${v.preDl >= 1 ? ` (horario ${hhmm(v.dep0)})` : ''}` : `Aún no ha empezado este viaje: va hacia <b>${nm(0)}</b>, de donde sale a las <b>${hhmm(v.dep0 + la.dl)}</b>`) : v.st === 'STOPPED_AT' && near ? `Parado en <b>${near}</b>` : near && v.next >= 0 && v.atStop !== v.next ? `Saliendo de <b>${near}</b> hacia <b>${nxt}</b>` : prv ? `Entre ${prv} y <b>${nxt}</b>` : `Hacia <b>${nxt}</b>`;
+      const stTxt = bk ? `<b class="stopv">⚠️ ${bk.why === 'aviso' ? 'Tren averiado según Rodalies' : `Posible avería: detenido en la vía desde hace ${bk.min} min`}</b>${tr && prv ? ` · entre ${prv} y <b>${nxt}</b>` : ''}` : la.stop === 'via' && tr ? `<b class="stopv">⏸ Detenido</b> ${prv ? `entre ${prv} y <b>${nxt}</b>` : `antes de <b>${nxt}</b>`} desde hace ${Math.max(1, Math.round(v.still / 60))} min` : v.pre && tr ? (v.prevTr ? `Aún no ha empezado este viaje. Está terminando el tren <b>${esc(v.prevTr.num)}</b> hacia <b>${nm(0)}</b>${v.prevDl >= 1 ? ` con <b>+${Math.round(v.prevDl)} min</b>` : ''}: llega hacia las <b>${hhmm(v.arrO)}</b> y saldría hacia las <b>${hhmm(v.depEst)}</b>${v.preDl >= 1 ? ` (horario ${hhmm(v.dep0)})` : ''}` : `Aún no ha empezado este viaje: va hacia <b>${nm(0)}</b>, de donde sale a las <b>${hhmm(v.dep0 + la.dl)}</b>`) : (v.st === 'STOPPED_AT' || la.stop === 'st') && near ? `Parado en <b>${near}</b>` : near && v.before ? `Llegando a <b>${near}</b>` : near && v.next >= 0 && v.atStop !== v.next ? `Saliendo de <b>${near}</b> hacia <b>${nxt}</b>` : prv ? `Entre ${prv} y <b>${nxt}</b>` : `Hacia <b>${nxt}</b>`;
       const tu = RT.tu.get(v.tid), eta = tu && tu.next && tr && v.next >= 0 && tu.next.sid === ST[tr.pat.stops[v.next]].id && tu.next.t ? new Date(tu.next.t * 1000).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }) : '';
       const rows = [];
       if (tr) { const i0 = la.idx >= 0 ? la.idx : 0, D = v.pre ? Math.max(la.dl, v.preDl || 0) : la.dl, T = i => tr.t0 + tr.pat.t[i] + D; for (let i = i0; i < n; i++) rows.push(`<li class="${myIco(tr.pat.stops[i]) ? 'mine' : ''}${isAlarm(tr, i) ? ' alm' : ''}"><b>${hhmm(T(i === 0 ? 1 : 2 * i))}</b><span title="${nm(i)}">${myIco(tr.pat.stops[i])}${nm(i)}</span>${D >= 1 ? `<em class="dl ${dlCls(D)}">${v.pre ? '≈' : ''}+${Math.round(D)}</em>` : ''}${i > 0 ? `<button type="button" class="abtn" data-alarm="${i}" title="${'Avísame 2 min antes de llegar aquí'}">${isAlarm(tr, i) ? '🔔' : '🔕'}</button>` : ''}</li>`); }
@@ -1052,7 +1055,9 @@ export function initRail(A) {
     if (a.acc != null && a.acc > 100) return;   // en túneles el móvil da posiciones de antena, muy imprecisas: no sirven
     // ya vas en un tren: no se cambia a otro por perder el GPS en un túnel (al salir, el móvil y Renfe tardan en ponerse al día).
     // Solo se suelta si tu tren ha terminado el viaje o llevas más de 2 min claramente lejos de él (más de 5 km).
+    if (ONB.manual && Date.now() < ONB.manual) return;   // lo elegiste tú: no se cambia solo (90 min)
     if (ONB.tid) {
+      if (kmh < 22) return;   // parado en una estación: nunca se cambia de tren (pasan trenes al lado)
       const cur = act.find(t => t.tr && String(t.tr.num) === ONB.tid) || activeTrips(nowState()).out.find(t => t.tr && String(t.tr.num) === ONB.tid);
       if (cur) { const d = Math.hypot(cur.p.w[0] - a.w[0], cur.p.w[1] - a.w[1]) * a.k; if (d <= 5) { ONB.far = 0; return; } if (!ONB.far) ONB.far = a.t; if (a.t - ONB.far < 120000) return; }
       ONB.far = 0;
@@ -1070,8 +1075,11 @@ export function initRail(A) {
       const key = String(t.tr.num); if ((ONB.no.get(key) || 0) > Date.now()) continue;
       bd = d; best = t;
     }
-    if (!best) return;
-    const key = String(best.tr.num); if (ONB.tid === key) return; ONB.tid = key;
+    if (!best) { ONB.cand = null; return; }
+    const key = String(best.tr.num); if (ONB.tid === key) return;
+    // cambiar de un tren a otro exige confirmarlo en dos lecturas seguidas (≥ 20 s) y buena precisión del GPS
+    if (ONB.tid) { if (a.acc != null && a.acc > 50) return; if (!ONB.cand || ONB.cand.k !== key) { ONB.cand = { k: key, t: a.t }; return; } if (a.t - ONB.cand.t < 20000) return; }
+    ONB.cand = null; ONB.tid = key;
     selNews = selAlerts = selStats = false; selStation = -1; selTrip = best.tr; follow = best.tr;
     Object.assign(goal, { tx: best.p.w[0], ty: best.p.w[1], dist: Math.min(goal.dist, 22) });
     if (innerWidth <= 640) { mcs.classList.add('peek'); const rc = $('#rc'); if (!rc.classList.contains('min')) $('#rcgrab').click(); }
@@ -1329,8 +1337,11 @@ export function initRail(A) {
     const a = act.find(x => x.tr && String(x.tr.num) === String(num)); if (!a) { const t = tripByNum(num), S = nowState(), k = R.days.indexOf(S.ymd); if (!t) return ''; const off = t.day === k - 1 ? 1440 : 0, d0 = t.t0 + t.pat.t[1] - off; return d0 > S.min ? 'Aún no ha salido de ' + ST[t.pat.stops[0]].n + ' (' + hhmm(d0) + ')' : ''; }
     const tr = a.tr, nm = i => ST[tr.pat.stops[i]].n;
     if (a.real) { const v = a.v; if (v.pre) return 'Aún no ha empezado su viaje';
-      if (v.atStop >= 0 && (v.st === 'STOPPED_AT' || v.still > 30)) return 'Parado en ' + nm(v.atStop);
-      if (v.atStop >= 0) return 'En ' + nm(v.atStop);   // llegando o saliendo de esa estación
+      // mismas reglas que la ficha del mapa, para que nunca digan cosas distintas
+      if (v.atStop >= 0 && (v.st === 'STOPPED_AT' || a.stop === 'st')) return 'Parado en ' + nm(v.atStop);
+      if (v.atStop >= 0 && v.before) return 'Llegando a ' + nm(v.atStop);
+      if (v.atStop >= 0 && v.next > v.atStop) return 'Saliendo de ' + nm(v.atStop) + ' hacia ' + nm(v.next);
+      if (v.atStop >= 0) return 'En ' + nm(v.atStop);
       if (a.stop === 'via' && v.next > 0) return '⏸ ' + 'Detenido entre ' + nm(v.next - 1) + ' y ' + nm(v.next);
       if (v.next > 0) return 'Entre ' + nm(v.next - 1) + ' y ' + nm(v.next);
       return v.next === 0 ? 'Hacia ' + nm(0) : ''; }
@@ -1358,6 +1369,11 @@ export function initRail(A) {
     const empty = [HOME, WORK].some(P => { const i = curSt(P), O = i != null && DEPS.get(ST[i].id); return O && O.d && Array.isArray(O.d.trains) && !O.d.trains.length; });
     return `<div class="hnopos">📡 <b>${'Renfe no da la posición de los trenes de'} ${np.join(', ')}</b> · ${'horas según el horario oficial, sin retrasos en directo'}${empty ? ' · ' + 'Rodalies tampoco anuncia salidas' : ''}. ${'Fíate del panel de la estación.'}</div>`;
   }
+  // otros trenes cerca de ti (por si la detección se ha equivocado): se pueden elegir a mano
+  function onbAlt(cur) {
+    if (!NEAR.w) return []; const k = NEAR.k || 1;
+    return act.filter(t => t.tr && t.tr !== cur && t.p && t.p.w && Math.hypot(t.p.w[0] - NEAR.w[0], t.p.w[1] - NEAR.w[1]) * k < 3).sort((x, y) => Math.hypot(x.p.w[0] - NEAR.w[0], x.p.w[1] - NEAR.w[1]) - Math.hypot(y.p.w[0] - NEAR.w[0], y.p.w[1] - NEAR.w[1])).slice(0, 2).map(t => t.tr);
+  }
   function onbHtml(S) {
     if (!ONB.tid) return '';
     const t = act.find(x => x.tr && String(x.tr.num) === ONB.tid) || activeTrips(S).out.find(x => x.tr && String(x.tr.num) === ONB.tid); if (!t) return '';
@@ -1365,8 +1381,8 @@ export function initRail(A) {
     const d = delayOf(tr), dl = typeof d === 'number' ? Math.max(0, d / 60) : 0, k = R.days.indexOf(S.ymd), off = tr.day === k - 1 ? 1440 : 0;
     let j = ALARM && ALARM.num === ONB.tid ? st.indexOf(SID.get(ALARM.sid)) : -1; if (j < nx) j = st.length - 1;
     const eta = tr.t0 + tr.pat.t[2 * j] + dl - off, left = eta - S.min, at = t.real && t.v.atStop >= 0 ? t.v.atStop : -1;
-    const where = at >= 0 ? 'Parado en ' + ST[st[at]].n : 'Hacia ' + ST[st[nx]].n;
-    return `<div class="hplace onbc"><button type="button" class="hhead" data-onbgo><span class="hico">🚆</span><span class="htit"><b>${chipL(tr.fam)} ${'tren\u00a0'}${esc(tr.num)}<i class="hpn onbx" data-onbx title="${'No es este'}">✕</i></b><small class="nofit cok">${esc(where)} · <span class="nw">${'llegas a'} ${esc(ST[st[j]].n)}</span> <span class="nw">${left >= 1 ? 'en ' + mins(left) + ' · ' : ''}<b>${hhmm(eta)}</b>${dl >= 1 ? ` <em class="dl ${dlCls(dl)}">+${Math.round(dl)}</em>` : ''}</span></small></span><span class="hchev">›</span></button></div>`;
+    const where = trainWhere(tr.num) || 'Hacia ' + ST[st[nx]].n;
+    return `<div class="hplace onbc"><button type="button" class="hhead" data-onbgo><span class="hico">🚆</span><span class="htit"><b>${chipL(tr.fam)} ${'tren\u00a0'}${esc(tr.num)}<i class="hpn onbx" data-onbx title="${'No es este'}">✕</i></b><span class="onbch">${onbAlt(tr).map(t => `<i class="onbalt" data-onbpick="${esc(t.num)}">${'¿Vas en el'} ${esc(t.num)}?</i>`).join('')}</span><small class="nofit cok">${esc(where)} · <span class="nw">${'llegas a'} ${esc(ST[st[j]].n)}</span> <span class="nw">${left >= 1 ? 'en ' + mins(left) + ' · ' : ''}<b>${hhmm(eta)}</b>${dl >= 1 ? ` <em class="dl ${dlCls(dl)}">+${Math.round(dl)}</em>` : ''}</span></small></span><span class="hchev">›</span></button></div>`;
   }
   function renderHome(force) {
     const el = $('#home'); if (!el) return;
@@ -1376,7 +1392,8 @@ export function initRail(A) {
     let bell = $('#bell'); if (!bell) { bell = document.createElement('button'); bell.type = 'button'; bell.id = 'bell'; bell.onclick = pushToggle; $('#inf .more').prepend(bell); }   // dentro del desplegable ▾
     { const on = RT.repOk ? PUSH.on : LN.on; bell.hidden = !tg.lines.length; bell.className = on ? 'on' : ''; bell.textContent = (on ? '🔔 Avisos activados · ' : '🔕 Activar avisos de ') + tg.lines.join(', '); bell.title = (on ? 'Avisos activados' : 'Activar avisos') + ' de ' + tg.lines.join(', ') + (RT.repOk ? '' : ' (mientras la app esté abierta)'); }
     if (el._h === html) return; el._h = html; el.innerHTML = html; fitHome();
-    { const g = el.querySelector('[data-onbgo]'); if (g) g.onclick = e => { if (e.target.closest('[data-onbx]')) { ONB.no.set(ONB.tid, Date.now() + 20 * 60000); ONB.tid = ''; follow = null; renderHome(true); return; } const t = act.find(x => x.tr && String(x.tr.num) === ONB.tid); if (t) { selNews = selAlerts = selStats = false; selStation = -1; selTrip = t.tr; mcs._h = ''; renderCard(); } }; }
+    { const g = el.querySelector('[data-onbgo]'); if (g) g.onclick = e => { if (e.target.closest('[data-onbx]')) { ONB.no.set(ONB.tid, Date.now() + 20 * 60000); ONB.tid = ''; ONB.manual = 0; follow = null; renderHome(true); return; }
+      const pk = e.target.closest('[data-onbpick]'); if (pk) { ONB.no.set(ONB.tid, Date.now() + 20 * 60000); ONB.tid = pk.dataset.onbpick; ONB.manual = Date.now() + 90 * 60000; const t = act.find(x => x.tr && String(x.tr.num) === ONB.tid); if (t) { follow = t.tr; selTrip = t.tr; const st = t.tr.pat.stops, nx = t.real ? t.v.next : t.p.next, mine = [...HOME.st, ...WORK.st], j = st.findIndex((si, q) => q >= nx && mine.includes(ST[si].id)); if (j > 0) { ALARM = { num: ONB.tid, sid: ST[st[j]].id, at: Date.now() }; saveAlarm(); } mcs._h = ''; renderCard(); } renderHome(true); return; } const t = act.find(x => x.tr && String(x.tr.num) === ONB.tid); if (t) { selNews = selAlerts = selStats = false; selStation = -1; selTrip = t.tr; mcs._h = ''; renderCard(); } }; }
     { const lead = [...el.children].find(c => c.classList.contains('hplace') && !c.querySelector('.hnew')); if (lead) lead.classList.add('lead'); }
     const P_ = k => k === 'work' ? WORK : k === 'near' ? NEAR : HOME;
     el.querySelectorAll('[data-hloc]').forEach(b => b.onclick = () => { NEAR.err = ''; locate(true); });
