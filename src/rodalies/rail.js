@@ -798,9 +798,9 @@ export function initRail(A) {
       const near = tr && v.atStop >= 0 ? nm(v.atStop) : '', nxt = tr && v.next >= 0 ? nm(v.next) : sName, prv = tr && v.next > 0 ? nm(v.next - 1) : '';
       const bk = la.broke || brokenInfo(la);
       const stTxt = bk ? `<b class="stopv">⚠️ ${bk.why === 'aviso' ? 'Tren averiado según Rodalies' : `Posible avería: detenido en la vía desde hace ${bk.min} min`}</b>${tr && prv ? ` · entre ${prv} y <b>${nxt}</b>` : ''}` : la.stop === 'via' && tr ? `<b class="stopv">⏸ Detenido</b> ${prv ? `entre ${prv} y <b>${nxt}</b>` : `antes de <b>${nxt}</b>`} desde hace ${Math.max(1, Math.round(v.still / 60))} min` : v.pre && tr ? (v.prevTr ? `Aún no ha empezado este viaje. Está terminando el tren <b>${esc(v.prevTr.num)}</b> hacia <b>${nm(0)}</b>${v.prevDl >= 1 ? ` con <b>+${Math.round(v.prevDl)} min</b>` : ''}: llega hacia las <b>${hhmm(v.arrO)}</b> y saldría hacia las <b>${hhmm(v.depEst)}</b>${v.preDl >= 1 ? ` (horario ${hhmm(v.dep0)})` : ''}` : `Aún no ha empezado este viaje: va hacia <b>${nm(0)}</b>, de donde sale a las <b>${hhmm(v.dep0 + la.dl)}</b>`) : (v.st === 'STOPPED_AT' || la.stop === 'st') && near ? `Parado en <b>${near}</b>` : near && v.before ? `Llegando a <b>${near}</b>` : near && v.next >= 0 && v.atStop !== v.next ? `Saliendo de <b>${near}</b> hacia <b>${nxt}</b>` : prv ? `Entre ${prv} y <b>${nxt}</b>` : `Hacia <b>${nxt}</b>`;
-      const tu = RT.tu.get(v.tid), eta = tu && tu.next && tr && v.next >= 0 && tu.next.sid === ST[tr.pat.stops[v.next]].id && tu.next.t ? new Date(tu.next.t * 1000).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }) : '';
+      const eta = tr && v.next >= 0 && !v.pre ? hhmm(cardEta(tr, v, v.next, tr.t0 + tr.pat.t[2 * v.next] + la.dl)) : '';   // misma hora que la lista de paradas
       const rows = [];
-      if (tr) { const i0 = la.idx >= 0 ? la.idx : 0, D = v.pre ? Math.max(la.dl, v.preDl || 0) : la.dl, T = i => tr.t0 + tr.pat.t[i] + D; for (let i = i0; i < n; i++) rows.push(`<li class="${myIco(tr.pat.stops[i]) ? 'mine' : ''}${isAlarm(tr, i) ? ' alm' : ''}"><b>${hhmm(T(i === 0 ? 1 : 2 * i))}</b><span title="${nm(i)}">${myIco(tr.pat.stops[i])}${nm(i)}</span>${D >= 1 ? `<em class="dl ${dlCls(D)}">${v.pre ? '≈' : ''}+${Math.round(D)}</em>` : ''}${i > 0 ? `<button type="button" class="abtn" data-alarm="${i}" title="${'Avísame 2 min antes de llegar aquí'}">${isAlarm(tr, i) ? '🔔' : '🔕'}</button>` : ''}</li>`); }
+      if (tr) { const i0 = la.idx >= 0 ? la.idx : 0, D = v.pre ? Math.max(la.dl, v.preDl || 0) : la.dl, T = i => tr.t0 + tr.pat.t[i] + D; for (let i = i0; i < n; i++) rows.push(`<li class="${myIco(tr.pat.stops[i]) ? 'mine' : ''}${isAlarm(tr, i) ? ' alm' : ''}"><b>${hhmm(cardEta(tr, v, i, T(i === 0 ? 1 : 2 * i)))}</b><span title="${nm(i)}">${myIco(tr.pat.stops[i])}${nm(i)}</span>${D >= 1 ? `<em class="dl ${dlCls(D)}">${v.pre ? '≈' : ''}+${Math.round(D)}</em>` : ''}${i > 0 ? `<button type="button" class="abtn" data-alarm="${i}" title="${'Avísame 2 min antes de llegar aquí'}">${isAlarm(tr, i) ? '🔔' : '🔕'}</button>` : ''}</li>`); }
       h = `<div class="tc" style="--c:${la.c}"><button class="x" data-cx>×</button><div>${chipL(la.fam)}<b>Tren ${esc(tr ? tr.num : v.num)}</b> <span class="lv">● en directo</span></div>${tr ? `<h3 class="rt"><span class="o" title="${nm(0)}">${nm(0)}</span><span class="ar">→</span>${dstP(ST[tr.pat.stops[n - 1]].n, tr.fam)}</h3>` : ''}
         <p>${stTxt}${eta ? ` · prevista ${eta}` : ''}${v.plat && v.st === 'STOPPED_AT' && near ? ` · <b>vía ${esc(v.plat)}</b>` : ''}</p><p>${v.pre && v.prevTr ? (v.preDl >= 1 ? `<span class="st late">Saldrá con unos ${Math.round(v.preDl)} min de retraso (estimado)</span>` : '<span class="st ok">Le da tiempo a salir a su hora (estimado)</span>') : lateTxt(RT.delays.get(v.tid), RT.delays.has(v.tid))}${(() => { const th = tr && trainHist(tr.num); return th && th.n >= 2 ? `<span class="thist">📊 Últimos ${th.n} días: ${th.late ? `${'en'} <b>${th.late} ${'de'} ${th.n} ${'días'}</b> ${'llevó 5 min o más de retraso'}` : '<b>ningún día con 5 min o más</b>'} · ${'retraso típico'} ${th.avg < 0.5 ? '0' : '+' + Math.round(th.avg)} min</span>` : ''; })()}${(() => { const w = tr && whyOf(tr.num); return w ? `<span class="why" title="${esc(w.txt)}">${w.why ? 'Motivo: ' + esc(w.why) : 'Rodalies ha publicado un aviso de este tren'}</span>` : ''; })()}</p>
         <small>${v.pre ? `Renfe ya le pone el número de su próximo viaje. Posición real enviada ${ago(Math.round(la.age) + ' s')}` : v.est ? 'Renfe da una posición que no encaja con su recorrido: se muestra donde debería estar según el horario y su retraso' : `Posición enviada por Renfe ${ago(Math.round(la.age) + ' s')}${la.age > 120 ? ' · <b>sin actualizar</b>' : ''}`}</small>
@@ -815,7 +815,7 @@ export function initRail(A) {
       let state = 'Fuera de servicio ahora';
       if (p) state = p.moving ? `Circulando hacia <b>${nm(p.next)}</b> · llega ${hhmm(T(2 * p.next))}` : (p.at === n - 1 ? `Ha llegado a <b>${nm(n - 1)}</b>` : `Parado en <b>${nm(p.at)}</b> · sale ${hhmm(T(2 * p.at + 1))}`);
       const nx = p ? p.next : 0, rows = [];
-      for (let i = nx; i < n; i++) rows.push(`<li class="${myIco(P.stops[i]) ? 'mine' : ''}${isAlarm(tr, i) ? ' alm' : ''}"><b>${hhmm(T(2 * i))}</b><span title="${nm(i)}">${myIco(P.stops[i])}${nm(i)}</span>${dl >= 1 ? `<em class="dl ${dlCls(dl)}">+${Math.round(dl)}</em>` : ''}${i > 0 ? `<button type="button" class="abtn" data-alarm="${i}" title="${'Avísame 2 min antes de llegar aquí'}">${isAlarm(tr, i) ? '🔔' : '🔕'}</button>` : ''}</li>`);
+      for (let i = nx; i < n; i++) rows.push(`<li class="${myIco(P.stops[i]) ? 'mine' : ''}${isAlarm(tr, i) ? ' alm' : ''}"><b>${hhmm(cardEta(tr, null, i, T(2 * i)))}</b><span title="${nm(i)}">${myIco(P.stops[i])}${nm(i)}</span>${dl >= 1 ? `<em class="dl ${dlCls(dl)}">+${Math.round(dl)}</em>` : ''}${i > 0 ? `<button type="button" class="abtn" data-alarm="${i}" title="${'Avísame 2 min antes de llegar aquí'}">${isAlarm(tr, i) ? '🔔' : '🔕'}</button>` : ''}</li>`);
       h = `<div class="tc" style="--c:${tr.c}"><button class="x" data-cx>×</button><div>${chipL(tr.fam)}<b>Tren ${esc(tr.num)}</b> <span class="pv">previsión</span></div><h3 class="rt"><span class="o" title="${nm(0)}">${nm(0)}</span><span class="ar">→</span>${dstP(ST[tr.pat.stops[n - 1]].n, tr.fam)}</h3>
         <p>${state}</p><p>${lateTxt(d, d != null)}${(() => { const th = trainHist(tr.num); return th && th.n >= 2 ? `<span class="thist">📊 Últimos ${th.n} días: ${th.late ? `${'en'} <b>${th.late} ${'de'} ${th.n} ${'días'}</b> ${'llevó 5 min o más de retraso'}` : '<b>ningún día con 5 min o más</b>'} · ${'retraso típico'} ${th.avg < 0.5 ? '0' : '+' + Math.round(th.avg)} min</span>` : ''; })()}</p><small>Sale ${hhmm(tr.t0 + P.t[1])} · llega ${hhmm(tr.t0 + P.t[2 * n - 2])} (horario)</small>
         ${dl >= 1 ? '<small style="margin-top:6px">Horas con el retraso actual</small>' : ''}<ol class="stops">${rows.join('')}</ol>${crowdHtml(tr.num, '', tr.fam)}<div class="rtb two"><button type="button" data-fav>${isFav(tr) ? '⭐ Es tu tren de cada día' : '☆ Mi tren de cada día'}</button><button type="button" data-follow>${follow === tr ? 'Dejar de seguir' : 'Seguir este tren'}</button></div></div>`;
@@ -954,16 +954,31 @@ export function initRail(A) {
     const o = COV.m.get(f); return o && o[0] >= 3 ? o[1] / o[0] : 1;
   }
   // salida estimada desde la posición REAL del tren (no del retraso que arrastra): los trenes recuperan tiempo entre estaciones
-  function posEta(tr, v, i, S) {
-    if (!tr || !v || v.pre || v.dObs == null || v.err == null || v.err > 0.6 || i < 0) return null;
-    const age = Date.now() / 1000 - v.ts; if (age > 150 || age < -30 || (v.still || 0) >= 90) return null;
-    const sd = pg(tr.pat).stopD, T = tr.pat.t; if (v.dObs > sd[i] + 0.1) return null;   // ya ha pasado
-    let tpos; const j = sd.reduce((b, x, k) => (Math.abs(x - v.dObs) < Math.abs(sd[b] - v.dObs) ? k : b), 0);
-    if (Math.abs(sd[j] - v.dObs) < 0.16 && j <= i) tpos = T[2 * j + 1];   // en una estación: sale ya
-    else { const nx = sd.findIndex(x => x > v.dObs); if (nx <= 0) return null; const f = Math.min(1, Math.max(0, (v.dObs - sd[nx - 1]) / ((sd[nx] - sd[nx - 1]) || 1))); tpos = T[2 * nx - 1] + f * (T[2 * nx] - T[2 * nx - 1]); }
-    const left = T[2 * i + 1] - tpos; if (left < 0 || left > 30) return null;   // solo para trenes que ya se acercan
-    return S.min - age / 60 + left;
+  // ÚNICA regla de horas para un tren con posición real (lista de Ahora, ficha del mapa y tren en el que vas):
+  // desde dónde está ahora, el tiempo que le queda según su horario. Si no hay posición fiable: horario + retraso de Renfe
+  // (y, en tu estación, la hora oficial de Rodalies). Solo se aplica si no se aleja más de −3/+5 min de esa referencia.
+  // ficha del mapa: en tus estaciones manda la hora de la lista de Ahora (Rodalies + posición); en el resto, la regla común
+  function cardEta(tr, v, i, ref) {
+    const sid = ST[tr.pat.stops[i]].id; if ([...HOME.st, ...WORK.st].includes(sid)) { const x = departuresFor(tr.pat.stops[i]).find(y => String(y.num) === String(tr.num)); if (x && !x.gone) return x.est; }   // en tu estación se enseña la hora de SALIDA, la misma que en Ahora
+    return stopEst(tr, v, i, 0, ref);
   }
+  function posBase(tr, v) {
+    if (!tr || !v || v.pre || v.dObs == null || v.err == null || v.err > 0.6) return null;
+    const age = Date.now() / 1000 - v.ts; if (age > 150 || age < -30 || (v.still || 0) >= 90) return null;
+    const sd = pg(tr.pat).stopD, T = tr.pat.t; let tpos, j0;
+    const j = sd.reduce((b, x, k) => (Math.abs(x - v.dObs) < Math.abs(sd[b] - v.dObs) ? k : b), 0);
+    if (Math.abs(sd[j] - v.dObs) < 0.16 || v.atStop === j) { tpos = T[2 * j + 1] ?? T[2 * j]; j0 = j; }   // en una estación: sale ya
+    else { const nx = sd.findIndex(x => x > v.dObs); if (nx <= 0) return null; const f = Math.min(1, Math.max(0, (v.dObs - sd[nx - 1]) / ((sd[nx] - sd[nx - 1]) || 1))); tpos = T[2 * nx - 1] + f * (T[2 * nx] - T[2 * nx - 1]); j0 = nx - 1; }
+    return { t: madrid(new Date()).min - age / 60, tpos, j0, sd };
+  }
+  // hora estimada (minutos del día) de llegada (kind 0) o salida (1) en la parada i; ref = la hora de referencia
+  function stopEst(tr, v, i, kind, ref) {
+    const b = posBase(tr, v); if (!b || i <= b.j0 && !(i === b.j0 && kind === 1)) return ref;
+    const T = tr.pat.t, x = b.t + (T[2 * i + kind] ?? T[2 * i]) - b.tpos; if (x - b.t > 45) return ref;
+    const r = ((ref % 1440) + 1440) % 1440, d = ((x - r + 720) % 1440 + 1440) % 1440 - 720;   // diferencia con la referencia (sin líos de medianoche)
+    return d >= -3 && d <= 5 ? ref + d : ref;
+  }
+  function posEta(tr, v, i, S) { const b = posBase(tr, v); if (!b) return null; const x = stopEst(tr, v, i, 1, b.t + tr.pat.t[2 * i + 1] - b.tpos); return x - S.min > 30 || x < S.min - 1 ? null : x; }
   function departuresFor(s, useHorario) {
     const S = nowState(), useLive = (live() || rtDown()) && S.live && !useHorario, OD = DEPS.get(ST[s].id), out = [];
     const byNum = new Map([...RT.vp.values()].map(v => [String((TID.get(v.tid) || {}).num || v.num), v]));
@@ -985,7 +1000,7 @@ export function initRail(A) {
         if (trS && !v && iS > 0 && !ss) { const kD = R.days.indexOf(S.ymd), offD = trS.day === kD - 1 ? 1440 : trS.day === kD + 1 ? -1440 : 0, d0 = trS.t0 + trS.pat.t[1] - offD; if (S.min < d0) { const minE = d0 + (trS.pat.t[2 * iS + 1] - trS.pat.t[1]); if (minE > est + 1) { est = minE; dubious = true; if (sch != null) dl2 = Math.max(0, est - sch); } } }
         if (sch != null) sm = Math.round(sch);
         // si el tren ya se acerca y su posición dice que llegará antes (hasta 3 min), se adelanta: mejor esperar que perderlo
-        { const pe = v && trS && iS >= 0 ? posEta(trS, v, iS, S) : null; if (pe != null && pe < est - 0.25 && pe > est - 3) { est = Math.max(pe, S.min); if (sch != null) dl2 = Math.max(0, est - sch); } }
+        if (v && trS && iS >= 0) { const pe = stopEst(trS, v, iS, 1, est); if (pe !== est) { est = Math.max(pe, S.min); if (sch != null) dl2 = Math.max(0, est - sch); } }
         out.push({ dubious, rodLive: !!ss, sm, est, dl: dl2, fam: (x.line || {}).id || '', dest: (x.destinationStation || {}).name || '', destId: (x.destinationStation || {}).id || '', plat: x.platformSelectedStation || '', cancel: !!x.trainCancelled, obs: x.trainObservations || '', live: !!v, num, tid: v ? v.tid : '', tr: (v && TID.get(v.tid)) || tripByNum(num), src: 'oficial' });
       }
     } else {
@@ -1380,7 +1395,7 @@ export function initRail(A) {
     const tr = t.tr, st = tr.pat.stops, nx = t.real ? t.v.next : t.p.next; if (nx == null || nx < 0) return '';
     const d = delayOf(tr), dl = typeof d === 'number' ? Math.max(0, d / 60) : 0, k = R.days.indexOf(S.ymd), off = tr.day === k - 1 ? 1440 : 0;
     let j = ALARM && ALARM.num === ONB.tid ? st.indexOf(SID.get(ALARM.sid)) : -1; if (j < nx) j = st.length - 1;
-    const eta = tr.t0 + tr.pat.t[2 * j] + dl - off, left = eta - S.min, at = t.real && t.v.atStop >= 0 ? t.v.atStop : -1;
+    const eta = cardEta(tr, t.real ? t.v : null, j, tr.t0 + tr.pat.t[2 * j] + dl - off), left = eta - S.min, at = t.real && t.v.atStop >= 0 ? t.v.atStop : -1;
     const where = trainWhere(tr.num) || 'Hacia ' + ST[st[nx]].n;
     return `<div class="hplace onbc"><button type="button" class="hhead" data-onbgo><span class="hico">🚆</span><span class="htit"><b>${chipL(tr.fam)} ${'tren\u00a0'}${esc(tr.num)}<i class="hpn onbx" data-onbx title="${'No es este'}">✕</i></b><span class="onbch">${onbAlt(tr).map(t => `<i class="onbalt" data-onbpick="${esc(t.num)}">${'¿Vas en el'} ${esc(t.num)}?</i>`).join('')}</span><small class="nofit cok">${esc(where)} · <span class="nw">${'llegas a'} ${esc(ST[st[j]].n)}</span> <span class="nw">${left >= 1 ? 'en ' + mins(left) + ' · ' : ''}<b>${hhmm(eta)}</b>${dl >= 1 ? ` <em class="dl ${dlCls(dl)}">+${Math.round(dl)}</em>` : ''}</span></small></span><span class="hchev">›</span></button></div>`;
   }
@@ -1577,5 +1592,5 @@ export function initRail(A) {
   tabMode();
   // en Ahora, tus paneles se colocan siempre por encima de los controles (abiertos o cerrados): nada queda tapado
   { const rc = $('#rc'), upd = () => document.documentElement.style.setProperty('--rch', Math.round(rc.getBoundingClientRect().height) + 'px'); if (window.ResizeObserver) new ResizeObserver(upd).observe(rc); upd(); }
-  window.__rod = { ONB, alertForMe, whereAmI, departuresFor, DEPS, tripByNum, delayOf, TID, SID, byDay, get days() { return R.days; }, get hist() { return HIST; }, get past() { return PAST.cur; }, get cols() { return COLS.mesh ? COLS.mesh.count : -1; }, get dist() { return cur.dist; }, get follow() { return follow; }, get selTrip() { return selTrip; }, ST, TR, FAM, act: () => act, setSpeed, RT, pollRT, nowState, posAt, activeTrips, LL, select: tr => { selTrip = tr; renderCard(); } };
+  window.__rod = { cardEta, HOME, WORK, ONB, alertForMe, whereAmI, departuresFor, DEPS, tripByNum, delayOf, TID, SID, byDay, get days() { return R.days; }, get hist() { return HIST; }, get past() { return PAST.cur; }, get cols() { return COLS.mesh ? COLS.mesh.count : -1; }, get dist() { return cur.dist; }, get follow() { return follow; }, get selTrip() { return selTrip; }, ST, TR, FAM, act: () => act, setSpeed, RT, pollRT, nowState, posAt, activeTrips, LL, select: tr => { selTrip = tr; renderCard(); } };
 }
