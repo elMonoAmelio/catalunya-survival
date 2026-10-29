@@ -40,7 +40,8 @@ Familia `Andana` = Barlow Semi Condensed 500 / 600 / 700, embebida (latin + lati
 
 - `ink` sobre `bg`: 16,8:1 oscuro, 16,3:1 claro.
 - Texto #141414 sobre `accent` #ffb000: 11:1. `accent` como texto sobre blanco: 1,9:1, prohibido.
-- **Falla:** `muted` claro (#7a7a7a) da 3,8:1 sobre `bg`. Cambiar a #6b6b6b (4,7:1) en el próximo retoque.
+- `muted` claro #6b6b6b: 4,7:1 sobre `bg` (corregido en 1.33x; antes #7a7a7a, 3,8:1).
+- Letra mínima 10,5–11 px y zonas táctiles de 30 px o más en el móvil (auditoría 29/10).
 - **Ojo:** `bad` oscuro (#dc2626) da 3,8:1 como texto; válido solo en iconos o texto ≥18px.
 - Texto blanco sobre `ok-fill` claro (#16a34a): 3,3:1, válido solo porque el "Sal en" es ≥19px negrita.
 

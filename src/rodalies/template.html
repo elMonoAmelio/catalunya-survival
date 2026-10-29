@@ -10,7 +10,7 @@
 <meta name="generator" content="MonkiSoft">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <style>
-:root{--ink:#141414;--mut:#7a7a7a;--card:rgba(255,255,255,.94);--line:#dedede;--acc:#b10026}
+:root{--ink:#141414;--mut:#6b6b6b;--card:rgba(255,255,255,.94);--line:#dedede;--acc:#b10026}
 *{box-sizing:border-box}html,body{margin:0;height:100%;overflow:hidden;font:13px/1.35 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--ink);background:#f1f1ef}
 html,body{touch-action:pan-y;overscroll-behavior:none}.box,#mcs,#list,#tip{touch-action:pan-y}
 #c{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none;cursor:grab}
@@ -151,7 +151,7 @@ u{text-decoration:none;color:var(--acc);font-size:10px;font-weight:600;opacity:.
 .hcols{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .hcol{min-width:0}.hdir{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--mut);margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .hv{border-radius:11px;padding:8px 9px;color:#fff;margin-bottom:4px}.hv b{display:block;font-size:22px;line-height:1.05;letter-spacing:-.01em}.hv small{display:block;font-size:11px;opacity:.95;margin-top:3px}
-.v-ok{background:linear-gradient(135deg,#0c8a3e,#16a34a)}.v-warn{background:linear-gradient(135deg,#b45309,#f59e0b)}.v-bad{background:linear-gradient(135deg,#991b1b,#dc2626)}.v-no{background:#7a7a7a}
+.v-ok{background:linear-gradient(135deg,#0c8a3e,#16a34a)}.v-warn{background:linear-gradient(135deg,#b45309,#f59e0b)}.v-bad{background:linear-gradient(135deg,#991b1b,#dc2626)}.v-no{background:#6b6b6b}
 .hcol ol{list-style:none;margin:0;padding:0;font-size:11.5px}.hcol li{display:flex;gap:5px;align-items:center;padding:3px 0;border-top:1px solid var(--line)}.hcol li .cd{min-width:42px;font-size:13px;font-variant-numeric:tabular-nums}.hcol li span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.hcol li em{font-style:normal;color:#c2410c;font-weight:700}.hcol li.cx{opacity:.55;text-decoration:line-through}.hcol li .ln{font-size:9.5px;padding:0 3px}
 .hsrc{display:block;margin-top:6px;font-size:10px;color:var(--mut)}
 @media(min-width:641px){#inf{width:380px;max-width:calc(100vw - 340px)!important}}
@@ -200,7 +200,7 @@ em.dl{font-style:normal;font-weight:800;font-size:11px;border-radius:6px;padding
 .stopv{color:#dc2626}
 .lg4{background:#ffd61a;box-shadow:0 0 0 2.5px #ffd61a,0 0 0 4px #fff}.lg5{background:#4a86d8;position:relative}.lg5::after{content:'';position:absolute;inset:2px 3px;border-left:1.5px solid #fff;border-right:1.5px solid #fff}.lg6{background:#4a86d8;box-shadow:0 0 0 2.5px #dc2626}
 .lgi{white-space:nowrap;display:inline-flex;align-items:center;gap:4px;margin-right:6px}.lgd .lgi i{margin-left:0}
-.hcol li .nl{font-style:normal;font-size:10px;font-weight:700;color:#7a7a7a;border:1px solid #bdbdbd;border-radius:6px;padding:0 4px}
+.hcol li .nl{font-style:normal;font-size:10px;font-weight:700;color:#6b6b6b;border:1px solid #bdbdbd;border-radius:6px;padding:0 4px}
 .lvd.ph{visibility:hidden}
 .dst{display:inline-block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:bottom;font-weight:700;border-radius:6px;padding:0 6px;line-height:1.45}
 .tc li span .dst{max-width:calc(100% - 4px)}.tc h3 .dst{font-size:inherit;padding:0 7px;white-space:normal;border-radius:7px}
@@ -539,6 +539,19 @@ html:not(.dark).tabmode.srch[data-tab=now] body::before{background:rgba(20,20,20
 #mbtn.on{background:var(--acc2)!important;color:#141414!important;border-color:var(--acc2)!important}
 #mbtn .ico{width:20px;height:20px}
 #mbtn .ico{display:inline-block!important;width:22px;height:22px}
+/* auditoría 29/10: letra mínima 10,5–11 px y zonas táctiles ≥ 30 px en el móvil (pantallas pequeñas y horizontal) */
+#mode{font-size:11px!important}
+#ccount small.fresh{font-size:11px!important}
+.asrc{font-size:10.5px!important}
+.sv2 small{font-size:11px!important}
+html.tabmode #alr{min-height:30px;padding-top:5px;padding-bottom:5px}
+html.tabmode #lines button{min-height:30px;min-width:30px}
+html.tabmode #mcs .tc .x,html.tabmode #mcs .tc .mn{min-width:34px;min-height:34px}
+html.tabmode #mcs .abtn{padding:8px!important;margin:-8px -8px -8px 0!important;box-sizing:content-box}
+html.tabmode #tabs button{min-height:36px}
+html.tabmode #mcs [data-sf]{min-height:30px;min-width:32px}
+#mcs li span.ln,#mcs li i.via{font-size:11px!important}
+html.dark .tc .pv{color:#fb923c!important}html:not(.dark) .tc .pv{color:#c2410c!important}
 </style>
 </head>
 <body>
@@ -555,7 +568,7 @@ html:not(.dark).tabmode.srch[data-tab=now] body::before{background:rgba(20,20,20
   <label class="cam">Inclinación<span class="dk"> (rueda)</span><input id="tilt" type="range" min="0" max="76" step="1" value="0"></label>
   <label class="cam">Giro<span class="dk"> (Option + rueda)</span><input id="yaw" type="range" min="-180" max="180" step="1" value="0"></label>
 </div>
-<button class="box" id="dtoggle">En directo: conectar datos de Renfe ▾</button>
+<button class="box" id="dtoggle">Datos en directo ▾</button>
 <div class="box" id="dp"><div id="dbody"><p id="rtst"></p>
   <p>La posición en directo de Renfe no se puede leer desde una web sin un <b>puente</b> (su servidor no lo permite). Sin puente, los trenes se mueven según el <b>horario oficial</b>.</p>
   <label class="rtl">Dirección del puente<input id="rturl" type="url" placeholder="https://rodalies.tu-nombre.workers.dev" autocomplete="off" spellcheck="false"></label>

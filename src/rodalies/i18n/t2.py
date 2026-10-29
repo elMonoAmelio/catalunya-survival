@@ -275,4 +275,6 @@ T = {
 'Renfe no lo localiza: puede no pasar': ('Renfe no el localitza: pot no passar', "Renfe can't locate it: it may not come"),
 'Buscar una estación': ('Cercar una estació', 'Find a station'),
 'Siguiente': ('Següent', 'Next'),
+'Datos en directo ▾': ('Dades en directe ▾', 'Live data ▾'),
+'Datos en directo ▴': ('Dades en directe ▴', 'Live data ▴'),
 }
