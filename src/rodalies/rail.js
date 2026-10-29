@@ -786,10 +786,9 @@ export function initRail(A) {
     if (off) { if (m && m._fit) { ['max-height', 'bottom', 'height', 'right', 'width'].forEach(k => m.style.removeProperty(k)); m._fit = 0; } return; }
     const top = m.getBoundingClientRect().top, lim = rc.getBoundingClientRect().top - 8, h = Math.max(140, Math.floor(lim - top));
     const zr = z && z.getClientRects().length ? z.getBoundingClientRect() : null, right = zr ? Math.max(10, Math.ceil(innerWidth - zr.left + 8)) : 10;
-    const key = h + '|' + right; if (m._fit === key) return; m._fit = key;
-    m.style.setProperty('max-height', h + 'px', 'important'); m.style.setProperty('height', 'auto', 'important'); m.style.setProperty('bottom', 'auto', 'important');
-    m.style.setProperty('width', 'auto', 'important'); m.style.setProperty('right', right + 'px', 'important'); } catch (e) {} }   // alto y ancho medidos en pantalla: nunca bajo «Más opciones» ni bajo los botones + − ⌂ brújula
-  setInterval(() => { if (TAB.on && TAB.cur === 'map') fitMcs(); }, 700);
+    m._fit = h + '|' + right; const S = m.style, want = { 'max-height': h + 'px', height: 'auto', bottom: 'auto', width: 'auto', right: right + 'px' };   /* otro código reescribe width/maxHeight (y Safari puede dejarlo marcado !important): se compara valor Y prioridad */
+    for (const k in want) if (S.getPropertyValue(k) !== want[k] || S.getPropertyPriority(k) !== 'important') S.setProperty(k, want[k], 'important'); } catch (e) {} }   // alto y ancho medidos en pantalla: nunca bajo «Más opciones» ni bajo los botones + − ⌂ brújula
+  setInterval(() => { if (TAB.on && TAB.cur === 'map') fitMcs(); }, 700); try { new MutationObserver(() => fitMcs()).observe(mcs, { attributes: true, attributeFilter: ['style', 'class'] }); } catch (e) {} window.__fitMcs = fitMcs;
   // diagnóstico en el dispositivo (?dbg=1): medidas reales de la ficha para comparar con lo que se ve
   if (/[?&]dbg=1/.test(location.search)) { const d = document.createElement('pre'); d.id = 'dbgbox'; d.style.cssText = 'position:fixed;left:4px;top:4px;z-index:999;background:rgba(0,0,0,.85);color:#0f0;font:11px/1.25 monospace;padding:6px;margin:0;pointer-events:none;max-width:70vw;white-space:pre-wrap'; document.body.appendChild(d);
     setInterval(() => { try { const r = e => { const x = document.querySelector(e); if (!x || !x.getClientRects().length) return '—'; const b = x.getBoundingClientRect(); return [b.left, b.top, b.right, b.bottom].map(Math.round).join(','); }, cs = getComputedStyle(mcs);
@@ -887,6 +886,7 @@ export function initRail(A) {
     if (sm) { const ib = $('#inf').getBoundingClientRect().bottom; mcs.style.top = Math.round(ib + 8) + 'px'; mcs.style.width = 'calc(100vw - 76px)'; mcs.style.maxHeight = Math.max(140, $('#rc').getBoundingClientRect().top - ib - 16) + 'px'; }
     else if (innerHeight <= 500) { const ib = $('#inf').getBoundingClientRect().bottom; mcs.style.top = Math.round(ib + 8) + 'px'; mcs.style.width = 'min(290px, 40vw)'; mcs.style.maxHeight = (innerHeight - ib - 20) + 'px'; }
     else { mcs.style.top = ''; mcs.style.width = selStats ? '390px' : '300px'; mcs.style.maxHeight = ''; }
+    fitMcs();
     const x = mcs.querySelector('[data-cx]'); if (x) x.onclick = e => { e.stopPropagation(); renderCard.done = 0; if (selStats || selNews || selAlerts || (selLine && !selTrip && selStation < 0)) { selStats = selNews = selAlerts = false; if (!(selTrip || selStation >= 0)) selLine = ''; mcs._h = ''; renderCard(); invalidate(); return; } /* cerrar estadísticas, avisos o novedades devuelve a la ficha que tenías */
       if (selTrip && BACK.st >= 0) { const b = BACK.st; BACK.st = -1; selTrip = null; follow = null; selStation = b; styleStations(); mcs._h = ''; renderCard(); lastT = 0; invalidate(); return; }   // tren abierto desde una estación: se vuelve a la estación
       BACK.st = -1; selAlerts = false; selNews = false; selStats = false; selTrip = null; selStation = -1; follow = null; styleStations(); renderCard(); lastT = 0; invalidate(); };
