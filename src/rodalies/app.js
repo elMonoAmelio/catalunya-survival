@@ -441,7 +441,7 @@ function renderPanels() {
 document.querySelectorAll('[data-tab]').forEach(b => b.onclick = () => { tab = b.dataset.tab; renderPanels(); $('#dbody').scrollTop = 0; });
 // ---------- gestos para apartar paneles (móvil) ----------
 const rcEl = $('#rc'), mtab = $('#mcstab');
-function rcMin(on) { rcEl.classList.toggle('min', on); $('#rcgrab span').textContent = on ? 'Mostrar controles' : 'Ocultar controles'; if (sels.length) renderCards(); }
+function rcMin(on) { rcEl.classList.toggle('min', on); $('#rcgrab span').textContent = on ? 'Más opciones' : 'Menos opciones'; if (sels.length) renderCards(); }
 function mcsMin(on) { mcs.classList.toggle('min', on); mcs.style.transform = ''; mcs.style.opacity = ''; mtab.classList.toggle('on', on && sels.length > 0); if (on) { mtab.textContent = `▸ ${sels.length} ${sels.length === 1 ? 'ficha' : 'fichas'}`; mtab.style.top = mcs.style.top || '124px'; } }
 function swipe(el, { onMove, onEnd, axis }) {
   let s0 = null;
@@ -493,3 +493,4 @@ requestAnimationFrame(frame);
 initRail({ scene, camera, renderer, goal, cur, invalidate, flyTo: (x, y, dist, tilt) => { Object.assign(goal, { tx: (x - CX) * K, ty: (y - CY) * K, dist, tilt }); invalidate(); }, K, CX, CY, mcs, q, list, munis, select, norm, fmt, clamp, mcsMin });
 window.__app = { scene, renderer, camera, munis, labs, goal, cur, select, get mode() { return mode; } };
 window.__ready = true;
+{ const b = document.getElementById('ttb'), p = document.getElementById('p'); if (b && p) b.addEventListener('click', () => { const on = p.classList.toggle('tt'); b.textContent = on ? 'Ocultar la hora' : 'Ver otra hora'; }); }
