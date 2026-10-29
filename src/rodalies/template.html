@@ -352,7 +352,7 @@ html.tabmode[data-tab=now] #home .htit small b{font-size:18px}
 html.tabmode[data-tab=now] .hnowh>.hnowl>b{font-size:15px}
 .htit small .nw,.hro .nw{white-space:nowrap}.hro.hro1{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}html.big .hro.hro1{white-space:normal}
 /* Ajustes → Texto grande: todo Ahora un 18 % mayor */
-html.big.tabmode #inf,html.big.tabmode #mcs,html.big.tabmode #tabA{zoom:var(--tz,1.18)}
+html.big.tabmode #inf,html.big.tabmode #mcs>*,html.big.tabmode #tabA{zoom:var(--tz,1.18)}   /* texto grande: se amplía el CONTENIDO de la ficha, no la caja; así la caja se mide y se limita en píxeles reales (antes se pasaba de «Más opciones») */
 /* Ahora: bloque de avisos de tus líneas */
 .hnow{display:none}
 html.tabmode .hnow{display:block;background:#f2f2f0;border-radius:12px;padding:8px 10px;margin:0 0 8px;font-size:12.5px;color:var(--ink)}
