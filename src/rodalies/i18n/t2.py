@@ -179,4 +179,6 @@ T = {
 "En unos ": ("D'aquí a uns ", "In about "),
 " a ": (" a ", " to "),
 "¡sal ya!": ("surt ja!", "leave now!"),
+"según horario · Rodalies no lo anuncia": ("segons l'horari · Rodalies no l'anuncia", "by timetable · not announced by Rodalies"),
+"Rodalies no anuncia este tren: hora según el horario oficial": ("Rodalies no anuncia aquest tren: hora segons l'horari oficial", "Rodalies does not announce this train: time from the official timetable"),
 }
