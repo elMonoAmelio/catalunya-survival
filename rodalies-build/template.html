@@ -532,6 +532,12 @@ html:not(.dark).tabmode.srch[data-tab=now] #s,html:not(.dark).tabmode.srch[data-
 html.tabmode.srch[data-tab=now] body::before{content:'';position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:79}
 html:not(.dark).tabmode.srch[data-tab=now] body::before{background:rgba(20,20,20,.45)}
 #list li{justify-content:flex-start!important;align-items:center}#list li>.ico{margin-right:-2px}#list li>em{margin-left:auto}
+/* Safari: 100vh incluye la barra del navegador; con dvh la ficha del tren acaba encima de «Más opciones» y se ven sus botones */
+@supports (height:100dvh){html.tabmode[data-tab=map] #mcs{max-height:calc(100dvh - 64px - var(--tbh) - 70px - var(--sat0) - var(--sab0))!important}}
+/* botón de municipios: apagado blanco con icono negro; encendido ámbar con icono negro (nunca negro sobre negro) */
+#mbtn{color:var(--ink)}
+#mbtn.on{background:var(--acc2)!important;color:#141414!important;border-color:var(--acc2)!important}
+#mbtn .ico{width:20px;height:20px}
 </style>
 </head>
 <body>
