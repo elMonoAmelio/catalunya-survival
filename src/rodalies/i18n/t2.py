@@ -196,4 +196,7 @@ T = {
 "pasan": ("passen", "run"),
 "trenes": ("trens", "trains"),
 "de un día normal": ("d'un dia normal", "of a normal day"),
+"Servicios mínimos por huelga": ("Serveis mínims per vaga", "Strike minimum services"),
+"Servicio reducido hoy": ("Servei reduït avui", "Reduced service today"),
+"ya incluido en el horario": ("ja inclòs a l'horari", "already in the timetable"),
 }

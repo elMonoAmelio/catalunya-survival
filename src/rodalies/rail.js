@@ -1313,7 +1313,7 @@ export function initRail(A) {
     // avisos nuevos se ven enteros; una vez leídos (tocando la cabecera) se recogen en una línea hasta que llegue otro nuevo
     const unseen = al.filter(a => !NOW.seen.has(a.id)), exp = al.length && (NOW.open || unseen.length > 0);
     const sv = al.reduce((m, a) => Math.max(m, sevOf(a)), 0);
-    return `<div class="hnow${sv === 3 ? ' bad' : sv === 2 ? ' warn' : sv === 1 ? ' info' : ''}${al.length && !exp ? ' col' : ''}" data-nowx="${esc(al.map(a => a.id).join('|'))}">${head}${exp ? al.slice().sort((a, b) => sevOf(b) - sevOf(a)).map(a => `<p class="sv${sevOf(a)}">${srcB(a)} ${esc(a.txt)} <small>${whenTxt(a)}</small></p>`).join('') + `<small class="hnowt">${'Toca aquí para recogerlo'}</small>` : ''}</div>`;
+    return `<div class="hnow${sv === 3 ? ' bad' : sv === 2 ? ' warn' : sv === 1 ? ' info' : ''}${al.length && !exp ? ' col' : ''}" data-nowx="${esc(al.map(a => a.id).join('|'))}">${head}${reducedHtml(tg, true)}${exp ? al.slice().sort((a, b) => sevOf(b) - sevOf(a)).map(a => `<p class="sv${sevOf(a)}">${srcB(a)} ${esc(a.txt)} <small>${whenTxt(a)}</small></p>`).join('') + `<small class="hnowt">${'Toca aquí para recogerlo'}</small>` : ''}</div>`;
   }
   // Ahora: la línea «Sal en… · vía · hora → hora» siempre en una sola línea; si no cabe, se reduce un poco la letra (mín. 86 %)
   // el tren elegido vale solo para hoy (el mismo número circula cada día): se guarda con la fecha
@@ -1342,14 +1342,15 @@ export function initRail(A) {
   function reducedToday(lines) {
     const S = nowState(), k = R.days.indexOf(S.ymd); if (k < 0 || !lines.length) return null;
     // se cuenta en TU estación (casa, si no trabajo): «por Vilassar de Mar pasan 90 de 190»; si no hay, por líneas
-    const si = curSt(HOME) ?? curSt(WORK), key = S.ymd + lines.join() + si; if (RED.k === key) return RED.v; RED.k = key;
+    const WA = whereAmI(), si = (WA && curSt(WA)) ?? curSt(HOME) ?? curSt(WORK), key = S.ymd + lines.join() + si; if (RED.k === key) return RED.v; RED.k = key;
     const fs = new Set(lines), cnt = si != null ? kk => byDay[kk].filter(t => { const i = t.pat.stops.indexOf(si); return i >= 0 && i < t.pat.stops.length - 1; }).length : kk => byDay[kk].filter(t => fs.has(t.fam)).length, typ = ymd => { const d = new Date(+ymd.slice(0, 4), +ymd.slice(4, 6) - 1, +ymd.slice(6)).getDay(); return d === 0 ? 0 : d === 6 ? 6 : 1; };
     const n = cnt(k), ref = Math.max(0, ...R.days.map((d, kk) => kk !== k && typ(d) === typ(S.ymd) ? cnt(kk) : 0));
     RED.v = ref >= 20 && n < ref * 0.8 ? { n, ref, pct: Math.round(n / ref * 100), st: si != null ? ST[si].n : '' } : null; return RED.v;
   }
-  function reducedHtml(tg) {
+  function reducedHtml(tg, inline) {
     const lines = tg.lines || [], r = reducedToday(lines); if (!r) return '';
     const strike = RT.alerts.some(a => [...a.fams].some(f => lines.includes(f)) && /huelga|vaga\b|servicios? m[ií]nimos|serveis m[ií]nims/i.test((a.es || '') + ' ' + a.txt));
+    if (inline) return `<div class="hnowred">🗓️ <b>${strike ? 'Servicios mínimos por huelga' : 'Servicio reducido hoy'}</b>: ${r.st ? `${'por'} ${esc(r.st)} ${'pasan'} ${r.n} ${'de'} ${r.ref} ${'trenes'}` : `${r.n} ${'de'} ${r.ref} ${'trenes'}`} (${r.pct} %) · ${'ya incluido en el horario'}</div>`;
     return `<div class="hred">🗓️ <b>${strike ? 'Hoy hay servicios mínimos por huelga' : 'Hoy el servicio es reducido'}</b> · ${'el horario oficial de hoy ya lo incluye'}: ${r.st ? `${'por'} ${esc(r.st)} ${'pasan'} ${r.n} ${'de'} ${r.ref} ${'trenes'}` : `${r.n} ${'de'} ${r.ref} ${'trenes de'} ${lines.join(', ')}`} (${r.pct} % ${'de un día normal'}).</div>`;
   }
   function noPosHtml(tg) {
@@ -1370,7 +1371,7 @@ export function initRail(A) {
   function renderHome(force) {
     const el = $('#home'); if (!el) return;
     const now = performance.now(); if (!force && now - homeT < 4000) return; homeT = now;
-    const S = nowState(), DK = [], tg = pushTarget(), far = P => { const i = curSt(P); return i == null || !NEAR.w ? 1 : Math.hypot(ST[i].w[0] - NEAR.w[0], ST[i].w[1] - NEAR.w[1]); }, ORD = [NEAR, ...[HOME, WORK].sort((a, b) => far(a) - far(b))], html = (document.documentElement.classList.contains('tabmode') ? nowBlock(tg) : '') + reducedHtml(tg) + noPosHtml(tg) + onbHtml(S) + ORD.map(P => placeHtml(P, S, DK)).join('') + (PLACES.some(P => P.open) && tg.lines.length ? `${(() => { return ''; const srv = !!RT.repOk, on = srv ? PUSH.on : LN.on; return `<div class="hpush"><span>🔔 Avisos de ${tg.lines.join(', ')}<small>${srv ? (on ? 'Activados: incidencias oficiales, de Adif y de viajeros' : 'Te llegan aunque tengas la app cerrada') : (on ? 'Activados mientras la app esté abierta' : 'Incidencias nuevas de tus líneas mientras la app esté abierta')}</small></span><button type="button" data-push class="${on ? 'on' : ''}">${on ? 'Desactivar' : 'Activar'}</button></div>`; })()}` : '');
+    const S = nowState(), DK = [], tg = pushTarget(), far = P => { const i = curSt(P); return i == null || !NEAR.w ? 1 : Math.hypot(ST[i].w[0] - NEAR.w[0], ST[i].w[1] - NEAR.w[1]); }, ORD = [NEAR, ...[HOME, WORK].sort((a, b) => far(a) - far(b))], html = (document.documentElement.classList.contains('tabmode') ? nowBlock(tg) : reducedHtml(tg)) + noPosHtml(tg) + onbHtml(S) + ORD.map(P => placeHtml(P, S, DK)).join('') + (PLACES.some(P => P.open) && tg.lines.length ? `${(() => { return ''; const srv = !!RT.repOk, on = srv ? PUSH.on : LN.on; return `<div class="hpush"><span>🔔 Avisos de ${tg.lines.join(', ')}<small>${srv ? (on ? 'Activados: incidencias oficiales, de Adif y de viajeros' : 'Te llegan aunque tengas la app cerrada') : (on ? 'Activados mientras la app esté abierta' : 'Incidencias nuevas de tus líneas mientras la app esté abierta')}</small></span><button type="button" data-push class="${on ? 'on' : ''}">${on ? 'Desactivar' : 'Activar'}</button></div>`; })()}` : '');
     el.className = PLACES.some(P => P.open) ? 'open' : '';
     let bell = $('#bell'); if (!bell) { bell = document.createElement('button'); bell.type = 'button'; bell.id = 'bell'; bell.onclick = pushToggle; $('#inf .more').prepend(bell); }   // dentro del desplegable ▾
     { const on = RT.repOk ? PUSH.on : LN.on; bell.hidden = !tg.lines.length; bell.className = on ? 'on' : ''; bell.textContent = (on ? '🔔 Avisos activados · ' : '🔕 Activar avisos de ') + tg.lines.join(', '); bell.title = (on ? 'Avisos activados' : 'Activar avisos') + ' de ' + tg.lines.join(', ') + (RT.repOk ? '' : ' (mientras la app esté abierta)'); }
