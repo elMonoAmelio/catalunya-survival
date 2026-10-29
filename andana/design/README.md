@@ -8,6 +8,7 @@ Trenes de Rodalies en directo. Diseño de andén: negro, gris neutro y un único
 - **Neutros, no azules.** Fondos y superficies son grises puros (`bg`, `surface`, `surface-2`). La paleta navy anterior está retirada.
 - **El color significa estado, nunca decoración.** Verde (`ok`) llegas, naranja (`warn`) retraso o servicios mínimos, rojo (`bad`) no hay tren. Una huelga con servicios mínimos es naranja, no roja.
 - **Sólido, sin cristal.** Sin `backdrop-filter` (retirado en 1.295 por batería). Sin degradados salvo los del bloque "Sal en".
+- **La urgencia nunca es ámbar.** No llegas y cancelado en rojo (`v-miss` #7f1d1d→#b91c1c; texto #f87171 oscuro / #b91c1c claro); sin localizar y prisa en naranja (#fb923c / #c2410c). El ámbar queda para lo tuyo.
 - **Las líneas usan su color oficial** (`line-R1`…): solo en chips, trazado del mapa y columnas 3D, nunca como fondo de texto largo.
 
 ## Tipografía
