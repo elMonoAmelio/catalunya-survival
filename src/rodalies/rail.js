@@ -959,7 +959,7 @@ export function initRail(A) {
   // líneas en las que, según horario, deberían circular trenes y Renfe no da la posición de ninguno
   const noPosFams = fams => { if (!live()) return []; famCov(''); return [...fams].filter(f => { const o = COV.m.get(f); return o && o[0] >= 2 && o[1] === 0; }).sort(natural); };
   function famCov(f) {
-    if (Date.now() - COV.at > 60000) { COV.at = Date.now(); COV.m = new Map(); const S = nowState(), k = R.days.indexOf(S.ymd); if (k >= 0) for (const tr of byDay[k]) { const a = S.min - tr.t0; if (a < tr.pat.t[1] + 3 || a > tr.pat.t[tr.pat.t.length - 2] - 3) continue; const o = COV.m.get(tr.fam) || [0, 0]; o[0]++; if (RT.vp.has(tr.tid)) o[1]++; COV.m.set(tr.fam, o); } }
+    if (Date.now() - COV.at > 60000 || COV.vp !== RT.vp) { COV.at = Date.now(); COV.vp = RT.vp; COV.m = new Map(); /* también al llegar posiciones nuevas: al abrir la app no esperar 1 min con «Previsión» */ const S = nowState(), k = R.days.indexOf(S.ymd); if (k >= 0) for (const tr of byDay[k]) { const a = S.min - tr.t0; if (a < tr.pat.t[1] + 3 || a > tr.pat.t[tr.pat.t.length - 2] - 3) continue; const o = COV.m.get(tr.fam) || [0, 0]; o[0]++; if (RT.vp.has(tr.tid)) o[1]++; COV.m.set(tr.fam, o); } }
     const o = COV.m.get(f); return o && o[0] >= 3 ? o[1] / o[0] : 1;
   }
   // salida estimada desde la posición REAL del tren (no del retraso que arrastra): los trenes recuperan tiempo entre estaciones
