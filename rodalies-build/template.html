@@ -495,6 +495,14 @@ html.tabmode #p.ttf #ttb{display:none}
 #hfind{display:none}
 html.tabmode #hfind{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin:8px 0 2px;padding:12px;min-height:44px;border:1px dashed var(--line,#2a2a2a);border-radius:8px;background:transparent;color:inherit;font:inherit;font-size:15px;font-weight:600;cursor:pointer}
 html.tabmode.srch[data-tab=now] #s{display:block!important;position:fixed;top:calc(env(safe-area-inset-top,0px) + 10px);left:12px;right:12px;width:auto;z-index:80;box-shadow:0 10px 40px rgba(0,0,0,.55)}
+/* urgencia: rojo y naranja, nunca el ámbar (el ámbar es «lo tuyo»: tren elegido, pestaña activa) */
+.v-miss{background:linear-gradient(135deg,#7f1d1d,#b91c1c)}
+#home .htit small.cwarn{color:#fb923c!important}
+#home .htit small.cbad{color:#f87171!important}
+.hcol li.u-miss .hrt small,.hcol li.cx .hrt small{color:#f87171!important}
+html:not(.dark) #home .htit small.cwarn{color:#c2410c!important}
+html:not(.dark) #home .htit small.cbad{color:#b91c1c!important}
+html:not(.dark) .hcol li.u-miss .hrt small,html:not(.dark) .hcol li.cx .hrt small{color:#b91c1c!important}
 </style>
 </head>
 <body>
