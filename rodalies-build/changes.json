@@ -46,5 +46,9 @@
  "1.345": {
   "ca": "Un sol «tren triat»: tocar el requadre gran el tria com la fila (sense anar al mapa); al mapa «Triar aquest tren» el tria també a Ara i «Treure el tren triat» el treu de tot arreu",
   "en": "One single «chosen train»: tapping the big box chooses it like the row (without going to the map); on the map «Choose this train» also chooses it in Now and «Remove chosen train» removes it everywhere"
+ },
+ "1.347": {
+  "ca": "Tren triat i «vas al» són el mateix: si has triat un tren, la detecció automàtica només reconeix aquest (fins a 90 min després de sortir); un altre tren només si el confirmes, i llavors passa a ser el teu tren triat",
+  "en": "Chosen train and «on train» are the same: if you chose a train, automatic detection only recognises that one (up to 90 min after it leaves); another train only if you confirm it, and it then becomes your chosen train"
  }
 }

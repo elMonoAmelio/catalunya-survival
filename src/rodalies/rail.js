@@ -908,7 +908,7 @@ export function initRail(A) {
     mcs.querySelectorAll('[data-sf]').forEach(b => b.onclick = e => { e.stopPropagation(); const f = b.dataset.sf; if (!f) stF.f.clear(); else if (stF.f.has(f)) stF.f.delete(f); else stF.f.add(f); mcs._h = ''; renderCard(); });
     mcs.querySelectorAll('[data-gt]').forEach(li => li.onclick = () => { BACK.st = selStation; const [num, tid] = li.dataset.gt.split('|'); const tr = TID.get(tid); goTrain({ num, tid: RT.vp.has(tid) ? tid : '', tr: tr || null }); });
     mcs.querySelectorAll('[data-sethome]').forEach(b => b.onclick = () => setHome(selStation, b.dataset.sethome));
-    const fb = mcs.querySelector('[data-follow]'); if (fb) fb.onclick = () => { const was = follow === selTrip; follow = was ? null : selTrip; if (!was && selTrip && selTrip.num != null) { const st = selTrip.pat.stops, n = String(selTrip.num); let bestP = null, bestE = 1e9; for (const P of [NEAR, HOME, WORK]) { const s = curSt(P); if (s == null || !st.includes(s) || (P === NEAR && !NEAR.st.length)) continue; const y = departuresFor(s).find(z => String(z.num) === n && !z.gone); if (y && y.est < bestE) { bestE = y.est; bestP = P; } } if (bestP) pinSet(bestP.key, n); renderHome(true); }   // se elige en la primera de tus estaciones por la que pasará   /* elegir en el mapa = elegir en Ahora (un solo concepto: «tren elegido») */ if (was && selTrip && selTrip.num != null) { const n = String(selTrip.num); [...PIN].forEach(([k, v]) => { if (String(v) === n) pinSet(k, null); }); if (ONB.tid === n) { ONB.tid = ''; ONB.manual = 0; ONB.quiet = Date.now() + 10 * 60000; } if (ALARM && ALARM.num === n) { ALARM = null; saveAlarm(); if (window.__schedOff) window.__schedOff(7701); } renderHome(true); }   /* dejar de seguir también lo quita de Ahora (tren elegido, «vas en», aviso de llegada) */ if (follow) { goal.dist = Math.min(goal.dist, 22); if (innerWidth <= 640) { mcs.classList.add('peek'); mcs.scrollTop = 0; const rc = $('#rc'); if (!rc.classList.contains('min')) $('#rcgrab').click(); } } else mcs.classList.remove('peek'); mcs._h = ''; renderCard(); invalidate(); };
+    const fb = mcs.querySelector('[data-follow]'); if (fb) fb.onclick = () => { const was = follow === selTrip; follow = was ? null : selTrip; if (!was && selTrip && selTrip.num != null) { const st = selTrip.pat.stops, n = String(selTrip.num); let bestP = null, bestE = 1e9; for (const P of [NEAR, HOME, WORK]) { const s = curSt(P); if (s == null || !st.includes(s) || (P === NEAR && !NEAR.st.length)) continue; const y = departuresFor(s).find(z => String(z.num) === n && !z.gone); if (y && y.est < bestE) { bestE = y.est; bestP = P; } } if (bestP) pinSet(bestP.key, n); renderHome(true); }   // se elige en la primera de tus estaciones por la que pasará   /* elegir en el mapa = elegir en Ahora (un solo concepto: «tren elegido») */ if (was && selTrip && selTrip.num != null) { const n = String(selTrip.num); [...PIN].forEach(([k, v]) => { if (String(v) === n) pinSet(k, null); }); if (LASTPIN.num === n) LASTPIN.num = ''; if (ONB.tid === n) { ONB.tid = ''; ONB.manual = 0; ONB.quiet = Date.now() + 10 * 60000; } if (ALARM && ALARM.num === n) { ALARM = null; saveAlarm(); if (window.__schedOff) window.__schedOff(7701); } renderHome(true); }   /* dejar de seguir también lo quita de Ahora (tren elegido, «vas en», aviso de llegada) */ if (follow) { goal.dist = Math.min(goal.dist, 22); if (innerWidth <= 640) { mcs.classList.add('peek'); mcs.scrollTop = 0; const rc = $('#rc'); if (!rc.classList.contains('min')) $('#rcgrab').click(); } } else mcs.classList.remove('peek'); mcs._h = ''; renderCard(); invalidate(); };
   }
   window.__rodCard = renderCard;
   // ventana de información plegable (se recuerda) y novedades de la versión
@@ -1091,6 +1091,10 @@ export function initRail(A) {
   setTimeout(() => locate(true), 400);
   // ---------- ¿vas en un tren? si te mueves por la vía a velocidad de tren, la app lo busca y lo sigue ----------
   const ONB = { fixes: [], tid: '', no: new Map(), shown: '' };
+  // tren elegido y tren en el que vas son el MISMO tren en dos momentos: antes de subir (elegido) y después (vas en él).
+  // Si has elegido uno, la detección automática solo acepta ese (hasta 90 min después de que salga); otro solo si tú lo confirmas.
+  const LASTPIN = { num: '', until: 0 };
+  const chosenNums = () => { const s = new Set([...PIN.values()].map(String)); if (LASTPIN.num && LASTPIN.until > Date.now()) s.add(LASTPIN.num); return s; };
   function onboardCheck() {
     const F = ONB.fixes; if (F.length < 2) return;
     const a = F[F.length - 1], b = F.slice().reverse().find(f => a.t - f.t >= 8000 && a.t - f.t <= 90000); if (!b) return;
@@ -1114,8 +1118,9 @@ export function initRail(A) {
     // si Renfe no da tu tren (o no publica nada), se busca entre los trenes del horario con algo más de margen
     let best = null, bd = 2.5;
     const cands = act.filter(t => t.real), byH = activeTrips(nowState()).out.filter(t => t.tr && !cands.some(c => c.tr && String(c.tr.num) === String(t.tr.num)));
+    const CH = chosenNums();
     for (const t of [...cands, ...byH]) {
-      if (!t.tr) continue; const lim = t.real ? 2.5 : 3.5; const d = Math.hypot(t.p.w[0] - a.w[0], t.p.w[1] - a.w[1]) * a.k; if (d > Math.min(bd, lim) || best && best.real && !t.real) continue;
+      if (!t.tr) continue; if (CH.size && !CH.has(String(t.tr.num))) continue;   /* con tren elegido, solo ese */ const lim = t.real ? 2.5 : 3.5; const d = Math.hypot(t.p.w[0] - a.w[0], t.p.w[1] - a.w[1]) * a.k; if (d > Math.min(bd, lim) || best && best.real && !t.real) continue;
       const nx = t.real ? t.v.next : t.p.next; if (nx == null || nx < 0) continue; const ns = ST[t.tr.pat.stops[nx]].w, hv = [ns[0] - t.p.w[0], ns[1] - t.p.w[1]];
       if (hv[0] * mv[0] + hv[1] * mv[1] <= 0) continue;   // va en sentido contrario
       const key = String(t.tr.num); if ((ONB.no.get(key) || 0) > Date.now()) continue;
@@ -1206,7 +1211,7 @@ export function initRail(A) {
     if (refSet && !groups.to.length && deps.length < depsAll.length) { const extra = depsAll.filter(x => !deps.includes(x) && dirOf(sidx, x, ref, refSet) === 'to'); if (extra.length) { groups.to = extra; toAll = [...new Set(extra.map(x => x.fam))].sort(natural).join(', '); } }
     const label = g => { if (g === 'all') return 'Próximas salidas · todas las direcciones'; const famOf = arr => (arr.find(x => x.fam) || {}).fam; if (g === 'to') return 'Hacia ' + dstP(refName === 'Barcelona' ? 'Barcelona' : ST[ref].n, famOf(groups.to) || [...fams][0]) + (() => { const fs = filtered && !toAll ? [...fams].filter(f => groups.to.some(x => x.fam === f)).sort(natural) : []; return fs.length ? `<span class="hwf" title="${'Filtro de líneas activo'}">${fs.map(chipL).join('')}</span>` : ''; })(); const ds = []; for (const x of groups[g]) if (!ds.some(d => d[0] === x.dest)) ds.push([x.dest, x.fam]); return ds.length ? 'Hacia ' + ds.slice(0, 2).map(([d, f]) => dstP(d, f)).join(' ') : 'Otros'; };
     const pn = PIN.get(P.key);
-    if (pn && !depsAll.some(y => String(y.num) === pn && !y.gone)) pinSet(P.key, null);   // ya ha salido o ya no está: se suelta
+    if (pn && !depsAll.some(y => String(y.num) === pn && !y.gone)) { LASTPIN.num = pn; LASTPIN.until = Date.now() + 90 * 60000; pinSet(P.key, null); }   // ya ha salido o ya no está: se suelta (y se recuerda para reconocerlo al ir dentro)
     const verdict = g => {
       const xp = pn && groups[g].find(y => String(y.num) === pn && !y.gone);
       if (xp && xp.cancel) return { cls: 'v-miss', pin: 1, x: xp, big: 'Cancelado', small: `${hhmm(xp.est)} · ${xp.fam} a ${xp.dest}${xp.num ? ' · ' + 'tren\u00a0' + xp.num : ''}`, warn: '' };
@@ -1444,8 +1449,9 @@ export function initRail(A) {
   }
   const HOLD = { until: 0 };   // mientras tocas Ahora no se repinta (si no, el toque se pierde)
   function onbAct(x) {
-    if (x.hasAttribute('data-onbx')) { ONB.no.set(ONB.tid, Date.now() + 20 * 60000); ONB.tid = ''; ONB.manual = 0; ONB.quiet = Date.now() + 10 * 60000; follow = null; renderHome(true); return; }
+    if (x.hasAttribute('data-onbx')) { if (LASTPIN.num === ONB.tid) LASTPIN.num = ''; ONB.no.set(ONB.tid, Date.now() + 20 * 60000); ONB.tid = ''; ONB.manual = 0; ONB.quiet = Date.now() + 10 * 60000; follow = null; renderHome(true); return; }
     ONB.no.set(ONB.tid, Date.now() + 20 * 60000); ONB.tid = x.dataset.onbpick; ONB.manual = Date.now() + 90 * 60000;
+    [...PIN].forEach(([k, v]) => { if (String(v) !== ONB.tid) pinSet(k, null); }); LASTPIN.num = ONB.tid; LASTPIN.until = Date.now() + 90 * 60000;   // confirmar otro tren lo convierte en tu tren elegido
     const t = act.find(y => y.tr && String(y.tr.num) === ONB.tid); if (t) { follow = t.tr; const st = t.tr.pat.stops, nx = t.real ? t.v.next : t.p.next, mine = [...HOME.st, ...WORK.st], j = st.findIndex((si, q) => q >= nx && mine.includes(ST[si].id)); if (j > 0) { ALARM = { num: ONB.tid, sid: ST[st[j]].id, at: Date.now() }; saveAlarm(); } }   // se queda en Ahora: solo confirma el tren
     toast(`${'Vas en el'} ${ONB.tid}`); renderHome(true);
   }
@@ -1477,7 +1483,7 @@ export function initRail(A) {
     el.querySelectorAll('[data-hplat]').forEach(b => b.onclick = e => { e.stopPropagation(); const [k, v] = b.dataset.hplat.split(':'), P = P_(k); P.platAt = v === '1' ? Date.now() : 0; if (P.platAt) P.goAt = 0; saveP(P); renderHome(true); });
     el.querySelectorAll('[data-hnotst]').forEach(b => b.onclick = e => { e.stopPropagation(); NEAR.homeW = NEAR.w; try { localStorage.setItem('rod_homew', JSON.stringify(NEAR.w)); } catch (e2) {} renderHome(true); });
     el.querySelectorAll('[data-hdel]').forEach(b => b.onclick = () => { WORK.st = []; WORK.open = false; saveP(WORK); renderHome(true); pushSync(); });
-    el.querySelectorAll('[data-dk]').forEach(b => b.onclick = () => { const x = DK[+b.dataset.dk]; if (b.matches('li.hr, .hv') && !x.gone && x.num != null) { const pk = b.closest('.hplace')?.querySelector('[data-ht]')?.dataset.ht; if (pk) { const off = PIN.get(pk) === String(x.num); pinSet(pk, off ? null : String(x.num)); if (off) { if (selTrip && String(selTrip.num) === String(x.num)) { selTrip = null; follow = null; TAB.sk = ''; mcs._h = ''; renderCard(); } } else goTrain(x, true); renderHome(true); return; } } goTrain(x); });   // en pestañas: tocar un tren lo elige y lo deja seguido en el mapa (sin cambiar de pestaña); tocarlo otra vez lo suelta
+    el.querySelectorAll('[data-dk]').forEach(b => b.onclick = () => { const x = DK[+b.dataset.dk]; if (b.matches('li.hr, .hv') && !x.gone && x.num != null) { const pk = b.closest('.hplace')?.querySelector('[data-ht]')?.dataset.ht; if (pk) { const off = PIN.get(pk) === String(x.num); pinSet(pk, off ? null : String(x.num)); if (off && LASTPIN.num === String(x.num)) LASTPIN.num = ''; if (off) { if (selTrip && String(selTrip.num) === String(x.num)) { selTrip = null; follow = null; TAB.sk = ''; mcs._h = ''; renderCard(); } } else goTrain(x, true); renderHome(true); return; } } goTrain(x); });   // en pestañas: tocar un tren lo elige y lo deja seguido en el mapa (sin cambiar de pestaña); tocarlo otra vez lo suelta
     el.querySelectorAll('[data-pinnext]').forEach(b => b.onclick = e => { if (e.target.closest('[data-unpin]')) return; const [k, n] = b.dataset.pinnext.split(':'); pinSet(k, n); const x = deps0(k, n); if (x) goTrain(x, true); renderHome(true); });
     el.querySelectorAll('[data-unpin]').forEach(b => b.onclick = e => { e.stopPropagation(); pinSet(b.dataset.unpin, null); renderHome(true); });
     el.querySelectorAll('[data-hal]').forEach(b => b.onclick = () => $('#alr').click());
