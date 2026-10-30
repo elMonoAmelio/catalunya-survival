@@ -42,5 +42,9 @@
  "1.343": {
   "ca": "Idioma: el botó English funcionava malament (desava un idioma inexistent); ara es marca l'idioma triat, les novetats surten traduïdes i en canviar d'idioma et quedes a Ajustos",
   "en": "Language: the English button was broken (it saved a non-existent language); now the chosen language is highlighted, what's new is translated and you stay in Settings after switching"
+ },
+ "1.345": {
+  "ca": "Un sol «tren triat»: tocar el requadre gran el tria com la fila (sense anar al mapa); al mapa «Triar aquest tren» el tria també a Ara i «Treure el tren triat» el treu de tot arreu",
+  "en": "One single «chosen train»: tapping the big box chooses it like the row (without going to the map); on the map «Choose this train» also chooses it in Now and «Remove chosen train» removes it everywhere"
  }
 }

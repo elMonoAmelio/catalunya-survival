@@ -281,4 +281,6 @@ T = {
 'Llegando ahora': ('Arribant ara', 'Arriving now'),
 'prepárate para bajar': ('prepara\'t per baixar', 'get ready to get off'),
 'Vas en el': ('Vas al', 'On train'),
+'Quitar tren elegido': ('Treure el tren triat', 'Remove chosen train'),
+'Elegir este tren': ('Triar aquest tren', 'Choose this train'),
 }
