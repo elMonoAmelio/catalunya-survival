@@ -944,7 +944,7 @@ export function initRail(A) {
     root.querySelectorAll('[data-rv]').forEach(b => b.onclick = e => { e.stopPropagation(); const [id, v] = b.dataset.rv.split(':'); repMine.add(+id); try { localStorage.setItem('rod_votes', JSON.stringify([...repMine].slice(-300))); } catch (e2) {} sendRep({ id: +id, v: +v }, '/vote'); });
   }
   let toastT = 0;
-  function toast(t) { let el = $('#toast'); if (!el) { el = document.createElement('div'); el.id = 'toast'; document.body.appendChild(el); } el.textContent = t; el.className = 'on'; clearTimeout(toastT); toastT = setTimeout(() => { el.className = ''; }, Math.min(10000, Math.max(4500, String(t).length * 70))); if (!el._tap) { el._tap = 1; el.onclick = () => { clearTimeout(toastT); el.className = ''; }; } }   // tiempo según lo largo que sea; tocar lo cierra
+  function toast(t, act) { let el = $('#toast'); if (!el) { el = document.createElement('div'); el.id = 'toast'; document.body.appendChild(el); } el.textContent = t; if (act) { const b = document.createElement('button'); b.type = 'button'; b.className = 'tact'; b.textContent = act.label; b.onclick = ev => { ev.stopPropagation(); clearTimeout(toastT); el.className = ''; act.fn(); }; el.appendChild(b); } el.className = 'on'; clearTimeout(toastT); toastT = setTimeout(() => { el.className = ''; }, Math.min(10000, Math.max(4500, String(t).length * 70))); if (!el._tap) { el._tap = 1; el.onclick = () => { clearTimeout(toastT); el.className = ''; }; } }   // tiempo según lo largo que sea; tocar lo cierra
   function srcB(a) { return a.src ? `<b class="asrc ${a.src === 'Adif' ? 'adif' : ''}">${a.src === 'Adif' ? 'Adif · vía' : esc(a.src)}</b>` : ''; }
   function whenTxt(a) {
     if (!a.when) return '';
@@ -1620,7 +1620,18 @@ export function initRail(A) {
   const HALOPEN = { v: false };
   document.addEventListener('click', e => { const h = e.target.closest && e.target.closest('[data-halx]'); if (!h || e.target.closest('a')) return; HALOPEN.v = !HALOPEN.v; renderHome(true); });
   // ficha minimizada: tocarla en cualquier sitio la vuelve a abrir
-  mcs.addEventListener('click', e => { if (!mcs.classList.contains('peek') || e.target.closest('button,a,input')) return; e.stopPropagation(); e.preventDefault(); mcs.classList.remove('peek'); const b = mcs.querySelector('.mn'); if (b) b.textContent = '▾'; mcs.scrollTop = 0; }, true);
+  mcs.addEventListener('click', e => { if (!mcs.classList.contains('peek') && innerWidth <= 640 && selTrip && mcs.querySelector('.mn') && !e.target.closest('button,a,input,select,label,summary,[data-alarm],[data-gs],[data-gt],[data-sf],[data-al],[role=button]')) { const b = mcs.querySelector('.mn'); e.stopPropagation(); if (b) b.click(); return; }   /* ficha de tren abierta: tocar fuera de campanas y botones la encoge */
+    if (!mcs.classList.contains('peek') || e.target.closest('button,a,input')) return; e.stopPropagation(); e.preventDefault(); mcs.classList.remove('peek'); const b = mcs.querySelector('.mn'); if (b) b.textContent = '▾'; mcs.scrollTop = 0; }, true);
+  /* deslizar la ficha de un tren a la izquierda: se cierra y, si era tu tren elegido, se quita (con «Deshacer») */
+  { let sx = 0, sy = 0, dx = 0, on = 0;
+    mcs.addEventListener('touchstart', e => { on = innerWidth <= 640 && selTrip && e.touches.length === 1 && !e.target.closest('input') ? 1 : 0; if (!on) return; sx = e.touches[0].clientX; sy = e.touches[0].clientY; dx = 0; }, { passive: true });
+    mcs.addEventListener('touchmove', e => { if (!on) return; const ddx = e.touches[0].clientX - sx, ddy = e.touches[0].clientY - sy; if (on === 1) { if (Math.abs(ddx) < 12 && Math.abs(ddy) < 12) return; on = Math.abs(ddx) > Math.abs(ddy) * 1.3 && ddx < 0 ? 2 : 0; if (!on) return; } e.preventDefault(); dx = Math.min(0, ddx); mcs.style.transition = 'none'; mcs.style.transform = `translateX(${dx}px)`; mcs.style.opacity = String(Math.max(.3, 1 + dx / 300)); }, { passive: false });
+    mcs.addEventListener('touchend', () => { if (on !== 2) { on = 0; return; } on = 0; mcs.style.transition = 'transform .18s,opacity .18s';
+      if (dx > -90) { mcs.style.transform = ''; mcs.style.opacity = ''; return; }
+      mcs.style.transform = 'translateX(-110%)'; mcs.style.opacity = '0';
+      setTimeout(() => { const tr = selTrip, saved = [...PIN], chosen = isChosenT(tr); if (chosen) { const fb = mcs.querySelector('[data-follow]'); if (fb) fb.click(); } const x = mcs.querySelector('[data-cx]'); if (x) x.click(); mcs.style.transition = ''; mcs.style.transform = ''; mcs.style.opacity = '';
+        if (chosen && tr) toast(`${'Tren elegido quitado'} · ${tr.fam || ''} ${tr.num}`, { label: 'Deshacer', fn: () => { saved.forEach(([k, v]) => pinSet(k, v)); renderHome(true); } }); }, 180); });
+    mcs.addEventListener('touchcancel', () => { if (on === 2) { mcs.style.transform = ''; mcs.style.opacity = ''; } on = 0; }); }
   // ---------- PESTAÑAS (móvil y app): Ahora · Mapa · Línea · Ajustes ----------
   // En el ordenador se mantiene el diseño con paneles flotantes; en el móvil y en la app, cuatro pestañas abajo.
   const TAB = { on: false, cur: 'now', home: new Map() };

@@ -296,4 +296,6 @@ T = {
 "min para cambiar": ("min per canviar", "min to change"),
 "Sin enlace en": ("Sense enllaç a", "No connection at"),
 "Ya he salido": ("Ja he sortit", "I've left"),
+"Tren elegido quitado": ("Tren triat tret", "Chosen train removed"),
+"Deshacer": ("Desfer", "Undo"),
 }
