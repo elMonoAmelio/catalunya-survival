@@ -62,5 +62,9 @@
  "1.353": {
   "ca": "Tancar amb ✕ la fitxa del tren triat també el treu a Ara. «Desfer» torna a obrir la fitxa al mapa i recupera l'avís d'arribada",
   "en": "Closing the chosen train's card with ✕ also removes it in Now. «Undo» reopens the card on the map and restores the arrival alert"
+ },
+ "1.356": {
+  "ca": "Auditoria: lletra mínima d'11 px i botons més fàcils de tocar a les targetes de Casa i Feina obertes; a «Transbord a» ja no surten estacions que et fan anar i tornar; la fitxa del tren no es refà mentre la toques; text més clar quan Renfe no en dona el retard",
+  "en": "Audit: 11 px minimum text and easier-to-tap buttons in the open Home and Work cards; «Change at» no longer lists stations that make you go and come back; the train card no longer rebuilds while you touch it; clearer text when Renfe gives no delay"
  }
 }

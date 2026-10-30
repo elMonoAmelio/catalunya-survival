@@ -298,4 +298,5 @@ T = {
 "Ya he salido": ("Ja he sortit", "I've left"),
 "Tren elegido quitado": ("Tren triat tret", "Chosen train removed"),
 "Deshacer": ("Desfer", "Undo"),
+"Horas según horario · Renfe no da su retraso": ("Hores segons l'horari · Renfe no en dona el retard", "Times as scheduled · Renfe gives no delay"),
 }
