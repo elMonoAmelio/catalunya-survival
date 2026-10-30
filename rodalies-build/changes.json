@@ -1,0 +1,42 @@
+{
+ "1.336": {
+  "ca": "Auditoria completa: lletra mínima i zones tàctils més grans al mòbil i en horitzontal, gris del mode clar amb millor contrast, etiqueta «segons l'horari» llegible, «Dades en directe» a l'escriptori",
+  "en": "Full audit: larger minimum text and touch targets on mobile and landscape, better contrast for light-mode grey, readable «timetable» label, «Live data» on desktop"
+ },
+ "1.333": {
+  "ca": "Horari integrat sempre l'últim publicat: l'app no arrenca amb un de vell ni es recarrega en obrir-la",
+  "en": "Built-in timetable is always the latest: the app no longer starts with an old one or reloads on opening"
+ },
+ "1.331": {
+  "ca": "Sense «doble càrrega» en obrir: només es recarrega si la pàgina oberta és d'una versió anterior",
+  "en": "No more «double load» on opening: it only reloads if the open page is an older version"
+ },
+ "1.329": {
+  "ca": "Tret el diagnòstic amagat d'Ajustos",
+  "en": "Removed the hidden diagnostics from Settings"
+ },
+ "1.327": {
+  "ca": "Text gran: la fitxa del mapa ja no passa per sota de «Més opcions»; «segons l'horari» també a la fitxa del tren",
+  "en": "Large text: the map card no longer goes under «More options»; «timetable» also on the train card"
+ },
+ "1.325": {
+  "ca": "Diagnòstic activable amb 5 tocs a la versió (Ajustos)",
+  "en": "Diagnostics enabled with 5 taps on the version (Settings)"
+ },
+ "1.323": {
+  "ca": "Mapa al mòbil: la fitxa ja no torna a eixamplar-se ni a baixar per sota de «Més opcions»",
+  "en": "Mobile map: the card no longer widens again or drops below «More options»"
+ },
+ "1.322": {
+  "ca": "Fitxa del mapa: si una altra part de l'app li canvia la mida, es recupera al moment",
+  "en": "Map card: if another part of the app changes its size, it is restored at once"
+ },
+ "1.320": {
+  "ca": "Mapa al mòbil: amplada i alçada de la fitxa mesurades a la pantalla (no tapa els botons + − ni Més opcions)",
+  "en": "Mobile map: card width and height measured on screen (doesn't cover the + − buttons or More options)"
+ },
+ "1.340": {
+  "ca": "Avisos a la pantalla a dalt i més estona; sense trens repetits; un sol avís en arribar; «Vas al…?» i ✕ funcionen; no endevina tren a l'andana; deixar de seguir també el treu d'Ara; novetats traduïdes; vores més visibles en fosc",
+  "en": "On-screen notices at the top and for longer; no duplicate trains; a single arrival notice; «On train…?» and ✕ now work; no train guessing on the platform; unfollowing also removes it from Now; translated what's new; clearer card borders in dark mode"
+ }
+}

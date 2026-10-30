@@ -374,7 +374,7 @@ html.tabmode #dtoggle,html.tabmode #dp{display:none!important}
 html.dark #wabtn{border-color:rgba(255,255,255,.08)}
 @media(max-width:640px){#wabtn{top:408px;left:auto!important;right:10px;width:44px;height:44px;border-radius:50%;justify-content:center;padding:0}#wabtn svg{width:22px;height:22px}#wabtn span{display:none}#mbtn:not(.show)~#wabtn{top:356px}}
 @media(max-width:640px){#tbtn{top:356px;left:auto!important;right:10px;width:44px;height:44px;border-radius:50%;padding:0;font-size:18px}#mbtn:not(.show)~#sbtn~#tbtn{top:304px}}
-html.dark{--ink:#ececec;--mut:#9c9c9c;--card:rgba(22,27,38,.95);--line:#2a2a2a;--glass:rgba(20,25,35,.88);color-scheme:dark}
+html.dark{--ink:#ececec;--mut:#9c9c9c;--card:rgba(22,27,38,.95);--line:#333333;--glass:rgba(20,25,35,.88);color-scheme:dark}
 html.dark body{background:#0a0a0a}
 html.dark .box,html.dark .tc,html.dark #mbtn,html.dark #sbtn,html.dark #tbtn,html.dark #s{background:var(--glass);border-color:rgba(255,255,255,.08);color:var(--ink)}
 html.dark .tc{background:var(--card)}
@@ -462,7 +462,7 @@ body,button,input,select,textarea{font-family:'Andana',system-ui,-apple-system,s
 html.dark body{background:#0a0a0a}
 .box,#home .hhead,.hnow,#tabA .seg2 button,#tabA #bell,#tabA #ver,.hv,#home .hred,#home .hnopos{border-radius:8px!important}
 #home .htit>b{text-transform:uppercase;letter-spacing:.02em}
-html.dark #home .hhead{background:#141414!important;box-shadow:inset 0 0 0 1px #262626!important}
+html.dark #home .hhead{background:#141414!important;box-shadow:inset 0 0 0 1px #3a3a3a!important}
 #home .hhead{background:#fff;box-shadow:inset 0 0 0 1px #e2e2e2}
 #home .hhead .hico{color:var(--acc2)}
 .ico{display:inline-block;width:1.05em;height:1.05em;vertical-align:-.17em;flex:none}
@@ -472,7 +472,7 @@ html.tabmode #tabs{background:var(--tabbg)!important;border-top:1px solid var(--
 html.tabmode #tabs button span{filter:none!important;opacity:1!important;color:var(--mut)}
 html.tabmode #tabs button.on,html.tabmode #tabs button.on span{color:var(--acc2)!important}
 html.tabmode #tabs button small{text-transform:uppercase;letter-spacing:.06em;font-weight:700}
-html.dark .box{background:#141414;border-color:#262626!important}
+html.dark .box{background:#141414;border-color:#363636!important}
 html.dark .box{box-shadow:0 10px 30px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.06)!important}
 /* acciones */
 .hwalk .hgo{background:var(--acc2)!important;color:#111!important}
@@ -552,6 +552,16 @@ html.tabmode #tabs button{min-height:36px}
 html.tabmode #mcs [data-sf]{min-height:30px;min-width:32px}
 #mcs li span.ln,#mcs li i.via{font-size:11px!important}
 html.dark .tc .pv{color:#fb923c!important}html:not(.dark) .tc .pv{color:#c2410c!important}
+/* avisos en pantalla (toast): en el móvil arriba, encima de todo, y se cierran tocando */
+html.tabmode #toast{top:calc(var(--sat0) + 10px);bottom:auto!important;transform:translate(-50%,-20px);z-index:95;pointer-events:auto;font-size:15px;padding:12px 16px;box-shadow:0 8px 28px rgba(0,0,0,.35);width:max-content;max-width:calc(100vw - 24px)}
+html.tabmode #toast.on{transform:translate(-50%,0)}
+#home .onbc{position:relative}
+#home .onbc>.onbx{position:absolute;top:10px;right:10px;min-width:34px;min-height:34px;border:0;border-radius:999px;font:inherit;font-weight:700;cursor:pointer;z-index:2}
+#home .onbc>.onbch{display:flex;gap:8px;flex-wrap:wrap;padding:0 14px 12px 14px;margin-top:-4px}
+#home .onbc>.onbch .onbalt{border:0;font:inherit;font-size:14px;font-weight:700;padding:8px 14px;min-height:36px;border-radius:999px;background:rgba(255,255,255,.12);color:inherit;cursor:pointer}
+html:not(.dark) #home .onbc>.onbch .onbalt{background:rgba(0,0,0,.07)}
+.chg span[lang]{display:none}html[lang=es] .chg span[lang=es],html[lang=ca] .chg span[lang=ca],html[lang=en] .chg span[lang=en]{display:inline}
+html[lang=ca] .tc .chg li:first-child b::after{content:'nova'}html[lang=en] .tc .chg li:first-child b::after{content:'new'}
 </style>
 </head>
 <body>

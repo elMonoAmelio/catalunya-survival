@@ -277,4 +277,8 @@ T = {
 'Siguiente': ('Següent', 'Next'),
 'Datos en directo ▾': ('Dades en directe ▾', 'Live data ▾'),
 'Datos en directo ▴': ('Dades en directe ▴', 'Live data ▴'),
+'Llegas en': ('Arribes en', 'Arriving in'),
+'Llegando ahora': ('Arribant ara', 'Arriving now'),
+'prepárate para bajar': ('prepara\'t per baixar', 'get ready to get off'),
+'Vas en el': ('Vas al', 'On train'),
 }
