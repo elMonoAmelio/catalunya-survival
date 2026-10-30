@@ -58,5 +58,9 @@
  "1.351": {
   "ca": "Fitxa del tren: tocar a qualsevol lloc (menys campanes i botons) l'encongeix. Lliscar-la a l'esquerra la tanca i treu el tren triat, amb «Desfer»",
   "en": "Train card: tapping anywhere (except bells and buttons) shrinks it. Swiping it left closes it and removes the chosen train, with «Undo»"
+ },
+ "1.353": {
+  "ca": "Tancar amb ✕ la fitxa del tren triat també el treu a Ara. «Desfer» torna a obrir la fitxa al mapa i recupera l'avís d'arribada",
+  "en": "Closing the chosen train's card with ✕ also removes it in Now. «Undo» reopens the card on the map and restores the arrival alert"
  }
 }

@@ -892,6 +892,8 @@ export function initRail(A) {
     fitMcs();
     const x = mcs.querySelector('[data-cx]'); if (x) x.onclick = e => { e.stopPropagation(); renderCard.done = 0; if (selStats || selNews || selAlerts || (selLine && !selTrip && selStation < 0)) { selStats = selNews = selAlerts = false; if (!(selTrip || selStation >= 0)) selLine = ''; mcs._h = ''; renderCard(); invalidate(); return; } /* cerrar estadísticas, avisos o novedades devuelve a la ficha que tenías */
       if (selTrip && BACK.st >= 0) { const b = BACK.st; BACK.st = -1; selTrip = null; follow = null; selStation = b; styleStations(); mcs._h = ''; renderCard(); lastT = 0; invalidate(); return; }   // tren abierto desde una estación: se vuelve a la estación
+      if (selTrip && isChosenT(selTrip)) { const tr = selTrip, saved = [...PIN], sA = ALARM ? { ...ALARM } : null; const fb = mcs.querySelector('[data-follow]'); if (fb) fb.click();   /* cerrar la ficha del tren elegido = quitarlo (también en Ahora), con «Deshacer» */
+        setTimeout(() => toast(`${'Tren elegido quitado'} · ${tr.fam || ''} ${tr.num}`, { label: 'Deshacer', fn: () => { saved.forEach(([k, v]) => pinSet(k, v)); if (sA && !ALARM) { ALARM = sA; saveAlarm(); } setTab('map'); goTrain({ num: String(tr.num), tid: tr.tid && RT.vp.has(tr.tid) ? tr.tid : '', tr }); follow = selTrip; mcs._h = ''; renderCard(); renderHome(true); invalidate(); } }), 0); }
       BACK.st = -1; selAlerts = false; selNews = false; selStats = false; selTrip = null; selStation = -1; follow = null; styleStations(); renderCard(); lastT = 0; invalidate(); };
     bindCrowd(mcs);
     mcs.querySelectorAll('[data-alarm]').forEach(b => b.onclick = e => { e.stopPropagation(); const tr = selTrip && selTrip.pat ? selTrip : (TID.get(selTrip && selTrip.vtid) || null); if (!tr) return; const i = +b.dataset.alarm, sid = ST[tr.pat.stops[i]].id;
@@ -1629,8 +1631,7 @@ export function initRail(A) {
     mcs.addEventListener('touchend', () => { if (on !== 2) { on = 0; return; } on = 0; mcs.style.transition = 'transform .18s,opacity .18s';
       if (dx > -90) { mcs.style.transform = ''; mcs.style.opacity = ''; return; }
       mcs.style.transform = 'translateX(-110%)'; mcs.style.opacity = '0';
-      setTimeout(() => { const tr = selTrip, saved = [...PIN], chosen = isChosenT(tr); if (chosen) { const fb = mcs.querySelector('[data-follow]'); if (fb) fb.click(); } const x = mcs.querySelector('[data-cx]'); if (x) x.click(); mcs.style.transition = ''; mcs.style.transform = ''; mcs.style.opacity = '';
-        if (chosen && tr) toast(`${'Tren elegido quitado'} · ${tr.fam || ''} ${tr.num}`, { label: 'Deshacer', fn: () => { saved.forEach(([k, v]) => pinSet(k, v)); renderHome(true); } }); }, 180); });
+      setTimeout(() => { const x = mcs.querySelector('[data-cx]'); if (x) x.click(); mcs.style.transition = ''; mcs.style.transform = ''; mcs.style.opacity = ''; }, 180); });
     mcs.addEventListener('touchcancel', () => { if (on === 2) { mcs.style.transform = ''; mcs.style.opacity = ''; } on = 0; }); }
   // ---------- PESTAÑAS (móvil y app): Ahora · Mapa · Línea · Ajustes ----------
   // En el ordenador se mantiene el diseño con paneles flotantes; en el móvil y en la app, cuatro pestañas abajo.
