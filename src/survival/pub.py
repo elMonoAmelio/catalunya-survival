@@ -1,6 +1,6 @@
 # uso: python3 pub.py "Mensaje de la versión"  -> construye, versiona y publica
 import sys, subprocess, re, shutil, html, datetime, zoneinfo, os
-REPO='/tmp/ms-repo'; msg=sys.argv[1]
+REPO='/tmp/ms-repo'; _m=[x.strip() for x in sys.argv[1].split('||')]; msg=_m[0]   # «castellano || català || English»
 g=lambda *a: subprocess.run(['git','-C',REPO,*a],capture_output=True,text=True,check=True).stdout
 g('pull','-q','--rebase','--autostash','origin','main')
 n=int(g('rev-list','--count','HEAD').strip()); ver=f'1.{n}'
@@ -16,7 +16,15 @@ AUTO=re.compile(r'^(Horarios de Rodalies|Horario de Rodalies|Estadísticas de Ro
 items=[(f'{ver} · {now[:10]}',msg)]+[(f'1.{n-1-i} · {d}',s) for i,(d,s) in enumerate(log) if not AUTO.match(s)][:8]
 import re as _re
 clean=lambda m: _re.sub(r'^(v?\d+\.\d+:\s*)?(Rodalies:\s*)?','',m).strip()
-ch=''.join(f'<li><b>{html.escape(v.split(" · ")[0])}</b><small>{html.escape(v.split(" · ")[1])}</small><p>{html.escape(clean(s))}</p></li>' for v,s in items)
+import json as _js
+_cp=REPO+'/rodalies-build/changes.json'
+try: TRX=_js.load(open(_cp,encoding='utf8'))
+except Exception: TRX={}
+if len(_m)>=3: TRX[ver]={'ca':_m[1],'en':_m[2]}; _js.dump(TRX,open(_cp,'w',encoding='utf8'),ensure_ascii=False,indent=1)
+def _p(v,s):
+    k=v.split(' · ')[0]; es=html.escape(clean(s)); t=TRX.get(k)
+    return f'<p><span lang="es">{es}</span><span lang="ca">{html.escape(t["ca"])}</span><span lang="en">{html.escape(t["en"])}</span></p>' if t else f'<p>{es}</p>'
+ch=''.join(f'<li><b>{html.escape(v.split(" · ")[0])}</b><small>{html.escape(v.split(" · ")[1])}</small>{_p(v,s)}</li>' for v,s in items)
 open('ver.txt','w').write(f'{ver}|{now}|{ch}')
 open(B+'/CHANGES.html','w').write(ch); shutil.copy(B+'/CHANGES.html', REPO+'/rodalies-build/CHANGES.html')
 # horario embebido = el último publicado por la tarea diaria (rama horarios); si no, se queda el que hay. Así la app no arranca con uno viejo y no se recarga sola al bajar el nuevo
