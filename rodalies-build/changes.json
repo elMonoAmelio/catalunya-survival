@@ -66,5 +66,9 @@
  "1.356": {
   "ca": "Auditoria: lletra mínima d'11 px i botons més fàcils de tocar a les targetes de Casa i Feina obertes; a «Transbord a» ja no surten estacions que et fan anar i tornar; la fitxa del tren no es refà mentre la toques; text més clar quan Renfe no en dona el retard",
   "en": "Audit: 11 px minimum text and easier-to-tap buttons in the open Home and Work cards; «Change at» no longer lists stations that make you go and come back; the train card no longer rebuilds while you touch it; clearer text when Renfe gives no delay"
+ },
+ "1.358": {
+  "ca": "Ara: les targetes comencen a dalt i «Cercar una estació» queda a baix, sense buits; els detalls de cada tren passen a una altra línia si no hi caben",
+  "en": "Now: cards start at the top and «Find a station» sits at the bottom, with no empty gaps; each train's details wrap to a new line if they don't fit"
  }
 }
