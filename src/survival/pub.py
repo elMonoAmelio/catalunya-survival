@@ -6,6 +6,9 @@ g('pull','-q','--rebase','--autostash','origin','main')
 n=int(g('rev-list','--count','HEAD').strip()); ver=f'1.{n}'
 # Rodalies: misma versión, mismos fuentes en el repo (la tarea diaria de GitHub reconstruye con ellos)
 B='/tmp/ms-work/rod/build'
+# seguridad: no publicar un bundle más viejo que el código (si mk.py falló, se paraba aquí sin avisar)
+_A='/tmp/ms-work/rod/app/'
+if max(os.path.getmtime(_A+f) for f in ('rail.js','app.js','template.html')) > os.path.getmtime(_A+'bundle.js')+1: sys.exit('ALTO: bundle.js es más viejo que el código: ejecuta mk.py y revisa errores')
 for f in ('bundle.js','template.html','i18n.js'): shutil.copy('/tmp/ms-work/rod/app/'+f, B+'/'+f); shutil.copy(B+'/'+f, REPO+'/rodalies-build/'+f)
 for f in ('assemble.py','worker.js') if False else ('assemble.py',): shutil.copy(B+'/'+f, REPO+'/rodalies-build/'+f)
 open(B+'/VERSION','w').write(ver); open(REPO+'/rodalies-build/VERSION','w').write(ver)
