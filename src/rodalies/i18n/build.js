@@ -21,12 +21,12 @@ const H=Object.keys(D).filter(s=>!/[<>${}]/.test(s)&&s===s.trim());
 fs.writeFileSync(A+'/i18n.js',
 `/* MonkiSoft · idiomas: català (principal), castellano, English */
 (function(){var L;try{L=localStorage.getItem('rod_lang')}catch(e){}
-if(!L){var ls=navigator.languages||[navigator.language||''];L='en';for(var i=0;i<ls.length;i++){var c=(ls[i]||'').slice(0,2).toLowerCase();if(c==='ca'){L='ca';break}if(c==='es'){L='es';break}if(c==='en'){L='en';break}}}
+if(L&&!/^(ca|es|en)$/.test(L)){L=null;try{localStorage.removeItem('rod_lang')}catch(e){}}if(!L){var ls=navigator.languages||[navigator.language||''];L='en';for(var i=0;i<ls.length;i++){var c=(ls[i]||'').slice(0,2).toLowerCase();if(c==='ca'){L='ca';break}if(c==='es'){L='es';break}if(c==='en'){L='en';break}}}
 window.__L=L;document.documentElement.lang=L;
 var T={es:${JSON.stringify(ES)},ca:${JSON.stringify(CA)},en:${JSON.stringify(EN)}};
 window.__t=function(i){var v=T[L]&&T[L][i];return v==null?T.es[i]:v};
 var H=${JSON.stringify(Object.fromEntries(H.map(s=>[s,{ca:D[s].ca,en:D[s].en}])))};
-document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('[data-lang]');if(!a)return;try{localStorage.setItem('rod_lang',a.dataset.lang)}catch(x){}location.reload()});
+document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('[data-lang]');if(!a)return;var v=a.dataset.lang;if(!/^(ca|es|en)$/.test(v))return;try{localStorage.setItem('rod_lang',v);sessionStorage.setItem('rod_tabgo',document.documentElement.dataset.tab||'')}catch(x){}location.reload()});
 window.__tHtml=function(root){if(L==='es')return;var w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT),n,a=[];while(n=w.nextNode())a.push(n);
 var P=[['horario oficial descargado el','horari oficial descarregat el','official timetable downloaded on'],['horarios Renfe del','horaris Renfe del','Renfe timetable of']];
 a.forEach(function(n){var p=n.parentNode;if(!p||/^(SCRIPT|STYLE|TEXTAREA)$/.test(p.nodeName))return;var s=n.nodeValue,t=s.trim();if(t&&H[t])n.nodeValue=s.replace(t,H[t][L]);else P.forEach(function(q){if(s.indexOf(q[0])>=0)n.nodeValue=s=s.replace(q[0],L==='ca'?q[1]:q[2])})});

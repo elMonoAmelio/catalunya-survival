@@ -38,5 +38,9 @@
  "1.340": {
   "ca": "Avisos a la pantalla a dalt i més estona; sense trens repetits; un sol avís en arribar; «Vas al…?» i ✕ funcionen; no endevina tren a l'andana; deixar de seguir també el treu d'Ara; novetats traduïdes; vores més visibles en fosc",
   "en": "On-screen notices at the top and for longer; no duplicate trains; a single arrival notice; «On train…?» and ✕ now work; no train guessing on the platform; unfollowing also removes it from Now; translated what's new; clearer card borders in dark mode"
+ },
+ "1.343": {
+  "ca": "Idioma: el botó English funcionava malament (desava un idioma inexistent); ara es marca l'idioma triat, les novetats surten traduïdes i en canviar d'idioma et quedes a Ajustos",
+  "en": "Language: the English button was broken (it saved a non-existent language); now the chosen language is highlighted, what's new is translated and you stay in Settings after switching"
  }
 }

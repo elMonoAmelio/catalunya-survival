@@ -1625,7 +1625,7 @@ export function initRail(A) {
     unpark();   // primero se devuelven a su sitio los elementos prestados (si no, se borrarían al rehacer la hoja)
     const L = window.__L || 'es', th = THEME.mode;
     tabA.innerHTML = `<h3>${'Ajustes'}</h3>
-      <h4>🌐 ${'Idioma'}</h4><div class="seg2">${[['ca', 'Català'], ['es', 'Español'], ['en', 'English']].map(([k, n]) => `<button type="button" data-lang="${k}" class="${L === k ? 'on' : ''}">${n}</button>`).join('')}</div>
+      <h4>🌐 ${'Idioma'}</h4><div class="seg2">${'ca|Català,es|Español,en|English'.split(',').map(s => s.split('|')).map(([k, n]) => `<button type="button" data-lang="${k}" class="${L === k ? 'on' : ''}">${n}</button>`).join('')}</div>
       <h4>🌙 ${'Modo noche'}</h4><div class="seg2">${[['auto', 'Automático'], ['light', 'Claro'], ['dark', 'Oscuro']].map(([k, n]) => `<button type="button" data-th="${k}" class="${th === k ? 'on' : ''}">${n}</button>`).join('')}</div>
       <h4>🔠 ${'Tamaño del texto'}</h4><div class="seg2">${(() => { let v = ''; try { v = localStorage.getItem('rod_big') || ''; } catch (e) {} const cur = v === '1' ? '1' : v === '0' ? '0' : 'a'; return [['a', 'Automático'], ['0', 'Normal'], ['1', 'Grande']].map(([k, n]) => `<button type="button" data-big="${k}" class="${cur === k ? 'on' : ''}">${n}</button>`).join(''); })()}</div>${(() => { let v = ''; try { v = localStorage.getItem('rod_big') || ''; } catch (e) {} return v === '1' || v === '0' ? '' : `<small class="tabAhint">${'Automático sigue el tamaño de letra del iPhone (Ajustes › Pantalla y brillo › Tamaño del texto).'}</small>`; })()}
       <h4>🔔 ${'Avisos'}</h4><div id="tabAbell"></div><small class="tabAhint">${'Te avisamos al móvil de las incidencias de tus líneas (en tu sentido) y, si eliges un tren, de si se retrasa, se cancela, cambia de vía o Renfe deja de localizarlo.'}</small>${allLines().length ? '' : `<small class="tabAhint">${'Elige tu estación de Casa o Trabajo (pestaña Ahora) para recibir avisos de sus líneas.'}</small>`}${(() => { const ls = allLines(); return ls.length > 1 ? `<small class="tabAhint">${'Líneas de las que quieres avisos:'}</small><div class="alch">${ls.map(f => `<button type="button" data-al="${esc(f)}" class="ln${ALOFF.has(f) ? ' off' : ''}" style="--c:${FC[f]}">${esc(f)}</button>`).join('')}</div>` : ''; })()}
@@ -1654,7 +1654,7 @@ export function initRail(A) {
   function tabMode() {
     const on = tabsMQ.matches || document.documentElement.classList.contains('cap');
     if (on === TAB.on) return; TAB.on = on; document.documentElement.classList.toggle('tabmode', on); requestAnimationFrame(() => requestAnimationFrame(tindOn)); if (!on) window.__mapHidden = false;
-    if (on) setTab('now'); else { delete document.documentElement.dataset.tab; unpark(); }
+    if (on) { let go = 'now'; try { const g = sessionStorage.getItem('rod_tabgo'); if (g) { sessionStorage.removeItem('rod_tabgo'); if (/^(now|map|line|set)$/.test(g)) go = g; } } catch (e) {} setTab(go); } else { delete document.documentElement.dataset.tab; unpark(); }   // al cambiar de idioma se vuelve a la misma pestaña
   }
   tabsMQ.addEventListener ? tabsMQ.addEventListener('change', tabMode) : tabsMQ.addListener(tabMode);
   tabMode();
