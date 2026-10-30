@@ -50,5 +50,9 @@
  "1.347": {
   "ca": "Tren triat i «vas al» són el mateix: si has triat un tren, la detecció automàtica només reconeix aquest (fins a 90 min després de sortir); un altre tren només si el confirmes, i llavors passa a ser el teu tren triat",
   "en": "Chosen train and «on train» are the same: if you chose a train, automatic detection only recognises that one (up to 90 min after it leaves); another train only if you confirm it, and it then becomes your chosen train"
+ },
+ "1.349": {
+  "ca": "Transbords: si de Casa a la Feina no hi ha tren directe, la targeta et diu on canviar, a quin tren i amb quants minuts; t'avisa si perds l'enllaç. Treure el tren triat des del mapa funciona encara que el triessis a Ara. Millor contrast en mode clar. Arreglat: la versió anterior no incloïa les millores de detecció «Vas al»",
+  "en": "Transfers: if there is no direct train between Home and Work, the card tells you where to change, which train and how many minutes you have; it warns you if you miss the connection. Removing the chosen train from the map works even if you chose it in Now. Better contrast in light mode. Fixed: the previous version did not include the «On train» detection improvements"
  }
 }
