@@ -107,12 +107,25 @@ async function revisar(env) {
 }
 
 export default {
-  async fetch(req, env) {
+  async fetch(req, env, ctx) {
     const o = req.headers.get('Origin') || '';
     const cors = { 'Access-Control-Allow-Origin': PERMITIDOS.includes(o) ? o : PERMITIDOS[0], 'Access-Control-Allow-Methods': 'GET, POST, OPTIONS', 'Access-Control-Allow-Headers': 'Content-Type', 'Vary': 'Origin' };
     if (req.method === 'OPTIONS') return new Response(null, { headers: cors });
     const url = new URL(req.url), p = url.pathname;
     try {
+      // todo lo de «en directo» en una sola petición (la app la pide cada 20 s): 1 petición en vez de 5-6. Se guarda 15 s para todos.
+      if (p === '/live.json') {
+        const H = { ...cors, 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'public, max-age=15' }, key = new Request('https://cache.puente/live.json'), cache = caches.default;
+        const hit = await cache.match(key); if (hit) return new Response(hit.body, { headers: H });
+        const up = (u, t) => fetch(u, { headers: { Accept: 'application/json' }, cf: { cacheTtl: t, cacheEverything: true } }).then(r => r.ok ? r.text() : Promise.reject(new Error('HTTP ' + r.status)));
+        const part = pr => pr.then(t => /^\s*[{\[]/.test(t || '') ? t : '{"__err":"formato"}', e => JSON.stringify({ __err: String(e && e.message || e) }));   // sin analizar el JSON: no gasta CPU
+        const [tu, vp, al, nt, ad, rp] = await Promise.all([part(up(RENFE + '/trip_updates.json', 15)), part(up(RENFE + '/vehicle_positions.json', 15)), part(up(RENFE + '/alerts.json', 15)), part(up(NOTICES, 60)),
+          adif().then(x => JSON.stringify(x)).catch(e => JSON.stringify({ ok: false, err: String(e.message || e) })),
+          (async () => { const r = (await (await db(env)).prepare('SELECT id, kind, sid, num, line, up, down, at FROM reports WHERE at > ? AND up > down ORDER BY at DESC LIMIT 300').bind(Date.now() - 90 * 60e3).all()).results || []; return JSON.stringify({ now: Date.now(), tipos: TIPOS, items: r }); })().catch(() => 'null')]);
+        const body = `{"v":1,"now":${Date.now()},"tu":${tu},"vp":${vp},"al":${al},"nt":${nt},"ad":${ad},"rep":${rp}}`;
+        if (ctx) ctx.waitUntil(cache.put(key, new Response(body, { headers: { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'public, max-age=15' } })));
+        return new Response(body, { headers: H });
+      }
       if (p === '/adif.json') return new Response(JSON.stringify(await adif()), { headers: { ...cors, 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'public, max-age=120' } });
       // --- avisos en el móvil ---
       if (p === '/push/key') return J({ key: (await vapid(env)).pub }, cors);
@@ -160,7 +173,7 @@ export default {
         return J({ ok: true, id, n }, cors);
       }
       const d = destino(url);
-      if (!d) return new Response('Puente Rodalies: /trip_updates.json, /vehicle_positions.json, /alerts.json, /notices.json, /adif.json, /departures.json?stationId=, /reports.json, /push/*', { status: 404, headers: cors });
+      if (!d) return new Response('Puente Rodalies: /live.json, /trip_updates.json, /vehicle_positions.json, /alerts.json, /notices.json, /adif.json, /departures.json?stationId=, /reports.json, /push/*', { status: 404, headers: cors });
       const r = await fetch(d[0], { headers: { Accept: 'application/json' }, cf: { cacheTtl: d[1], cacheEverything: true } });
       return new Response(r.body, { status: r.status, headers: { ...cors, 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'public, max-age=' + d[1] } });
     } catch (e) { return J({ ok: false, err: String(e.message || e) }, cors, 500); }

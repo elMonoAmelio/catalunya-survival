@@ -70,5 +70,9 @@
  "1.358": {
   "ca": "Ara: les targetes comencen a dalt i «Cercar una estació» queda a baix, sense buits; els detalls de cada tren passen a una altra línia si no hi caben",
   "en": "Now: cards start at the top and «Find a station» sits at the bottom, with no empty gaps; each train's details wrap to a new line if they don't fit"
+ },
+ "1.365": {
+  "ca": "Menys consum de dades i bateria: amb l'app en segon pla ja no es demanen dades (llevat que tinguis un tren triat, cada 2 min) i, quan el servidor s'actualitzi, tot el «en directe» arriba en una sola petició",
+  "en": "Less data and battery use: with the app in the background no data is requested (except every 2 min if you have a chosen train) and, once the server is updated, all live data comes in a single request"
  }
 }

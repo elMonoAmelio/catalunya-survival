@@ -94,10 +94,21 @@ export function initRail(A) {
   async function pollRT() {
     if (!RT.url) { renderRT(); return; }
     const base = RT.url.replace(/\/+$/, '');
-    // avisos de viajeros: si el puente no tiene base de datos, se vuelve a probar cada 15 min (no cada 20 s)
-    if (!RT.repFail || Date.now() - RT.repFail > 15 * 60000) get(base, '/reports.json').then(r => { if (r && Array.isArray(r.items)) { RT.rep = r.items; RT.repSkew = (r.now || Date.now()) - Date.now(); if (r.tipos) RT.tipos = r.tipos; RT.repOk = Date.now(); RT.repFail = 0; } else RT.repFail = Date.now(); }).catch(() => { RT.repFail = Date.now(); RT.repOk = 0; });
     const wantAdif = !RT.adifAt || Date.now() - RT.adifAt > 110000;
-    const [tu, vp, al, nt, ad] = await Promise.allSettled([get(base, '/trip_updates.json'), get(base, '/vehicle_positions.json'), get(base, '/alerts.json'), get(base, '/notices.json'), wantAdif ? get(base, '/adif.json') : Promise.reject(0)]);
+    const OK = x => ({ status: 'fulfilled', value: x }), KO = e => ({ status: 'rejected', reason: e });
+    let tu, vp, al, nt, ad, L = null;
+    // una sola petición con todo (/live.json); si el puente aún no la tiene (404), las de siempre y se vuelve a probar a los 30 min
+    if (RT.noLive && Date.now() - RT.noLive > 30 * 60000) RT.noLive = 0;
+    if (!RT.noLive) { try { L = await get(base, '/live.json'); } catch (e) { if (/HTTP 404/.test(e.message)) RT.noLive = Date.now(); else L = { __fail: e }; } }
+    if (L && L.__fail) { tu = vp = al = nt = ad = KO(L.__fail); }
+    else if (L && L.v === 1) {
+      const pick = k => L[k] && !L[k].__err ? OK(L[k]) : KO(new Error(L[k] && L[k].__err || 'sin dato'));
+      tu = pick('tu'); vp = pick('vp'); al = pick('al'); nt = pick('nt'); ad = wantAdif ? pick('ad') : KO(0);
+      const r = L.rep; if (r && Array.isArray(r.items)) { RT.rep = r.items; RT.repSkew = (r.now || Date.now()) - Date.now(); if (r.tipos) RT.tipos = r.tipos; RT.repOk = Date.now(); RT.repFail = 0; }
+    } else {
+    if (!RT.repFail || Date.now() - RT.repFail > 15 * 60000) get(base, '/reports.json').then(r => { if (r && Array.isArray(r.items)) { RT.rep = r.items; RT.repSkew = (r.now || Date.now()) - Date.now(); if (r.tipos) RT.tipos = r.tipos; RT.repOk = Date.now(); RT.repFail = 0; } else RT.repFail = Date.now(); }).catch(() => { RT.repFail = Date.now(); RT.repOk = 0; });
+      [tu, vp, al, nt, ad] = await Promise.allSettled([get(base, '/trip_updates.json'), get(base, '/vehicle_positions.json'), get(base, '/alerts.json'), get(base, '/notices.json'), wantAdif ? get(base, '/adif.json') : Promise.reject(0)]);
+    }
     if (ad.status === 'fulfilled' && ad.value && ad.value.ok) { RT.adif = ad.value; RT.adifAt = Date.now(); } else if (wantAdif) RT.adifAt = Date.now() - 60000;
     if (tu.status === 'fulfilled') {
       const d = new Map(), m = new Map();
@@ -172,7 +183,10 @@ export function initRail(A) {
   }
   $('#rtsave').onclick = () => { let v = $('#rturl').value.trim().replace(/\/+(alerts|trip_updates|vehicle_positions)\.json$/, '').replace(/\/+$/, ''); if (v && !/^https?:\/\//.test(v)) v = 'https://' + v; if (!v) { RT.err = 'pega la dirección de tu puente'; renderRT(); return; } RT.url = v; try { localStorage.setItem('rod_rt', v); } catch (e) {} RT.ok = 0; RT.err = ''; renderRT(); pollRT(); };
   $('#rtoff').onclick = () => { RT.url = DEF_RT; try { localStorage.removeItem('rod_rt'); } catch (e) {} mcs._h = ''; pollRT(); return; RT.url = ''; RT.ok = 0; RT.okVP = 0; RT.delays = new Map(); RT.vp = new Map(); RT.tu = new Map(); RT.alerts = []; renderAlerts(); try { localStorage.setItem('rod_rt', ''); } catch (e) {} renderRT(); invalidate(); };
-  setInterval(pollRT, 20000); setTimeout(pollRT, 50);
+  /* con la app/pestaña oculta no se piden datos (nadie los ve); si tienes tren elegido o alarma, cada 2 min para poder avisarte */
+  let pollAt = 0; const pollTick = () => { const busy = PIN.size || ALARM; if (document.hidden ? !busy || Date.now() - pollAt < 115000 : Date.now() - pollAt < 15000) return; pollAt = Date.now(); pollRT(); };
+  setInterval(pollTick, 20000); setTimeout(() => { pollAt = Date.now(); pollRT(); }, 50);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && Date.now() - pollAt > 15000) { pollAt = Date.now(); pollRT(); } });
   // repasar el día: con la hora movida hacia atrás, retrasos reales de la foto de GitHub más cercana (cada 15 min)
   const PAST = { snap: null, key: '' };
   function pastSnap() {
@@ -858,7 +872,7 @@ export function initRail(A) {
       // salidas oficiales en directo de Rodalies (andén, cancelaciones, observaciones)
       const sid = ST[s].id, OD = DEPS.get(sid);
       const offOk = (useLive || rtDown() && S.live) && RT.url;
-      if (offOk && (!OD || Date.now() - OD.at > 30000) && !OD?.loading) {
+      if (offOk && (!OD || Date.now() - OD.at > depAge()) && !OD?.loading) {
         DEPS.set(sid, { ...(OD || {}), loading: true, at: OD ? OD.at : 0 });
         get(RT.url.replace(/\/+$/, ''), '/departures.json?stationId=' + sid).then(d => { DEPS.set(sid, { at: Date.now(), d }); if (selStation === s) { mcs._h = ''; renderCard(); } }).catch(() => DEPS.set(sid, { at: Date.now(), err: 1 }));
       }
@@ -966,9 +980,10 @@ export function initRail(A) {
 
   // ---------- MI ESTACIÓN: panel para decidir rápido si salir ya ----------
   const BCN = SID.get('71801');
+  function depAge() { return !document.hidden ? 30000 : PIN.size || ALARM ? 120000 : 1e12; }   /* salidas: cada 30 s a la vista; oculta, solo si tienes tren elegido (cada 2 min) */
   function loadDeps(s, cb) {
     const sid = ST[s].id, OD = DEPS.get(sid);
-    if (!(feedUp() && RT.url) || OD && (OD.loading || Date.now() - OD.at < 30000)) return;
+    if (!(feedUp() && RT.url) || OD && (OD.loading || Date.now() - OD.at < depAge())) return;
     DEPS.set(sid, { ...(OD || {}), loading: true, at: OD ? OD.at : 0 });
     get(RT.url.replace(/\/+$/, ''), '/departures.json?stationId=' + sid).then(d => { DEPS.set(sid, { at: Date.now(), d }); cb && cb(); }).catch(() => DEPS.set(sid, { at: Date.now(), err: 1 }));
   }
