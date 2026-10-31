@@ -74,5 +74,9 @@
  "1.365": {
   "ca": "Menys consum de dades i bateria: amb l'app en segon pla ja no es demanen dades (llevat que tinguis un tren triat, cada 2 min) i, quan el servidor s'actualitzi, tot el «en directe» arriba en una sola petició",
   "en": "Less data and battery use: with the app in the background no data is requested (except every 2 min if you have a chosen train) and, once the server is updated, all live data comes in a single request"
+ },
+ "1.367": {
+  "ca": "Si la teva operadora bloqueja el servidor de dades (passa amb els bloquejos d'IP de LaLiga en partits), l'app fa servir sola una adreça de reserva i continua en directe",
+  "en": "If your carrier blocks the data server (it happens with LaLiga's IP blocks during matches), the app switches to a backup address on its own and stays live"
  }
 }

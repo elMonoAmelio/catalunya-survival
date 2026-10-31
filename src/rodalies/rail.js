@@ -89,17 +89,23 @@ export function initRail(A) {
   const DEF_RT = 'https://rodalies.erathegameoftime.com';
   const RT = { url: '', delays: new Map(), tu: new Map(), vp: new Map(), alerts: [], ok: 0, okVP: 0, err: '', feedTs: 0 };
   try { const u = new URLSearchParams(location.search).get('rt'); if (u) localStorage.setItem('rod_rt', u); let sv = localStorage.getItem('rod_rt'); if (sv && /jhmuyo\.workers\.dev/.test(sv)) { sv = DEF_RT; localStorage.setItem('rod_rt', sv); } RT.url = sv || DEF_RT; } catch (e) { RT.url = DEF_RT; }
-  const get = (base, p) => fetch(base + p, { cache: 'no-store' }).then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); });
+  const get = (base, p) => { const ac = new AbortController(), to = setTimeout(() => ac.abort(), 12000); return fetch(base + p, { cache: 'no-store', signal: ac.signal }).then(r => { clearTimeout(to); if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); }, e => { clearTimeout(to); throw e; }); };   /* máx. 12 s: una conexión colgada no deja la app «conectando» */
+  /* dirección de reserva del puente: algunas operadoras (bloqueos de LaLiga) cortan las IP de Cloudflare del dominio propio; workers.dev usa otras */
+  const ALT_RT = 'https://rodalies.jhmuyo.workers.dev';
+  function rtBase() { return (RT.url === DEF_RT && RT.altUntil > Date.now() ? ALT_RT : RT.url).replace(/\/+$/, ''); }
   const isRod = id => /^51/.test(id || '');
   async function pollRT() {
     if (!RT.url) { renderRT(); return; }
-    const base = RT.url.replace(/\/+$/, '');
+    const base = rtBase();
+    if (pollRT.busy) return; pollRT.busy = 1; try { await pollRT0(base); } finally { pollRT.busy = 0; }
+  }
+  async function pollRT0(base) {
     const wantAdif = !RT.adifAt || Date.now() - RT.adifAt > 110000;
     const OK = x => ({ status: 'fulfilled', value: x }), KO = e => ({ status: 'rejected', reason: e });
     let tu, vp, al, nt, ad, L = null;
     // una sola petición con todo (/live.json); si el puente aún no la tiene (404), las de siempre y se vuelve a probar a los 30 min
     if (RT.noLive && Date.now() - RT.noLive > 30 * 60000) RT.noLive = 0;
-    if (!RT.noLive) { try { L = await get(base, '/live.json'); } catch (e) { if (/HTTP 404/.test(e.message)) RT.noLive = Date.now(); else L = { __fail: e }; } }
+    if (!RT.noLive) { try { L = await get(base, '/live.json'); } catch (e) { if (/HTTP 404/.test(e.message)) RT.noLive = Date.now(); else if (RT.url === DEF_RT && base !== ALT_RT) { RT.altUntil = Date.now() + 30 * 60000; return pollRT0(ALT_RT); } else { if (base === ALT_RT) RT.altUntil = 0; L = { __fail: e }; } } }
     if (L && L.__fail) { tu = vp = al = nt = ad = KO(L.__fail); }
     else if (L && L.v === 1) {
       const pick = k => L[k] && !L[k].__err ? OK(L[k]) : KO(new Error(L[k] && L[k].__err || 'sin dato'));
@@ -874,7 +880,7 @@ export function initRail(A) {
       const offOk = (useLive || rtDown() && S.live) && RT.url;
       if (offOk && (!OD || Date.now() - OD.at > depAge()) && !OD?.loading) {
         DEPS.set(sid, { ...(OD || {}), loading: true, at: OD ? OD.at : 0 });
-        get(RT.url.replace(/\/+$/, ''), '/departures.json?stationId=' + sid).then(d => { DEPS.set(sid, { at: Date.now(), d }); if (selStation === s) { mcs._h = ''; renderCard(); } }).catch(() => DEPS.set(sid, { at: Date.now(), err: 1 }));
+        get(rtBase(), '/departures.json?stationId=' + sid).then(d => { DEPS.set(sid, { at: Date.now(), d }); if (selStation === s) { mcs._h = ''; renderCard(); } }).catch(() => DEPS.set(sid, { at: Date.now(), err: 1 }));
       }
       const off = offOk && OD && OD.d && Array.isArray(OD.d.trains) && OD.d.trains.length ? OD.d.trains : null;   // vacía: horario
       if (off) {
@@ -947,11 +953,11 @@ export function initRail(A) {
   }
   async function sendRep(body, path) {
     try {
-      const r = await fetch(RT.url.replace(/\/+$/, '') + path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+      const r = await fetch(rtBase() + path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
       const j = await r.json(); if (!j.ok) { toast(j.err || 'No se ha podido enviar'); return; }
       if (j.id) { repMine.add(j.id); try { localStorage.setItem('rod_votes', JSON.stringify([...repMine].slice(-300))); } catch (e) {} }
       toast(path === '/vote' ? 'Gracias, voto guardado' : j.n > 1 ? `Gracias · ya sois ${j.n} avisando de lo mismo` : 'Gracias, aviso enviado');
-      const rr = await get(RT.url.replace(/\/+$/, ''), '/reports.json'); if (rr && rr.items) RT.rep = rr.items;
+      const rr = await get(rtBase(), '/reports.json'); if (rr && rr.items) RT.rep = rr.items;
       mcs._h = ''; renderCard(); renderHome(true);
     } catch (e) { toast('Sin conexión con el servidor'); }
   }
@@ -985,7 +991,7 @@ export function initRail(A) {
     const sid = ST[s].id, OD = DEPS.get(sid);
     if (!(feedUp() && RT.url) || OD && (OD.loading || Date.now() - OD.at < depAge())) return;
     DEPS.set(sid, { ...(OD || {}), loading: true, at: OD ? OD.at : 0 });
-    get(RT.url.replace(/\/+$/, ''), '/departures.json?stationId=' + sid).then(d => { DEPS.set(sid, { at: Date.now(), d }); cb && cb(); }).catch(() => DEPS.set(sid, { at: Date.now(), err: 1 }));
+    get(rtBase(), '/departures.json?stationId=' + sid).then(d => { DEPS.set(sid, { at: Date.now(), d }); cb && cb(); }).catch(() => DEPS.set(sid, { at: Date.now(), err: 1 }));
   }
   const hm2min = t => +t.slice(0, 2) * 60 + +t.slice(3, 5);
   const NUMI = { k: -2, m: null };
@@ -1344,7 +1350,7 @@ export function initRail(A) {
     if (!('serviceWorker' in navigator) || !('PushManager' in window) || location.protocol !== 'https:') return null;
     return (await navigator.serviceWorker.getRegistration()) || navigator.serviceWorker.register('./sw.js');
   }
-  async function pushSend(sub) { const r = await fetch(RT.url.replace(/\/+$/, '') + '/push/subscribe', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ sub: sub.toJSON(), ...pushTarget() }) }); const j = await r.json(); if (!j.ok) throw new Error(j.err || 'error'); }
+  async function pushSend(sub) { const r = await fetch(rtBase() + '/push/subscribe', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ sub: sub.toJSON(), ...pushTarget() }) }); const j = await r.json(); if (!j.ok) throw new Error(j.err || 'error'); }
   // sin servidor: avisos del propio navegador mientras la app está abierta (o en segundo plano)
   // ¿desde dónde vas a salir? la estación de Casa o Trabajo más cercana a tu última ubicación (hasta 3 h);
   // sin ubicación: por la mañana desde casa y por la tarde desde el trabajo
@@ -1395,12 +1401,12 @@ export function initRail(A) {
       await navigator.serviceWorker.ready;
       if (PUSH.on) {
         const sub = await reg.pushManager.getSubscription();
-        if (sub) { fetch(RT.url.replace(/\/+$/, '') + '/push/unsubscribe', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ endpoint: sub.endpoint }) }).catch(() => {}); await sub.unsubscribe().catch(() => {}); }
+        if (sub) { fetch(rtBase() + '/push/unsubscribe', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ endpoint: sub.endpoint }) }).catch(() => {}); await sub.unsubscribe().catch(() => {}); }
         PUSH.on = false; toast('Avisos desactivados');
       } else {
         if (!RT.url) { toast('Hace falta el puente en directo'); return; }
         const perm = await Notification.requestPermission(); if (perm !== 'granted') { toast('Sin permiso para avisos: actívalo en los ajustes del navegador'); return; }
-        const key = (await get(RT.url.replace(/\/+$/, ''), '/push/key')).key;
+        const key = (await get(rtBase(), '/push/key')).key;
         const sub = (await reg.pushManager.getSubscription()) || await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: u8(key) });
         await pushSend(sub); PUSH.on = true; toast('Listo: te avisaremos de incidencias en ' + pushTarget().lines.join(', '));
       }
