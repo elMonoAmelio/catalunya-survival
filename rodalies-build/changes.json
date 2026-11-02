@@ -138,5 +138,9 @@
  "1.406": {
   "ca": "Fiabilitat del proper tren en tres paraules: FIABLE, DUBTÓS o NO PASSA",
   "en": "Next train reliability in three words: RELIABLE, DOUBTFUL or NOT RUNNING"
+ },
+ "1.408": {
+  "ca": "Fiabilitat en una etiqueta arrodonida: Fiable només si Renfe localitza el tren; si no, Dubtós; cancel·lat, No passa",
+  "en": "Reliability in a rounded tag: Reliable only if Renfe locates the train; otherwise Doubtful; cancelled, Not running"
  }
 }
