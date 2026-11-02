@@ -134,5 +134,9 @@
  "1.404": {
   "ca": "Les targetes plegades d'Ara diuen si el proper tren és fiable: «Sí, el més fiable», «Sí, en general», «Dubtós», «Dubtós: pot no passar», «Passarà, però tard» o «No passa»",
   "en": "Collapsed cards in Now say whether the next train is reliable: «Yes, most reliable», «Yes, generally», «Doubtful», «Doubtful: may not come», «Will come, but late» or «Not running»"
+ },
+ "1.406": {
+  "ca": "Fiabilitat del proper tren en tres paraules: FIABLE, DUBTÓS o NO PASSA",
+  "en": "Next train reliability in three words: RELIABLE, DOUBTFUL or NOT RUNNING"
  }
 }

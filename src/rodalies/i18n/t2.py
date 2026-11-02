@@ -322,4 +322,5 @@ T = {
 "Pasará, pero tarde": ("Passarà, però tard", "Will come, but late"),
 "Sí, lo más fiable": ("Sí, el més fiable", "Yes, most reliable"),
 "Sí, en general": ("Sí, en general", "Yes, generally"),
+"Fiable": ("Fiable", "Reliable"),
 }
