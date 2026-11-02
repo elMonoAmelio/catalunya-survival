@@ -313,4 +313,5 @@ T = {
 "Ver en el mapa": ("Veure al mapa", "Show on map"),
 "Salió de": ("Va sortir de", "Left"),
 "Sale de": ("Surt de", "Leaves"),
+"Podrás marcarlo cuando llegue el tren a tu estación": ("Podràs marcar-lo quan el tren arribi a la teva estació", "You can mark it when the train reaches your station"),
 }

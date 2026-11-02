@@ -114,5 +114,9 @@
  "1.394": {
   "ca": "El teu tren ja no surt repetit: es veu a la targeta de la teva estació, amb «Vaig al tren», «Mapa» i «A l'andana» en una fila. La targeta «El teu tren» només apareix si tries al mapa un tren que no passa per les teves estacions",
   "en": "Your train no longer shows twice: it's in your station's card, with «I'm on the train», «Map» and «On the platform» in one row. The «Your train» card only appears if you pick on the map a train that doesn't stop at your stations"
+ },
+ "1.396": {
+  "ca": "«Vaig al tren» només es pot prémer quan el tren és a la teva estació (des de 3 min abans que surti); abans surt apagat i et diu a quina hora podràs",
+  "en": "«I'm on the train» can only be tapped when the train is at your station (from 3 min before it leaves); before that it's dimmed and tells you when"
  }
 }
