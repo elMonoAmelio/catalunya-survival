@@ -323,4 +323,5 @@ T = {
 "Sí, lo más fiable": ("Sí, el més fiable", "Yes, most reliable"),
 "Sí, en general": ("Sí, en general", "Yes, generally"),
 "Fiable": ("Fiable", "Reliable"),
+"Por salir": ("Per sortir", "Not departed"),
 }

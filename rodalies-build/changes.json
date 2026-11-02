@@ -142,5 +142,9 @@
  "1.408": {
   "ca": "Fiabilitat en una etiqueta arrodonida: Fiable només si Renfe localitza el tren; si no, Dubtós; cancel·lat, No passa",
   "en": "Reliability in a rounded tag: Reliable only if Renfe locates the train; otherwise Doubtful; cancelled, Not running"
+ },
+ "1.410": {
+  "ca": "Nova etiqueta «Per sortir» (blau): el tren encara no ha sortit de l'estació d'origen, per això Renfe encara no el localitza; ja no surt com a Dubtós",
+  "en": "New «Not departed» tag (blue): the train hasn't left its first station yet, so Renfe can't locate it; it no longer shows as Doubtful"
  }
 }
