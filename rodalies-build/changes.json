@@ -122,5 +122,9 @@
  "1.398": {
   "ca": "Línia: l'estat de cada línia es pot veure encara que en tinguis diverses seleccionades (un botó per línia; sense filtre, les de les teves estacions)",
   "en": "Line: each line's status is available even with several lines selected (one button per line; without a filter, those of your stations)"
+ },
+ "1.400": {
+  "ca": "Un sol tren triat a tota l'app: triar-ne un altre (a Casa, Feina o el mapa) substitueix l'anterior. Tocar a Ara un tren que ja ha sortit no et canvia de pestanya: t'ofereix «Veure al mapa»",
+  "en": "Only one chosen train in the whole app: choosing another (Home, Work or the map) replaces the previous one. Tapping in Now a train that already left no longer switches tab: it offers «Show on map»"
  }
 }
