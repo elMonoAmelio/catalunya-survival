@@ -406,7 +406,7 @@ export function initRail(A) {
   const BACK = { st: -1 };   // estación desde la que se abrió un tren (para volver al cerrarlo)
   let act = [], lastT = 0, follow = null, selTrip = null, selStation = -1, selAlerts = false, lastCard = 0, lastClock = '';
   function tick(now) {
-    const fast = speed > 0 || (live() && simMin == null) || !!selTrip, gap = window.__mapHidden ? 1000 : fast ? 50 : 250;   // sin mapa a la vista basta con recalcular una vez por segundo (batería)
+    const fast = speed > 0 || !!follow, gap = window.__mapHidden ? 1000 : speed > 0 ? 50 : fast ? 120 : 250;   // sin mapa a la vista basta con recalcular una vez por segundo (batería)
     if (now - lastT < gap) return false;
     lastT = now;
     { const k = [...focusF()].join(); if (k !== lastFocus) { buildLines(); styleStations(); } }
@@ -1197,11 +1197,16 @@ export function initRail(A) {
   }
   if (navigator.geolocation && navigator.geolocation.watchPosition) {
     let wid = null;
-    const start = () => { if (wid != null) return; wid = navigator.geolocation.watchPosition(pos => {
+    /* batería: GPS de precisión alta solo si tienes tren elegido o fijado, alarma, vas de camino o te mueves a más de 15 km/h (10 min); si no, el de bajo consumo (antenas y wifi) */
+    let hiOn = null, fastUntil = 0;
+    const needHi = () => !!(PIN.size || ONB.tid || ALARM || PLACES.some(P => P.goAt) || fastUntil > Date.now());
+    const start = () => { if (wid != null) return; hiOn = needHi(); wid = navigator.geolocation.watchPosition(pos => {
         const { longitude: lon, latitude: lat } = pos.coords, f = { t: pos.timestamp || Date.now(), w: LL(lon, lat), k: kmUnit(lon, lat), spd: pos.coords.speed, acc: pos.coords.accuracy };
         ONB.fixes.push(f); ONB.fixes = ONB.fixes.filter(x => f.t - x.t < 120000);
+        { const p0 = ONB.fixes.find(x => f.t - x.t >= 20000); const v = f.spd != null && f.spd > 0 ? f.spd * 3.6 : p0 ? Math.hypot(f.w[0] - p0.w[0], f.w[1] - p0.w[1]) * f.k / ((f.t - p0.t) / 3600000) : 0; if (v >= 15 && v < 250 && (f.acc == null || f.acc < 300)) fastUntil = Date.now() + 10 * 60000; }
         try { if (nowState().live) onboardCheck(); } catch (e) {}
-      }, () => {}, { enableHighAccuracy: true, maximumAge: 5000, timeout: 20000 }); };
+      }, () => {}, hiOn ? { enableHighAccuracy: true, maximumAge: 5000, timeout: 20000 } : { enableHighAccuracy: false, maximumAge: 30000, timeout: 30000 }); };
+    setInterval(() => { if (wid != null && needHi() !== hiOn) { stop(); start(); } }, 15000);   // cambia de modo cuando hace falta
     const stop = () => { if (wid != null) { navigator.geolocation.clearWatch(wid); wid = null; } };
     setTimeout(start, 3000);   // tras el primer aviso de permiso
     document.addEventListener('visibilitychange', () => { if (document.hidden) stop(); else { ONB.fixes = []; start(); } });
@@ -1767,7 +1772,7 @@ export function initRail(A) {
   }
   function setTab(k) {
     if (!TAB.on) return;
-    const was = TAB.cur; TAB.cur = k; document.documentElement.dataset.tab = k; window.__mapHidden = k !== 'map';
+    const was = TAB.cur; TAB.cur = k; document.documentElement.dataset.tab = k; window.__mapHidden = k !== 'map'; if (!window.__mapHidden && window.__wakeMap) window.__wakeMap();
     tabbar.querySelectorAll('[data-tab]').forEach(b => b.classList.toggle('on', b.dataset.tab === k)); tindOn();
     if (k === 'line') { if (selTrip || selStation >= 0) TAB.keep = { t: selTrip, s: selStation, sk: TAB.sk }; if (!selStats && !selAlerts && !selLine && !selNews) { selStats = true; HIST.at = 0; } selTrip = null; selStation = -1;   /* «novedades y fuentes» (desde Ajustes) se abre en Línea */ mcs._h = ''; renderCard(); renderLineaBar(); }
     else if (was === 'line') { selStats = selAlerts = selNews = false; selLine = ''; const kp = TAB.keep; TAB.keep = null; if (kp && k === 'map' && !selTrip && selStation < 0) { selTrip = kp.t; selStation = kp.s; TAB.sk = kp.sk; } mcs._h = ''; renderCard(); }

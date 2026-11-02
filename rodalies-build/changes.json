@@ -94,5 +94,9 @@
  "1.384": {
   "ca": "Fixar un tren el converteix també en el tren triat (un sol tren marcat) i n'obre la fitxa al mapa, encara que no hagi sortit. «Sense posició de Renfe» passa a ser un avís petit a la mateixa línia",
   "en": "Pinning a train also makes it your chosen train (only one train marked) and opens its card on the map, even before it departs. «No Renfe position» is now a small note on the same line"
+ },
+ "1.386": {
+  "ca": "Menys bateria: el mapa deixa de dibuixar-se 60 cops per segon quan està quiet o no es veu, i el GPS d'alta precisió només s'usa amb un tren triat, si vas de camí o si et mous en alguna cosa ràpida",
+  "en": "Less battery: the map no longer redraws 60 times a second when idle or hidden, and high-accuracy GPS is only used with a chosen train, on your way to the station or when moving fast"
  }
 }

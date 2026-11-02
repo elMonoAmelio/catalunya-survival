@@ -173,9 +173,14 @@ function placeCamera() {
 }
 let dirty = true, last = performance.now();
 const pulses = new Map();
-function invalidate() { dirty = true; }
+/* batería: con el mapa quieto no se pide un fotograma cada 1/60 s; se duerme y cualquier cambio (toque, datos, cámara) lo despierta */
+let sleepT = 0, idleSince = 0;
+function wake() { if (sleepT) { clearTimeout(sleepT); sleepT = 0; requestAnimationFrame(frame); } }
+function invalidate() { dirty = true; wake(); }
+window.__wakeMap = wake;
+['pointerdown', 'wheel', 'touchstart', 'keydown'].forEach(ev => addEventListener(ev, wake, { passive: true, capture: true }));
 function frame(now) {
-  requestAnimationFrame(frame);
+  sleepT = 0;
   const dt = clamp((now - last) / 1000, 0, 0.05); last = now;
   const a = 1 - Math.exp(-dt * 10);
   let moving = false;
@@ -183,8 +188,11 @@ function frame(now) {
   for (const o of munis) { const d = o.zt - o.z; if (Math.abs(d) > 0.002) { o.z += d * Math.min(1, a * 0.8); o.group.scale.z = o.z; o.og.position.z = o.z + 0.04; moving = true; } else if (o.z !== o.zt) { o.z = o.zt; o.group.scale.z = o.z; o.og.position.z = o.z + 0.04; } }
   for (const [o, t0] of pulses) { const k = (now - t0) / 1800; if (k >= 1) { pulses.delete(o); refreshEm(o); } else { refreshEm(o, 0.5 * Math.sin(Math.PI * k)); } moving = true; }
   if (window.__rodTick && window.__rodTick(now)) dirty = true;
-  if (window.__mapHidden) { dirty = true; return; }   // pestañas sin mapa: no se dibuja (fluidez y batería)
+  if (window.__mapHidden) { dirty = true; sleepT = setTimeout(() => { sleepT = 0; requestAnimationFrame(frame); }, 1000); return; }   // pestañas sin mapa: no se dibuja y se recalcula 1 vez por segundo
   if (moving || dirty) { northR.style.transform = `rotate(${cur.yaw}rad) scaleY(${(0.55 + 0.45 * Math.cos(cur.tilt)).toFixed(3)})`; { const off = Math.abs(Math.sin(goal.yaw / 2)) < 0.02 && goal.tilt < 0.03; const nb = document.getElementById('north'); if (nb.classList.contains('flat') !== off) { nb.classList.toggle('flat', off); nb.title = off ? 'El norte ya está arriba' : 'Poner el norte arriba y el mapa plano'; } } placeCamera(); updateBorders(); placeLabels(); if (window.__rodFrame) window.__rodFrame(); renderer.render(scene, camera); dirty = moving; $('#tilt').value = Math.round(goal.tilt * 180 / Math.PI); $('#yaw').value = Math.round(((goal.yaw * 180 / Math.PI + 180) % 360 + 360) % 360 - 180); }
+  if (moving || pulses.size) { idleSince = 0; requestAnimationFrame(frame); return; }
+  if (!idleSince) idleSince = now;
+  if (now - idleSince < 1500) requestAnimationFrame(frame); else sleepT = setTimeout(() => { sleepT = 0; requestAnimationFrame(frame); }, 120);   // quieto: ~8 comprobaciones por segundo en vez de 60
 }
 function resize() {
   renderer.setSize(innerWidth, innerHeight, false);
