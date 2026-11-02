@@ -86,5 +86,9 @@
  "1.380": {
   "ca": "En fixar un tren que encara és aturat a l'estació de sortida ja apareix a dalt la seva targeta. A les estacions subterrànies l'app reconeix millor que ja ets a l'estació (no diu «no hi arribes» si ja hi ets)",
   "en": "When you pin a train still stopped at its first station its card now shows at the top. In underground stations the app better recognises you're already there (no «you won't make it» while inside)"
+ },
+ "1.382": {
+  "ca": "Fora «Ja he sortit»: l'app veu sola amb el GPS que vas cap a l'estació i compta el camí que et queda. Nou botó «Vaig al tren» per fixar a dalt el tren on vas. Els teus minuts a peu es poden continuar ajustant",
+  "en": "«I've left» is gone: the app sees with GPS that you're heading to the station and counts the walk left. New «I'm on the train» button pins the train you're on at the top. Your walking minutes can still be adjusted"
  }
 }

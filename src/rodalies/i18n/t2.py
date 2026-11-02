@@ -302,6 +302,8 @@ T = {
 "fijado": ("fixat", "pinned"),
 "Sigue así": ("Continua així", "Still true"),
 "Ya no": ("Ja no", "Not anymore"),
-"Cuando subas, mantén pulsado el tren para fijarlo: «vas en este tren»": ("Quan pugis, mantén premut el tren per fixar-lo: «vas en aquest tren»", "When you board, press and hold the train to pin it: «you're on this train»"),
+"Cuando subas, pulsa «Voy en el tren» para fijarlo arriba": ("Quan pugis, prem «Vaig al tren» per fixar-lo a dalt", "When you board, tap «I'm on the train» to pin it at the top"),
 "Lo que dicen los viajeros": ("El que diuen els viatgers", "What passengers say"),
+"no voy a la estación": ("no vaig a l'estació", "not going to the station"),
+"Voy en el tren": ("Vaig al tren", "I'm on the train"),
 }
