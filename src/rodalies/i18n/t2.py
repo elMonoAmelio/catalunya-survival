@@ -306,4 +306,7 @@ T = {
 "Lo que dicen los viajeros": ("El que diuen els viatgers", "What passengers say"),
 "no voy a la estación": ("no vaig a l'estació", "not going to the station"),
 "Voy en el tren": ("Vaig al tren", "I'm on the train"),
+"sin posición de Renfe": ("sense posició de Renfe", "no Renfe position"),
+"Aún no ha salido de": ("Encara no ha sortit de", "Not yet departed from"),
+"sin posición · según horario": ("sense posició · segons l'horari", "no position · timetable"),
 }
