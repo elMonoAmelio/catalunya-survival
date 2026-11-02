@@ -102,5 +102,9 @@
  "1.388": {
   "ca": "El teu tren triat (des d'Ara o des del mapa) apareix sempre a dalt a Ara: quan i per quina via surt, quan arribes, «Vaig al tren» i «Veure al mapa». Ja no es pot seleccionar text en mantenir premut. GPS d'alta precisió només quan et mous",
   "en": "Your chosen train (from Now or the map) always shows at the top of Now: when and from which platform it leaves, when you arrive, «I'm on the train» and «Show on map». Text can no longer be selected by press and hold. High-accuracy GPS only when you're moving"
+ },
+ "1.390": {
+  "ca": "Menys bateria: sense tren en marxa l'app ja no segueix el GPS de manera contínua; mira la ubicació cada 25 s amb el mode de baix consum i només activa el GPS precís quan et mous",
+  "en": "Less battery: with no train moving the app no longer tracks GPS continuously; it checks your location every 25 s in low-power mode and only turns on precise GPS when you move"
  }
 }

@@ -1200,14 +1200,20 @@ export function initRail(A) {
     /* batería: GPS de precisión alta solo si tienes tren elegido o fijado, alarma, vas de camino o te mueves a más de 15 km/h (10 min); si no, el de bajo consumo (antenas y wifi) */
     let hiOn = null, fastUntil = 0;
     const needHi = () => !!(PLACES.some(P => P.goAt) || fastUntil > Date.now());   /* tren elegido o alarma ya no bastan: en el andén o en casa no hace falta; al moverte (≥ 15 km/h) se activa solo */
-    const start = () => { if (wid != null) return; hiOn = needHi(); wid = navigator.geolocation.watchPosition(pos => {
+    const onFix = pos => {
         const { longitude: lon, latitude: lat } = pos.coords, f = { t: pos.timestamp || Date.now(), w: LL(lon, lat), k: kmUnit(lon, lat), spd: pos.coords.speed, acc: pos.coords.accuracy };
+        if (ONB.fixes.length && ONB.fixes[ONB.fixes.length - 1].t === f.t) return;
         ONB.fixes.push(f); ONB.fixes = ONB.fixes.filter(x => f.t - x.t < 120000);
         { const p0 = ONB.fixes.find(x => f.t - x.t >= 20000); const v = f.spd != null && f.spd > 0 ? f.spd * 3.6 : p0 ? Math.hypot(f.w[0] - p0.w[0], f.w[1] - p0.w[1]) * f.k / ((f.t - p0.t) / 3600000) : 0; if (v >= 15 && v < 250 && (f.acc == null || f.acc < 300)) fastUntil = Date.now() + 10 * 60000; }
         try { if (nowState().live) onboardCheck(); } catch (e) {}
-      }, () => {}, hiOn ? { enableHighAccuracy: true, maximumAge: 5000, timeout: 20000 } : { enableHighAccuracy: false, maximumAge: 30000, timeout: 30000 }); };
-    setInterval(() => { if (wid != null && needHi() !== hiOn) { stop(); start(); } }, 15000);   // cambia de modo cuando hace falta
-    const stop = () => { if (wid != null) { navigator.geolocation.clearWatch(wid); wid = null; } };
+      };
+    /* sin necesidad de precisión: nada de seguimiento continuo (1 lectura por segundo); una lectura de bajo consumo cada 25 s basta para notar que empiezas a moverte */
+    let lowT = 0;
+    const start = () => { if (wid != null || lowT) return; hiOn = needHi();
+      if (hiOn) wid = navigator.geolocation.watchPosition(onFix, () => {}, { enableHighAccuracy: true, maximumAge: 5000, timeout: 20000 });
+      else { const once = () => navigator.geolocation.getCurrentPosition(onFix, () => {}, { enableHighAccuracy: false, maximumAge: 20000, timeout: 20000 }); once(); lowT = setInterval(once, 25000); } };
+    setInterval(() => { if ((wid != null || lowT) && needHi() !== hiOn) { stop(); start(); } }, 15000);   // cambia de modo cuando hace falta
+    const stop = () => { if (wid != null) { navigator.geolocation.clearWatch(wid); wid = null; } if (lowT) { clearInterval(lowT); lowT = 0; } };
     setTimeout(start, 3000);   // tras el primer aviso de permiso
     document.addEventListener('visibilitychange', () => { if (document.hidden) stop(); else { ONB.fixes = []; start(); } });
   }
