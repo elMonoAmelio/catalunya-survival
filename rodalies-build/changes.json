@@ -106,5 +106,9 @@
  "1.390": {
   "ca": "Menys bateria: sense tren en marxa l'app ja no segueix el GPS de manera contínua; mira la ubicació cada 25 s amb el mode de baix consum i només activa el GPS precís quan et mous",
   "en": "Less battery: with no train moving the app no longer tracks GPS continuously; it checks your location every 25 s in low-power mode and only turns on precise GPS when you move"
+ },
+ "1.392": {
+  "ca": "Menys bateria: sense moure't, la ubicació es mira un cop per minut (abans cada 25 s)",
+  "en": "Less battery: when you're not moving, location is checked once a minute (was every 25 s)"
  }
 }

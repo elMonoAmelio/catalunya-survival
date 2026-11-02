@@ -1207,11 +1207,11 @@ export function initRail(A) {
         { const p0 = ONB.fixes.find(x => f.t - x.t >= 20000); const v = f.spd != null && f.spd > 0 ? f.spd * 3.6 : p0 ? Math.hypot(f.w[0] - p0.w[0], f.w[1] - p0.w[1]) * f.k / ((f.t - p0.t) / 3600000) : 0; if (v >= 15 && v < 250 && (f.acc == null || f.acc < 300)) fastUntil = Date.now() + 10 * 60000; }
         try { if (nowState().live) onboardCheck(); } catch (e) {}
       };
-    /* sin necesidad de precisión: nada de seguimiento continuo (1 lectura por segundo); una lectura de bajo consumo cada 25 s basta para notar que empiezas a moverte */
+    /* sin necesidad de precisión: nada de seguimiento continuo (1 lectura por segundo); una lectura de bajo consumo por minuto basta para notar que empiezas a moverte */
     let lowT = 0;
     const start = () => { if (wid != null || lowT) return; hiOn = needHi();
       if (hiOn) wid = navigator.geolocation.watchPosition(onFix, () => {}, { enableHighAccuracy: true, maximumAge: 5000, timeout: 20000 });
-      else { const once = () => navigator.geolocation.getCurrentPosition(onFix, () => {}, { enableHighAccuracy: false, maximumAge: 20000, timeout: 20000 }); once(); lowT = setInterval(once, 25000); } };
+      else { const once = () => navigator.geolocation.getCurrentPosition(onFix, () => {}, { enableHighAccuracy: false, maximumAge: 55000, timeout: 20000 }); once(); lowT = setInterval(once, 60000); } };
     setInterval(() => { if ((wid != null || lowT) && needHi() !== hiOn) { stop(); start(); } }, 15000);   // cambia de modo cuando hace falta
     const stop = () => { if (wid != null) { navigator.geolocation.clearWatch(wid); wid = null; } if (lowT) { clearInterval(lowT); lowT = 0; } };
     setTimeout(start, 3000);   // tras el primer aviso de permiso
