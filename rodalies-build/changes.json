@@ -118,5 +118,9 @@
  "1.396": {
   "ca": "«Vaig al tren» només es pot prémer quan el tren és a la teva estació (des de 3 min abans que surti); abans surt apagat i et diu a quina hora podràs",
   "en": "«I'm on the train» can only be tapped when the train is at your station (from 3 min before it leaves); before that it's dimmed and tells you when"
+ },
+ "1.398": {
+  "ca": "Línia: l'estat de cada línia es pot veure encara que en tinguis diverses seleccionades (un botó per línia; sense filtre, les de les teves estacions)",
+  "en": "Line: each line's status is available even with several lines selected (one button per line; without a filter, those of your stations)"
  }
 }
