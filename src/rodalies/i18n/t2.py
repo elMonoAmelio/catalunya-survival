@@ -299,4 +299,9 @@ T = {
 "Tren elegido quitado": ("Tren triat tret", "Chosen train removed"),
 "Deshacer": ("Desfer", "Undo"),
 "Horas según horario · Renfe no da su retraso": ("Hores segons l'horari · Renfe no en dona el retard", "Times as scheduled · Renfe gives no delay"),
+"fijado": ("fixat", "pinned"),
+"Sigue así": ("Continua així", "Still true"),
+"Ya no": ("Ja no", "Not anymore"),
+"Cuando subas, mantén pulsado el tren para fijarlo: «vas en este tren»": ("Quan pugis, mantén premut el tren per fixar-lo: «vas en aquest tren»", "When you board, press and hold the train to pin it: «you're on this train»"),
+"Lo que dicen los viajeros": ("El que diuen els viatgers", "What passengers say"),
 }

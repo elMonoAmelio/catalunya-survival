@@ -78,5 +78,9 @@
  "1.367": {
   "ca": "Si la teva operadora bloqueja el servidor de dades (passa amb els bloquejos d'IP de LaLiga en partits), l'app fa servir sola una adreça de reserva i continua en directe",
   "en": "If your carrier blocks the data server (it happens with LaLiga's IP blocks during matches), the app switches to a backup address on its own and stays live"
+ },
+ "1.377": {
+  "ca": "«Vas en aquest tren»: mantén premut un tren a Ara per fixar-lo (es manté encara que tanquis l'app). La detecció automàtica reconeix el tren triat en uns 10 s. En anar al tren es treu «A l'andana». El menú «Avisa els altres» ja no es tanca sol i té icones noves",
+  "en": "«On this train»: press and hold a train in Now to pin it (survives closing the app). Automatic detection recognises your chosen train in about 10 s. Once on the train, «On the platform» is cleared. The «Tell others» menu no longer closes by itself and has new icons"
  }
 }
