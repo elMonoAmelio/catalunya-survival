@@ -98,5 +98,9 @@
  "1.386": {
   "ca": "Menys bateria: el mapa deixa de dibuixar-se 60 cops per segon quan està quiet o no es veu, i el GPS d'alta precisió només s'usa amb un tren triat, si vas de camí o si et mous en alguna cosa ràpida",
   "en": "Less battery: the map no longer redraws 60 times a second when idle or hidden, and high-accuracy GPS is only used with a chosen train, on your way to the station or when moving fast"
+ },
+ "1.388": {
+  "ca": "El teu tren triat (des d'Ara o des del mapa) apareix sempre a dalt a Ara: quan i per quina via surt, quan arribes, «Vaig al tren» i «Veure al mapa». Ja no es pot seleccionar text en mantenir premut. GPS d'alta precisió només quan et mous",
+  "en": "Your chosen train (from Now or the map) always shows at the top of Now: when and from which platform it leaves, when you arrive, «I'm on the train» and «Show on map». Text can no longer be selected by press and hold. High-accuracy GPS only when you're moving"
  }
 }

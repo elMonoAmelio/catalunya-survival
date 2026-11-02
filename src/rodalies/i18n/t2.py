@@ -309,4 +309,8 @@ T = {
 "sin posición de Renfe": ("sense posició de Renfe", "no Renfe position"),
 "Aún no ha salido de": ("Encara no ha sortit de", "Not yet departed from"),
 "sin posición · según horario": ("sense posició · segons l'horari", "no position · timetable"),
+"tu tren": ("el teu tren", "your train"),
+"Ver en el mapa": ("Veure al mapa", "Show on map"),
+"Salió de": ("Va sortir de", "Left"),
+"Sale de": ("Surt de", "Leaves"),
 }
