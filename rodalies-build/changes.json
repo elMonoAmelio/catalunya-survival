@@ -146,5 +146,9 @@
  "1.410": {
   "ca": "Nova etiqueta «Per sortir» (blau): el tren encara no ha sortit de l'estació d'origen, per això Renfe encara no el localitza; ja no surt com a Dubtós",
   "en": "New «Not departed» tag (blue): the train hasn't left its first station yet, so Renfe can't locate it; it no longer shows as Doubtful"
+ },
+ "1.412": {
+  "ca": "Etiqueta de fiabilitat més petita, perquè destaqui «Marxa ja»",
+  "en": "Smaller reliability tag so «Leave now» stands out"
  }
 }
