@@ -1438,7 +1438,7 @@ export function initRail(A) {
     try { localStorage.setItem('rod_ln', LN.on ? '1' : ''); } catch (e) {} renderHome(true);
   }
   async function pushToggle() {
-    if (!RT.repOk) return lnToggle();   // el puente no tiene base de datos: avisos locales
+    if (!RT.repOk || document.documentElement.classList.contains('cap')) return lnToggle();   // sin base de datos, o dentro de la app (iOS no deja Web Push en la app): notificaciones de la propia app
     if (PUSH.busy) return; PUSH.busy = true;
     try {
       const reg = await pushReg();
@@ -1590,7 +1590,7 @@ export function initRail(A) {
     const S = nowState(), DK = [], tg = pushTarget(), far = P => { const i = curSt(P); return i == null || !NEAR.w ? 1 : Math.hypot(ST[i].w[0] - NEAR.w[0], ST[i].w[1] - NEAR.w[1]); }, ORD = [NEAR, ...[HOME, WORK].sort((a, b) => far(a) - far(b))], html = (document.documentElement.classList.contains('tabmode') ? nowBlock(tg) : reducedHtml(tg)) + noPosHtml(tg) + onbHtml(S) + chosenHtml(S) + ORD.map(P => placeHtml(P, S, DK)).join('') + (PLACES.some(P => P.open) && tg.lines.length ? `${(() => { return ''; const srv = !!RT.repOk, on = srv ? PUSH.on : LN.on; return `<div class="hpush"><span>🔔 Avisos de ${tg.lines.join(', ')}<small>${srv ? (on ? 'Activados: incidencias oficiales, de Adif y de viajeros' : 'Te llegan aunque tengas la app cerrada') : (on ? 'Activados mientras la app esté abierta' : 'Incidencias nuevas de tus líneas mientras la app esté abierta')}</small></span><button type="button" data-push class="${on ? 'on' : ''}">${on ? 'Desactivar' : 'Activar'}</button></div>`; })()}` : '');
     el.className = PLACES.some(P => P.open) ? 'open' : '';
     let bell = $('#bell'); if (!bell) { bell = document.createElement('button'); bell.type = 'button'; bell.id = 'bell'; bell.onclick = pushToggle; $('#inf .more').prepend(bell); }   // dentro del desplegable ▾
-    { const on = RT.repOk ? PUSH.on : LN.on; bell.hidden = !tg.lines.length; bell.className = on ? 'on' : ''; bell.textContent = (on ? '🔔 Avisos activados · ' : '🔕 Activar avisos de ') + tg.lines.join(', '); bell.title = (on ? 'Avisos activados' : 'Activar avisos') + ' de ' + tg.lines.join(', ') + (RT.repOk ? '' : ' (mientras la app esté abierta)'); }
+    { const on = RT.repOk && !document.documentElement.classList.contains('cap') ? PUSH.on : LN.on; bell.hidden = !tg.lines.length; bell.className = on ? 'on' : ''; bell.textContent = (on ? '🔔 Avisos activados · ' : '🔕 Activar avisos de ') + tg.lines.join(', '); bell.title = (on ? 'Avisos activados' : 'Activar avisos') + ' de ' + tg.lines.join(', ') + (RT.repOk ? '' : ' (mientras la app esté abierta)'); }
     if (el._h === html) return; el._h = html; el.innerHTML = html; fitHome();
     if (!el._onbDel) { el._onbDel = 1; el.addEventListener('pointerdown', () => { HOLD.until = Date.now() + 1500; }, true); el.addEventListener('pointerup', () => { HOLD.until = Date.now() + 400; }, true);
       el.addEventListener('click', e => { const x = e.target.closest && e.target.closest('[data-onbx],[data-onbpick]'); if (!x) return; e.stopPropagation(); HOLD.until = 0; onbAct(x); }, true); }

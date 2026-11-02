@@ -126,5 +126,9 @@
  "1.400": {
   "ca": "Un sol tren triat a tota l'app: triar-ne un altre (a Casa, Feina o el mapa) substitueix l'anterior. Tocar a Ara un tren que ja ha sortit no et canvia de pestanya: t'ofereix «Veure al mapa»",
   "en": "Only one chosen train in the whole app: choosing another (Home, Work or the map) replaces the previous one. Tapping in Now a train that already left no longer switches tab: it offers «Show on map»"
+ },
+ "1.401": {
+  "ca": "Avisos a l'app de l'iPhone: «Activar avisos» ja funciona (abans demanava afegir la web a la pantalla d'inici). Avisa d'incidències de les teves línies mentre l'app és oberta o en segon pla recent",
+  "en": "Alerts in the iPhone app: «Turn on alerts» now works (it used to ask to add the website to the home screen). It alerts you of incidents on your lines while the app is open or recently in the background"
  }
 }
