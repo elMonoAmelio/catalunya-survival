@@ -315,4 +315,11 @@ T = {
 "Sale de": ("Surt de", "Leaves"),
 "Podrás marcarlo cuando llegue el tren a tu estación": ("Podràs marcar-lo quan el tren arribi a la teva estació", "You can mark it when the train reaches your station"),
 "Ya ha salido": ("Ja ha sortit", "Already left"),
+"¿Fiable?": ("Fiable?", "Reliable?"),
+"No pasa": ("No passa", "Not running"),
+"Dudoso: puede no pasar": ("Dubtós: pot no passar", "Doubtful: may not come"),
+"Dudoso": ("Dubtós", "Doubtful"),
+"Pasará, pero tarde": ("Passarà, però tard", "Will come, but late"),
+"Sí, lo más fiable": ("Sí, el més fiable", "Yes, most reliable"),
+"Sí, en general": ("Sí, en general", "Yes, generally"),
 }
