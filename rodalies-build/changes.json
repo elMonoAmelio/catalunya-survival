@@ -110,5 +110,9 @@
  "1.392": {
   "ca": "Menys bateria: sense moure't, la ubicació es mira un cop per minut (abans cada 25 s)",
   "en": "Less battery: when you're not moving, location is checked once a minute (was every 25 s)"
+ },
+ "1.394": {
+  "ca": "El teu tren ja no surt repetit: es veu a la targeta de la teva estació, amb «Vaig al tren», «Mapa» i «A l'andana» en una fila. La targeta «El teu tren» només apareix si tries al mapa un tren que no passa per les teves estacions",
+  "en": "Your train no longer shows twice: it's in your station's card, with «I'm on the train», «Map» and «On the platform» in one row. The «Your train» card only appears if you pick on the map a train that doesn't stop at your stations"
  }
 }
