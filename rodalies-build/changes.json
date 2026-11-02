@@ -82,5 +82,9 @@
  "1.377": {
   "ca": "«Vas en aquest tren»: mantén premut un tren a Ara per fixar-lo (es manté encara que tanquis l'app). La detecció automàtica reconeix el tren triat en uns 10 s. En anar al tren es treu «A l'andana». El menú «Avisa els altres» ja no es tanca sol i té icones noves",
   "en": "«On this train»: press and hold a train in Now to pin it (survives closing the app). Automatic detection recognises your chosen train in about 10 s. Once on the train, «On the platform» is cleared. The «Tell others» menu no longer closes by itself and has new icons"
+ },
+ "1.380": {
+  "ca": "En fixar un tren que encara és aturat a l'estació de sortida ja apareix a dalt la seva targeta. A les estacions subterrànies l'app reconeix millor que ja ets a l'estació (no diu «no hi arribes» si ja hi ets)",
+  "en": "When you pin a train still stopped at its first station its card now shows at the top. In underground stations the app better recognises you're already there (no «you won't make it» while inside)"
  }
 }

@@ -1289,7 +1289,7 @@ export function initRail(A) {
     const onPlat = P !== NEAR && !!P.platAt;
     const away = P === NEAR || (gpsOk && kmTo > 3 && !P.goAt && !onPlat);
     // ya en la estación o de camino: no tiene sentido «sal en» ni «no llegas»
-    const atSt = onPlat || P !== NEAR && gpsOk && kmTo < 0.08 && NEAR.acc <= 40 && !(P === HOME && NEAR.homeW && Math.hypot(NEAR.homeW[0] - NEAR.w[0], NEAR.homeW[1] - NEAR.w[1]) * NEAR.k < 0.05);   // dentro de la estación (no basta con vivir al lado)
+    const atSt = onPlat || P !== NEAR && gpsOk && (kmTo < 0.08 && NEAR.acc <= 40 || kmTo < 0.15 && NEAR.acc <= 100 && Date.now() - NEAR.fix < 3 * 60000) && !(P === HOME && NEAR.homeW && Math.hypot(NEAR.homeW[0] - NEAR.w[0], NEAR.homeW[1] - NEAR.w[1]) * NEAR.k < 0.05);   // dentro de la estación (no basta con vivir al lado)
     const goMin = P.goAt ? (Date.now() - P.goAt) / 60000 : null; if (goMin != null && (goMin > 60 || atSt)) { P.goAt = 0; saveP(P); }
     const onWay = !atSt && P !== NEAR && !!P.goAt;
     const wayLeft = onWay ? (gpsOk && kmTo <= 3 ? walkMin(kmTo) : Math.max(0, P.walk - goMin)) : 0;
@@ -1536,10 +1536,12 @@ export function initRail(A) {
     if (!NEAR.w) return []; const k = NEAR.k || 1;
     return act.filter(t => t.tr && t.tr !== cur && t.p && t.p.w && Math.hypot(t.p.w[0] - NEAR.w[0], t.p.w[1] - NEAR.w[1]) * k < 3).sort((x, y) => Math.hypot(x.p.w[0] - NEAR.w[0], x.p.w[1] - NEAR.w[1]) - Math.hypot(y.p.w[0] - NEAR.w[0], y.p.w[1] - NEAR.w[1])).slice(0, 2).map(t => t.tr);
   }
-  function onbHtml(S) {
+  function onbHtml(S) { try { return onbHtml0(S); } catch (e) { console.error(e); return ONB.tid ? `<div class="hplace onbc"><div class="hhead"><span class="hico">🚆</span><span class="htit"><b>${'tren\u00a0'}${esc(ONB.tid)}${ONB.lock ? ` <span class="hlk">${'fijado'}</span>` : ''}</b></span><button type="button" class="hpn onbx" data-onbx aria-label="${'Quitar'}">✕</button></div></div>` : ''; } }   /* un fallo aquí no puede dejar Ahora sin repintar */
+  function onbHtml0(S) {
     if (!ONB.tid) return '';
     const t = act.find(x => x.tr && String(x.tr.num) === ONB.tid) || activeTrips(S).out.find(x => x.tr && String(x.tr.num) === ONB.tid); if (!t) return '';
-    const tr = t.tr, st = tr.pat.stops, nx = t.real ? t.v.next : t.p.next; if (nx == null || nx < 0) return '';
+    const tr = t.tr, st = tr.pat.stops; let nx = t.real && t.v && t.v.next >= 0 ? t.v.next : (t.p && t.p.next >= 0 ? t.p.next : null);
+    if (nx == null) { const h = activeTrips(S).out.find(x => x.tr && String(x.tr.num) === ONB.tid); nx = h && h.p && h.p.next >= 0 ? h.p.next : 1; }   /* sin «siguiente parada» fiable (parado o recién localizado): la tarjeta sale igual */
     const d = delayOf(tr), dl = typeof d === 'number' ? Math.max(0, d / 60) : 0, k = R.days.indexOf(S.ymd), off = tr.day === k - 1 ? 1440 : 0;
     let j = ALARM && ALARM.num === ONB.tid ? st.indexOf(SID.get(ALARM.sid)) : -1; if (j < nx) j = st.length - 1;
     const eta = cardEta(tr, t.real ? t.v : null, j, tr.t0 + tr.pat.t[2 * j] + dl - off), left = eta - S.min, at = t.real && t.v.atStop >= 0 ? t.v.atStop : -1;
