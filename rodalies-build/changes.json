@@ -154,5 +154,9 @@
  "1.414": {
   "ca": "Mantenir premuda la targeta de Casa o Feina amb el tren triat també et posa «al tren» (quan el tren és a la teva estació)",
   "en": "Pressing and holding the Home or Work card with your chosen train also puts you «on the train» (when the train is at your station)"
+ },
+ "1.416": {
+  "ca": "Etiquetes amb fets, no promeses: Localitzat, Per sortir, Sense localitzar i Cancel·lat. A Configuració, avís que les dades són de Renfe i Rodalies i Andana no garanteix que els trens passin",
+  "en": "Tags state facts, not promises: Located, Not departed, Not located and Cancelled. Settings notes that data come from Renfe and Rodalies and Andana does not guarantee trains will run"
  }
 }
