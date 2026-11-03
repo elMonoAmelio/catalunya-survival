@@ -234,5 +234,9 @@
  "1.459": {
   "ca": "Ara: «Més trens» va abans de «Mostrar l'altra direcció»",
   "en": "Now: «More trains» comes before «Show the other direction»"
+ },
+ "1.461": {
+  "ca": "Línia: «Els teus viatges» desa al mòbil cada viatge que fas (en tocar «Vaig al tren» o en detectar-te a dins) amb el retard d'arribada, i suma el retard acumulat del mes",
+  "en": "Line: «Your trips» stores on your phone each trip you make (when you tap «I'm on the train» or are detected on board) with its arrival delay, and adds up the month's total delay"
  }
 }

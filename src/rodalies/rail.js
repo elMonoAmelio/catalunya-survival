@@ -622,6 +622,16 @@ export function initRail(A) {
       <div class="rtb"><button type="button" data-share>📤 Compartir estado</button></div>${l30Html(f)}</div>`;
   }
   const LMORE = { v: false };
+  function tripsHtml(f) {
+    const T = tripsOf(f, 30);
+    if (!T.length) return `<h4>${'Tus viajes'}</h4><p class="snote">${'Cuando toques «Voy en el tren» (o la app te detecte dentro), cada viaje se guarda aquí con su retraso de llegada. Solo en tu móvil.'}</p>`;
+    const W = T.filter(x => x.dl != null), late = W.filter(x => x.dl >= 5).length, sum = W.reduce((a, x) => a + x.dl, 0);
+    const nm = id => { const i = SID.get(id); return i != null ? ST[i].n.replace(/^Barcelona[ -]+(?=\S)/, '') : ''; };
+    const rows = T.slice().sort((a, b) => b.t0 - a.t0).slice(0, 5).map(x => `<li><b>${+x.d.slice(6, 8)}/${+x.d.slice(4, 6)}</b><span>${x.ad != null ? hhmm(x.ad) + ' · ' : ''}${esc(nm(x.a))}${x.a ? ' → ' : ''}${esc(nm(x.b))}<small>${x.dl == null ? 'sin dato de retraso' : x.dl >= 1 ? `${'llegaste'} <b>+${x.dl} min</b>` : 'a su hora'}</small></span></li>`).join('');
+    return `<h4>${'Tus viajes'} · ${T.length}</h4>
+      <div class="kpis"><div class="kpi nx"><b>${T.length}</b><span>${T.length === 1 ? 'viaje' : 'viajes'}<br>${'en 30 días'}</span></div><div class="kpi ${W.length ? (late / W.length >= 0.5 ? 'b' : late / W.length >= 0.25 ? 'w' : 'g') : 'nx'}"><b>${late}</b><span>${'llegaste tarde'}<br>(5 min ${'o más'})</span></div><div class="kpi ${sum >= 60 ? 'b' : sum >= 20 ? 'w' : 'nx'}"><b>${sum >= 60 ? `${Math.floor(sum / 60)} h ${String(Math.round(sum % 60)).padStart(2, '0')}` : `${Math.round(sum)} min`}</b><span>${'de retraso'}<br>${'acumulado'}</span></div></div>
+      <ol class="l30f">${rows}</ol>`;
+  }
   function l30Html(f) {
     const L = line30(f), fv = FAV.filter(x => x.fam === f);
     if (!L) return `<h4>${'Últimos 30 días'}</h4><p class="snote">${HIST.at ? 'El resumen de 30 días aún no tiene datos de esta línea: se va reuniendo cada día.' : 'Cargando…'}</p>`;
@@ -631,6 +641,7 @@ export function initRail(A) {
     return `<h4>${ttl}</h4>
       <div class="kpis"><div class="kpi ${pctCls(L.pct)}"><b>${Math.round(L.pct)}%</b><span>${'a su hora'}<br>(−3 min)</span></div><div class="kpi ${L.avg >= 4 ? 'b' : L.avg >= 2.5 ? 'w' : L.avg >= 1.5 ? 'y' : 'g'}"><b>${fmtMin(L.avg).replace(' min', '')}</b><span>${'min de retraso'}<br>${'medio'}</span></div>${L.since ? `<div class="kpi ${L.nc ? (L.nc >= 10 ? 'b' : 'w') : 'g'}"><b>${L.nc}</b><span>${L.nc === 1 ? 'tren cancelado' : 'trenes cancelados'}<br>${cxTxt}</span></div>` : `<div class="kpi nx"><b>—</b><span>${'cancelaciones'}<br>${'se cuentan desde hoy'}</span></div>`}</div>
       <p class="snote">${rk}${'peor retraso'} +${L.max} min · ${L.days} ${'días con datos'}</p>
+      ${tripsHtml(f)}
       <h4>${'Tus trenes de cada día'}</h4>${fv.length ? `<ol class="l30f">${favRows}</ol>` : `<p class="snote">${'Abre tu tren en el mapa y toca «☆ Mi tren de cada día»: aquí verás cuántos días llega tarde, aunque cambie de número.'}</p>`}
       <div class="rtb"><button type="button" data-share30>📤 ${'Compartir mi mes'}</button></div>
       <small class="snote">${'Datos de Renfe guardados cada 15 min · «a su hora» = menos de 3 min tarde · «tarde» = 5 min o más · retraso típico de cada día'}</small>`;
@@ -969,7 +980,7 @@ export function initRail(A) {
       if (navigator.share) navigator.share({ text: txt }).catch(() => {}); else { navigator.clipboard && navigator.clipboard.writeText(txt); toast('Copiado: ' + txt.slice(0, 60) + '…'); } }; }
     { const lm = mcs.querySelector('[data-lmore]'); if (lm) lm.onclick = () => { LMORE.v = !LMORE.v; mcs._h = ''; renderCard(); }; }
     { const s3 = mcs.querySelector('[data-share30]'); if (s3) s3.onclick = () => { const f = selLine, L = line30(f); if (!L) return; const fv = FAV.filter(x => x.fam === f).map(x => [x, favStats(x)]).filter(([, st]) => st.n);
-      const txt = `${'Mi'} ${f} ${'en los últimos'} ${Math.min(30, L.days)} ${'días'}: ${Math.round(L.pct)} % ${'de trenes a su hora'}, ${'retraso medio'} ${fmtMin(L.avg)}${L.nc ? `, ${L.nc} ${L.nc === 1 ? 'tren cancelado' : 'trenes cancelados'}` : ''}.${fv.map(([x, st]) => ` ${'Mi tren de las'} ${x.t} ${'llegó tarde'} ${st.late} ${'de'} ${st.n} ${'días'} (≈ ${hDur(st.sum)} ${'de retraso'}).`).join('')} ${'Datos de Renfe · Andana'}`;
+      const txt = `${'Mi'} ${f} ${'en los últimos'} ${Math.min(30, L.days)} ${'días'}: ${Math.round(L.pct)} % ${'de trenes a su hora'}, ${'retraso medio'} ${fmtMin(L.avg)}${L.nc ? `, ${L.nc} ${L.nc === 1 ? 'tren cancelado' : 'trenes cancelados'}` : ''}.${(T => { const W = T.filter(x => x.dl != null); return W.length ? ` ${'He hecho'} ${T.length} ${T.length === 1 ? 'viaje' : 'viajes'}: ${'llegué tarde'} ${W.filter(x => x.dl >= 5).length} ${'veces'} (≈ ${hDur(W.reduce((a, x) => a + x.dl, 0))} ${'de retraso'}).` : ''; })(tripsOf(f, 30))}${fv.map(([x, st]) => ` ${'Mi tren de las'} ${x.t} ${'llegó tarde'} ${st.late} ${'de'} ${st.n} ${'días'} (≈ ${hDur(st.sum)} ${'de retraso'}).`).join('')} ${'Datos de Renfe · Andana'}`;
       if (navigator.share) navigator.share({ text: txt }).catch(() => {}); else { navigator.clipboard && navigator.clipboard.writeText(txt); toast('Copiado: ' + txt.slice(0, 60) + '…'); } }; }
     { const cb = mcs.querySelector('[data-cols]'); if (cb) cb.onclick = () => { COLS.on = !COLS.on; buildCols(); mcs._h = ''; renderCard(); }; }
     mcs.querySelectorAll('[data-gs]').forEach(e => e.onclick = () => { const i = +e.dataset.gs; selStats = false; window.__rodPickStation(i); Object.assign(goal, { tx: ST[i].w[0], ty: ST[i].w[1], dist: Math.min(goal.dist, 20) }); invalidate(); });
@@ -1188,6 +1199,7 @@ export function initRail(A) {
     [...PIN].forEach(([k, v]) => { if (String(v) !== num) pinSet(k, null); });   /* vas en este tren: ningún otro queda elegido */
     LASTPIN.num = num; LASTPIN.until = Date.now() + 90 * 60000;   // es tu tren elegido
     const here = new Set(); for (const P of PLACES) { const s = curSt(P); if (s != null && (P.platAt || P.goAt || (P === NEAR && NEAR.st && NEAR.st.length))) here.add(s); }   /* la estación donde estás no es la de bajar */
+    ONB.from = [...here][0] ?? (pk ? (P0 => P0 ? curSt(P0) : null)(PLACES.find(P => P.key === pk)) : null);   /* dónde subes: tu estación (andén / de camino / la tarjeta en la que lo marcas) */
     for (const P of PLACES) if (P.platAt || P.goAt || (how !== 'auto' && P.open)) { P.platAt = 0; P.goAt = 0; if (how !== 'auto') P.open = false; saveP(P); }   // ya no estás en el andén ni de camino: vas dentro (y las tarjetas se pliegan)
     window.__lpAt = Date.now();   /* el «clic» que sigue a mantener pulsado no debe hacer nada más (ni llevarte al mapa) */
     const t = act.find(y => y.tr && String(y.tr.num) === num) || activeTrips(nowState()).out.find(y => y.tr && String(y.tr.num) === num);
@@ -1632,6 +1644,18 @@ export function initRail(A) {
     return `<div class="hplace onbc chosen"><div class="hhead"><span class="hico">📌</span><span class="htit"><b>${chipL(tr.fam)} ${'tren\u00a0'}${esc(num)} <span class="hlk">${'tu tren'}</span></b><small class="nofit">${l1}</small>${y && where ? `<small class="nofit">📍 ${esc(where)}</small>` : ''}<span class="chbtn"><button type="button" class="hgo hboard" data-hboard="${esc(num)}">🚆 ${'Voy en el tren'}</button><button type="button" class="chmap" data-chmap="${esc(num)}">🗺️ ${'Ver en el mapa'}</button></span></span><button type="button" class="hpn onbx" data-unchoose="${esc(num)}" aria-label="${'Quitar tren elegido'}">✕</button></div></div>`;
   }
   function onbHtml(S) { let r; try { r = onbHtml0(S); if (r != null) return r; } catch (e) { console.error(e); } const tr0 = ONB.tid ? tripByNum(ONB.tid) : null, sub = tr0 ? `${'Aún no ha salido de'} ${esc(ST[tr0.pat.stops[0]].n)} · ${hhmm(tr0.t0)}` : ''; return ONB.tid ? `<div class="hplace onbc"><div class="hhead"><span class="hico">🚆</span><span class="htit"><b>${'tren\u00a0'}${esc(ONB.tid)}${ONB.lock ? ` <span class="hlk">${'fijado'}</span>` : ''}</b>${sub ? `<small class="nofit">${sub}</small>` : ''}</span><button type="button" class="hpn onbx" data-onbx aria-label="${'Quitar'}">✕</button></div></div>` : ''; }   /* un fallo aquí no puede dejar Ahora sin repintar */
+  // ---------- tus viajes reales: se guardan solo en este móvil al ir dentro de un tren ----------
+  const TRIPS = (() => { try { return JSON.parse(localStorage.getItem('rod_trips') || '[]'); } catch (e) { return []; } })();
+  function tripLog(S, tr, j, off, dl) {
+    const k = S.ymd + '|' + tr.num, st = tr.pat.stops; let r = TRIPS.find(x => x.k === k);
+    if (!r) { let fi = ONB.from != null ? st.indexOf(ONB.from) : -1;
+      if (fi < 0 && ONB.fixes.length) { const fx = ONB.fixes[0]; let bd = 0.6; st.forEach((si, q) => { const dd = Math.hypot(ST[si].w[0] - fx.w[0], ST[si].w[1] - fx.w[1]) * fx.k; if (dd < bd) { bd = dd; fi = q; } }); }   /* detectado por GPS: la parada más cercana a donde empezó */ r = { k, d: S.ymd, num: String(tr.num), fam: tr.fam, a: fi >= 0 ? ST[st[fi]].id : '', ad: fi >= 0 ? Math.round(tr.t0 + tr.pat.t[2 * fi + 1] - off) : null, dl: null, mx: 0, t0: Date.now() }; TRIPS.push(r); }
+    r.b = ST[st[j]].id; r.bd = Math.round(tr.t0 + tr.pat.t[2 * j] - off);
+    if (dl != null) { r.dl = Math.round(dl); r.mx = Math.max(r.mx || 0, r.dl); }
+    r.t1 = Date.now();
+    if (!tripLog.s || Date.now() - tripLog.s > 30000 || r._n !== r.dl) { tripLog.s = Date.now(); r._n = r.dl; const cut = Date.now() - 120 * 864e5; try { localStorage.setItem('rod_trips', JSON.stringify(TRIPS.filter(x => (x.t1 || x.t0) > cut), (key, v) => key === '_n' ? undefined : v)); } catch (e) {} }
+  }
+  const tripsOf = (f, days) => { const cut = Date.now() - days * 864e5; return TRIPS.filter(x => x.fam === f && (x.t1 || x.t0) > cut && (x.t1 || 0) - x.t0 >= 180000); };   /* solo viajes de 3 min o más (no detecciones sueltas) */
   function onbHtml0(S) {
     if (!ONB.tid) return '';
     [...PIN].forEach(([k, v]) => { if (String(v) !== String(ONB.tid)) pinSet(k, null); });   /* un solo tren: el que llevas */
@@ -1645,6 +1669,7 @@ export function initRail(A) {
     if (j > 0 && j < nx && gpsSt !== j && !(gpsSt >= 0 && gpsSt < j)) { setTimeout(() => { if (!ONB.tid) return; const n = ONB.tid; ONB.tid = ''; ONB.lock = false; ONB.manual = 0; ONB.quiet = Date.now() + 10 * 60000; if (follow && String(follow.num) === n) follow = null; [...PIN].forEach(([k2, v]) => { if (String(v) === n) pinSet(k2, null); }); if (LASTPIN.num === n) LASTPIN.num = ''; renderHome(true); }, 0); return ''; }   /* ya has llegado a tu estación: el viaje termina solo */
     if (j < nx) j = st.length - 1;
     const eta = cardEta(tr, t.real ? t.v : null, j, tr.t0 + tr.pat.t[2 * j] + dl - off), left = eta - S.min, at = t.real && t.v.atStop >= 0 ? t.v.atStop : -1;
+    tripLog(S, tr, j, off, typeof d === 'number' ? dl : null);
     const where = gpsSt >= 0 ? `${'Estás en'} ${ST[st[gpsSt]].n}` : trainWhere(tr.num) || 'Hacia ' + ST[st[nx]].n;
     return `<div class="hplace onbc"><button type="button" class="hhead" data-onbgo><span class="hico">🚆</span><span class="htit"><b>${chipL(tr.fam)} ${'tren\u00a0'}${esc(tr.num)}${ONB.lock ? ` <span class="hlk">${'fijado'}</span>` : ''}</b><small class="nofit cok">${esc(where)} · <span class="nw">${'llegas a'} ${esc(ST[st[j]].n)}</span> <span class="nw">${left >= 1 ? 'en ' + mins(left) + ' · ' : ''}<b>${hhmm(eta)}</b>${dl >= 1 ? ` <em class="dl ${dlCls(dl)}">+${Math.round(dl)}</em>` : ''}</span></small></span><span class="hchev">›</span></button><button type="button" class="hpn onbx" data-onbx aria-label="${'No es este'}" title="${'No es este'}">✕</button>${(alts => alts.length && !(ONB.manual && Date.now() < ONB.manual) ? `<div class="onbch">${alts.map(t => `<button type="button" class="onbalt" data-onbpick="${esc(t.num)}">${'¿Vas en el'} ${esc(t.num)}?</button>`).join('')}</div>` : '')(onbAlt(tr))}</div>`;
   }
