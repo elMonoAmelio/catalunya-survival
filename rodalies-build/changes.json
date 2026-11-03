@@ -190,5 +190,9 @@
  "1.436": {
   "ca": "Anant en un tren, les targetes d'estació ja no ofereixen «A l'andana» ni «Vaig al tren» i es treu l'«a l'andana» que tinguessis. «Encara no ha sortit d'aquesta estació» quan ja és l'hora i el tren continua aturat a la teva estació",
   "en": "On a train, station cards no longer offer «On the platform» or «I'm on the train» and any «on the platform» is cleared. «Hasn't left this station yet» when it's time and the train is still at your station"
+ },
+ "1.438": {
+  "ca": "Targeta oberta sense informació repetida: la capçalera només mostra l'estació (i el transbord si n'hi ha) i el panell gran porta l'hora, la via i «sense posició de Renfe»",
+  "en": "Open card without repeated info: the header shows only the station (and the transfer if any), and the big panel has the time, platform and «no Renfe position»"
  }
 }
