@@ -238,5 +238,9 @@
  "1.461": {
   "ca": "Línia: «Els teus viatges» desa al mòbil cada viatge que fas (en tocar «Vaig al tren» o en detectar-te a dins) amb el retard d'arribada, i suma el retard acumulat del mes",
   "en": "Line: «Your trips» stores on your phone each trip you make (when you tap «I'm on the train» or are detected on board) with its arrival delay, and adds up the month's total delay"
+ },
+ "1.463": {
+  "ca": "Estadístiques: l'app descarrega només els últims 30 dies del resum diari (menys dades mòbils amb el temps)",
+  "en": "Stats: the app downloads only the last 30 days of the daily summary (less mobile data over time)"
  }
 }

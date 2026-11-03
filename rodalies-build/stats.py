@@ -114,3 +114,9 @@ H['upd'] = now.isoformat(timespec='minutes')
 with open(os.path.join(OUT, 'hoy.json'), 'w') as f:
     json.dump(H, f, ensure_ascii=False, separators=(',', ':'))
 print('ok', snap)
+
+# lo que descarga la app: solo los últimos 30 días del resumen diario (dias.json crece ~1 KB al día); se escribe en cada foto
+_DI = load('dias.json')
+if _DI and _DI.get('days'):
+    with open(os.path.join(OUT, 'dias30.json'), 'w') as f:
+        json.dump({'note': _DI.get('note', ''), 'days': _DI['days'][-30:]}, f, ensure_ascii=False, separators=(',', ':'))

@@ -504,7 +504,7 @@ export function initRail(A) {
   const HURL = 'https://raw.githubusercontent.com/elMonoAmelio/catalunya-survival/stats/';
   function loadHist() {
     if (Date.now() - HIST.at < 5 * 60000) return; HIST.at = Date.now();
-    Promise.all(['hoy', 'ayer', 'hist', 'dias'].map(n => fetch(HURL + n + '.json', { cache: 'no-store' }).then(r => r.ok ? r.json() : null).catch(() => null)))
+    Promise.all(['hoy', 'ayer', 'hist', 'dias30'].map(n => fetch(HURL + n + '.json', { cache: 'no-store' }).then(r => r.ok ? r.json() : null).catch(() => null)).map((pr, q) => q === 3 ? pr.then(x => x || fetch(HURL + 'dias.json', { cache: 'no-store' }).then(r => r.ok ? r.json() : null).catch(() => null)) : pr))
       .then(([h, a, hi, di]) => { HIST.hoy = h; HIST.ayer = a; HIST.hist = hi; HIST.dias = di; HIST.tr = null; HIST.err = h ? '' : 'sin datos'; if (selStats || selLine) { mcs._h = ''; renderCard(); } renderHome(true); });
   }
   // ¿suele ir tarde este tren? retraso típico de cada día (mediana de las fotos) de los últimos 30 días + ayer + hoy
