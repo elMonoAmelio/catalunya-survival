@@ -611,6 +611,19 @@ html:not(.dark) #home .hstep2 button{background:#e6e6e6;color:#141414}
 #home .hcfgmap{display:flex;align-items:center;gap:6px;border-top:1px solid var(--line,#2a2a2a);padding-top:9px;color:var(--ink);font-size:14px;cursor:pointer}
 /* R1 pegado al destino en «Hacia» */
 #home .hdir .hwf{margin-left:6px}
+
+/* fila de acciones: siempre en una línea (tren fijado = 4 botones) */
+#home .hwalk:has(.hcfg){display:flex!important;flex-wrap:nowrap!important;gap:8px!important;align-items:stretch!important}
+#home .hwalk:has(.hcfg)>.hgo{flex:1 1 0!important;min-width:0!important;overflow:hidden;text-overflow:ellipsis;margin:0!important;padding:9px 8px!important;font-size:13px!important;text-align:center;justify-content:center}
+#home .hwalk:has(.hcfg)>.hgo.hcfg,#home .hwalk:has(.hcfg)>.hgo.hmap{flex:0 0 46px!important;padding:0!important;display:grid;place-items:center}
+#home .hwalk:has(.hcfg)>.hgo.hmap .ico{width:21px!important;height:21px!important;margin:0}
+html.dark #home .hwalk .hgo.hmap{background:#141414!important;color:#d6d6d6!important;box-shadow:inset 0 0 0 1px var(--line,#333)!important;border:0!important}
+
+@media (max-width:360px){#home .hwalk:has(.hcfg){gap:6px!important}#home .hwalk:has(.hcfg)>.hgo:not(.hcfg):not(.hmap) .ico{display:none}#home .hwalk:has(.hcfg)>.hgo.hcfg,#home .hwalk:has(.hcfg)>.hgo.hmap{flex-basis:40px!important}#home .hwalk:has(.hcfg)>.hgo{padding-left:5px!important;padding-right:5px!important}}
+
+html.big #home .hwalk:has(.hcfg)>.hgo:not(.hcfg) .ico{display:none}
+
+#home .hv .hwhere{cursor:pointer;text-decoration:underline;text-decoration-color:rgba(255,255,255,.45);text-underline-offset:3px}
 </style>
 </head>
 <body>
