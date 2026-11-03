@@ -162,5 +162,9 @@
  "1.421": {
   "ca": "Anant al tren: vora verda també en mode fosc i les altres targetes en segon pla; el teu GPS indica a quina estació ets; el viatge acaba sol en passar l'estació de destinació; menys escalfor i bateria amb el tren fixat. La fitxa del tren torna a dalt i tanca el menú d'avisos en encongir-la",
   "en": "On the train: green border in dark mode too and other cards dimmed; your GPS shows which station you're at; the trip ends by itself after your destination; less heat and battery with the train pinned. The train card returns to the top and closes the report menu when shrunk"
+ },
+ "1.423": {
+  "ca": "La ✕ de «vas al tren» treu el tren de tot arreu: Ara, fitxa del mapa, tren triat i alarma d'arribada",
+  "en": "The ✕ on «on the train» removes the train everywhere: Now, map card, chosen train and arrival alert"
  }
 }

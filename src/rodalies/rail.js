@@ -1584,8 +1584,15 @@ export function initRail(A) {
     return `<div class="hplace onbc"><button type="button" class="hhead" data-onbgo><span class="hico">🚆</span><span class="htit"><b>${chipL(tr.fam)} ${'tren\u00a0'}${esc(tr.num)}${ONB.lock ? ` <span class="hlk">${'fijado'}</span>` : ''}</b><small class="nofit cok">${esc(where)} · <span class="nw">${'llegas a'} ${esc(ST[st[j]].n)}</span> <span class="nw">${left >= 1 ? 'en ' + mins(left) + ' · ' : ''}<b>${hhmm(eta)}</b>${dl >= 1 ? ` <em class="dl ${dlCls(dl)}">+${Math.round(dl)}</em>` : ''}</span></small></span><span class="hchev">›</span></button><button type="button" class="hpn onbx" data-onbx aria-label="${'No es este'}" title="${'No es este'}">✕</button>${(alts => alts.length && !(ONB.manual && Date.now() < ONB.manual) ? `<div class="onbch">${alts.map(t => `<button type="button" class="onbalt" data-onbpick="${esc(t.num)}">${'¿Vas en el'} ${esc(t.num)}?</button>`).join('')}</div>` : '')(onbAlt(tr))}</div>`;
   }
   const HOLD = { until: 0 };   // mientras tocas Ahora no se repinta (si no, el toque se pierde)
+  function onbQuit() {   /* ✕ en «vas en el tren»: el tren se quita de todo (Ahora, mapa, elegido y alarma) */
+    const n = ONB.tid; if (!n) return; ONB.no.set(n, Date.now() + 20 * 60000); ONB.tid = ''; ONB.manual = 0; ONB.lock = false; ONB.quiet = Date.now() + 10 * 60000;
+    if (LASTPIN.num === n) LASTPIN.num = ''; [...PIN].forEach(([k, v]) => { if (String(v) === n) pinSet(k, null); });
+    if (ALARM && ALARM.num === n) { ALARM = null; saveAlarm(); if (window.__schedOff) window.__schedOff(7701); }
+    if (follow && String(follow.num) === n) follow = null; if (selTrip && String(selTrip.num) === n) { selTrip = null; TAB.sk = ''; }
+    mcs._h = ''; try { renderCard(); invalidate(); } catch (e) {} renderHome(true);
+  }
   function onbAct(x) {
-    if (x.hasAttribute('data-onbx')) { if (LASTPIN.num === ONB.tid) LASTPIN.num = ''; ONB.no.set(ONB.tid, Date.now() + 20 * 60000); ONB.tid = ''; ONB.manual = 0; ONB.lock = false; ONB.quiet = Date.now() + 10 * 60000; follow = null; renderHome(true); return; }
+    if (x.hasAttribute('data-onbx')) { onbQuit(); return; }
     boardTrain(x.dataset.onbpick, 'pick');
     toast(`${'Vas en el'} ${ONB.tid}`); renderHome(true);
   }
@@ -1599,7 +1606,7 @@ export function initRail(A) {
     if (el._h === html) return; el._h = html; el.innerHTML = html; fitHome();
     if (!el._onbDel) { el._onbDel = 1; el.addEventListener('pointerdown', () => { HOLD.until = Date.now() + 1500; }, true); el.addEventListener('pointerup', () => { HOLD.until = Date.now() + 400; }, true);
       el.addEventListener('click', e => { const x = e.target.closest && e.target.closest('[data-onbx],[data-onbpick]'); if (!x) return; e.stopPropagation(); HOLD.until = 0; onbAct(x); }, true); }
-    { const g = el.querySelector('[data-onbgo]'); if (g) g.onclick = e => { if (e.target.closest('[data-onbx]')) { ONB.no.set(ONB.tid, Date.now() + 20 * 60000); ONB.tid = ''; ONB.manual = 0; ONB.lock = false; follow = null; renderHome(true); return; }
+    { const g = el.querySelector('[data-onbgo]'); if (g) g.onclick = e => { if (e.target.closest('[data-onbx]')) { onbQuit(); return; }
       const pk = e.target.closest('[data-onbpick]'); if (pk) { onbAct(pk); return; } const t = act.find(x => x.tr && String(x.tr.num) === ONB.tid); if (t) { selNews = selAlerts = selStats = false; selStation = -1; selTrip = t.tr; mcs._h = ''; renderCard(); } }; }
     { const lead = [...el.children].find(c => c.classList.contains('hplace') && !c.querySelector('.hnew')); if (lead) lead.classList.add('lead'); }
     const P_ = k => k === 'work' ? WORK : k === 'near' ? NEAR : HOME;
