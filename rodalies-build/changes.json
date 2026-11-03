@@ -210,5 +210,9 @@
  "1.447": {
   "ca": "Ara: amb una sola direcció, primer el panell verd i després els botons, les estacions i «Cap a»; capçalera més compacta; botons en gris amb el número del tren («Vaig al 25637»)",
   "en": "Now: with a single direction, the green panel comes first, then buttons, stations and «To»; compact header; grey buttons with the train number («I'm on 25637»)"
+ },
+ "1.449": {
+  "ca": "Ara: «Cap a» damunt del panell verd; l'estació i els minuts a peu passen a una roda d'ajustos al costat dels botons (es tanca sola als 10 s)",
+  "en": "Now: «To» above the green panel; station and walking minutes move to a settings cog next to the buttons (closes itself after 10 s)"
  }
 }

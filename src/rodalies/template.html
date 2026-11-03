@@ -577,11 +577,10 @@ html.tabmode[data-tab=now] #home .hplace.open>.hhead{min-height:58px;padding:9px
 #home .hbody.r1{display:flex;flex-direction:column}
 #home .hbody.r1>.hcols,#home .hbody.r1>.hcols>.hcol{display:contents}
 #home .hbody.r1>*,#home .hbody.r1 .hcol>*{order:6}
-#home .hbody.r1 .hcol>.hv{order:1;margin-top:2px}
-#home .hbody.r1>.hwalk{order:2;margin-top:8px}
-#home .hbody.r1>.hst{order:3;margin-top:8px}
+#home .hbody.r1 .hcol>.hv{order:2}
+#home .hbody.r1>.hwalk{order:3;margin-top:8px}#home .hbody.r1>.hcfgp{order:3}
 #home .hbody.r1>.hal,#home .hbody.r1>.hok,#home .hbody.r1>.hcr,#home .hbody.r1>.hfav,#home .hbody.r1>.hflt{order:4}
-#home .hbody.r1 .hcol>.hdir{order:5;margin-top:6px}
+#home .hbody.r1 .hcol>.hdir{order:1;margin:2px 0 6px}
 #home .hbody.r1>.hshow,#home .hbody.r1>.hmore{order:7}#home .hbody.r1>.hsrc{order:8}
 
 /* botones de acción en gris neutro (opción C) */
@@ -589,6 +588,29 @@ html.tabmode[data-tab=now] #home .hplace.open>.hhead{min-height:58px;padding:9px
 html.dark #home .hwalk .hgo.hboard,html.dark #home .hwalk .hgo.hplat{background:#141414!important;color:#d6d6d6!important}
 html:not(.dark) #home .hwalk .hgo.hboard,html:not(.dark) #home .hwalk .hgo.hplat{background:#fff!important;color:#141414!important;box-shadow:inset 0 0 0 1px #d4d4d4!important}
 #home .hwalk .hgo.hboard.off{opacity:.45;filter:none}
+
+/* rueda de ajustes de la estación */
+#home .hwalk .hgo.hcfg{flex:0 0 46px!important;display:grid;place-items:center;padding:0!important;position:relative;background:#141414!important;color:#bdbdbd!important;box-shadow:inset 0 0 0 1px var(--line,#333)!important;border:0!important}
+#home .hwalk .hgo.hcfg .ico{width:22px!important;height:22px!important;margin:0}
+#home .hwalk .hgo.hcfg.on{background:#d6d6d6!important;color:#141414!important;box-shadow:none!important}
+html:not(.dark) #home .hwalk .hgo.hcfg{background:#fff!important;color:#444!important;box-shadow:inset 0 0 0 1px #d4d4d4!important}
+html:not(.dark) #home .hwalk .hgo.hcfg.on{background:#141414!important;color:#fff!important}
+#home .hwalk .hgo.hcfg.new::after{content:"";position:absolute;top:6px;right:6px;width:8px;height:8px;border-radius:50%;background:var(--acc2,#f5b301)}
+#home .hwalk.hgw{display:flex;justify-content:flex-end}
+#home .hwalk:has(.hplat):has(.hcfg){grid-template-columns:1fr 1fr 46px;align-items:stretch}
+#home .hwalk .hgo.hcfg{align-self:stretch;min-height:38px!important;height:auto!important}
+#home .hcfgp{margin-top:8px;border-radius:12px;background:#171717;box-shadow:inset 0 0 0 1px #2e2e2e;padding:10px 12px;display:grid;gap:6px}
+html:not(.dark) #home .hcfgp{background:#f6f6f4;box-shadow:inset 0 0 0 1px #e0e0e0}
+#home .hcfgp[hidden]{display:none}
+#home .hcfgp .hcl{font-size:11px;color:var(--mut);letter-spacing:.05em;font-weight:700;text-transform:uppercase;margin-top:2px}
+#home .hcfgp .hst{margin:0 0 4px;flex-wrap:wrap;overflow:visible}
+#home .hcfgp .hst button{flex:0 1 auto}
+#home .hstep2{display:flex;align-items:center;gap:12px;font-size:15px;margin-bottom:4px}
+#home .hstep2 button{width:34px;height:34px;border-radius:50%;border:0;background:#262626;color:var(--ink);font:inherit;font-size:18px;cursor:pointer}
+html:not(.dark) #home .hstep2 button{background:#e6e6e6;color:#141414}
+#home .hcfgmap{display:flex;align-items:center;gap:6px;border-top:1px solid var(--line,#2a2a2a);padding-top:9px;color:var(--ink);font-size:14px;cursor:pointer}
+/* R1 pegado al destino en «Hacia» */
+#home .hdir .hwf{margin-left:6px}
 </style>
 </head>
 <body>
