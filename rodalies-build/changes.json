@@ -186,5 +186,9 @@
  "1.434": {
   "ca": "Anant en un tren: tancar-ne la fitxa al mapa també et treu del tren, i no pot quedar triat un altre tren alhora",
   "en": "On a train: closing its card on the map also takes you off it, and no other train can stay chosen at the same time"
+ },
+ "1.436": {
+  "ca": "Anant en un tren, les targetes d'estació ja no ofereixen «A l'andana» ni «Vaig al tren» i es treu l'«a l'andana» que tinguessis. «Encara no ha sortit d'aquesta estació» quan ja és l'hora i el tren continua aturat a la teva estació",
+  "en": "On a train, station cards no longer offer «On the platform» or «I'm on the train» and any «on the platform» is cleared. «Hasn't left this station yet» when it's time and the train is still at your station"
  }
 }
