@@ -326,4 +326,5 @@ T = {
 "Por salir": ("Per sortir", "Not departed"),
 "Localizado": ("Localitzat", "Located"),
 "Datos de Renfe y Rodalies de Catalunya. Andana no garantiza que los trenes pasen.": ("Dades de Renfe i Rodalies de Catalunya. Andana no garanteix que els trens passin.", "Data from Renfe and Rodalies de Catalunya. Andana does not guarantee that trains will run."),
+"Estás en": ("Ets a", "You're at"),
 }

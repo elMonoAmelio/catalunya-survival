@@ -406,7 +406,7 @@ export function initRail(A) {
   const BACK = { st: -1 };   // estación desde la que se abrió un tren (para volver al cerrarlo)
   let act = [], lastT = 0, follow = null, selTrip = null, selStation = -1, selAlerts = false, lastCard = 0, lastClock = '';
   function tick(now) {
-    const fast = speed > 0 || !!follow, gap = window.__mapHidden ? 1000 : speed > 0 ? 50 : fast ? 120 : 250;   // sin mapa a la vista basta con recalcular una vez por segundo (batería)
+    const fast = speed > 0 || !!follow, gap = window.__mapHidden ? 1000 : speed > 0 ? 50 : fast ? 200 : 250;   // sin mapa a la vista basta con recalcular una vez por segundo (batería)
     if (now - lastT < gap) return false;
     lastT = now;
     { const k = [...focusF()].join(); if (k !== lastFocus) { buildLines(); styleStations(); } }
@@ -903,7 +903,7 @@ export function initRail(A) {
     const keep = mcs.scrollTop; if (mcs._h !== h && !(mcs._touch > Date.now())) {   /* con el dedo encima no se rehace la ficha (si no, el toque se pierde) */ mcs.innerHTML = h; mcs._h = h; mcs.scrollTop = keep; } mcs.style.display = 'flex'; mcs.classList.toggle('min', CARDHID);
     syncCompact();
     // en el móvil la ficha se puede encoger para ver el mapa (se encoge sola al seguir un tren)
-    if (innerWidth <= 640) { const tc = mcs.querySelector('.tc'); if (tc && !tc.querySelector('.mn')) { const b = document.createElement('button'); b.type = 'button'; b.className = 'mn'; b.setAttribute('aria-label', 'Encoger o ampliar la ficha'); b.textContent = mcs.classList.contains('peek') ? '▴' : '▾'; b.onclick = e => { e.stopPropagation(); mcs.classList.toggle('peek'); requestAnimationFrame(fitMcs); peekH(); b.textContent = mcs.classList.contains('peek') ? '▴' : '▾'; mcs.scrollTop = 0; }; const x = tc.querySelector('.x'); tc.insertBefore(b, x ? x.nextSibling : tc.firstChild); } } else mcs.classList.remove('peek');
+    if (innerWidth <= 640) { const tc = mcs.querySelector('.tc'); if (tc && !tc.querySelector('.mn')) { const b = document.createElement('button'); b.type = 'button'; b.className = 'mn'; b.setAttribute('aria-label', 'Encoger o ampliar la ficha'); b.textContent = mcs.classList.contains('peek') ? '▴' : '▾'; b.onclick = e => { e.stopPropagation(); mcs.classList.toggle('peek'); if (mcs.classList.contains('peek')) { CKOPEN = ''; mcs.querySelectorAll('details[open]').forEach(d => d.open = false); } mcs.scrollTop = 0; mcs.querySelectorAll('.tc').forEach(t => t.scrollTop = 0); requestAnimationFrame(fitMcs); peekH(); b.textContent = mcs.classList.contains('peek') ? '▴' : '▾'; };   /* al encoger: arriba del todo y sin menús abiertos */ const x = tc.querySelector('.x'); tc.insertBefore(b, x ? x.nextSibling : tc.firstChild); } } else mcs.classList.remove('peek');
     const rc = $('#rc'); if (innerWidth <= 640 && !rc.classList.contains('min') && !renderCard.done) { renderCard.done = 1; $('#rcgrab').click(); }
     const sm = innerWidth <= 640;
     if (sm) { const ib = $('#inf').getBoundingClientRect().bottom; mcs.style.top = Math.round(ib + 8) + 'px'; mcs.style.width = 'calc(100vw - 76px)'; mcs.style.maxHeight = Math.max(140, $('#rc').getBoundingClientRect().top - ib - 16) + 'px'; }
@@ -1202,7 +1202,7 @@ export function initRail(A) {
     let wid = null;
     /* batería: GPS de precisión alta solo si tienes tren elegido o fijado, alarma, vas de camino o te mueves a más de 15 km/h (10 min); si no, el de bajo consumo (antenas y wifi) */
     let hiOn = null, fastUntil = 0;
-    const needHi = () => !!(PLACES.some(P => P.goAt) || fastUntil > Date.now());   /* tren elegido o alarma ya no bastan: en el andén o en casa no hace falta; al moverte (≥ 15 km/h) se activa solo */
+    const needHi = () => !!(PLACES.some(P => P.goAt) || (fastUntil > Date.now() && !ONB.lock));   /* tren elegido o alarma ya no bastan: en el andén o en casa no hace falta; al moverte (≥ 15 km/h) se activa solo */
     const onFix = pos => {
         const { longitude: lon, latitude: lat } = pos.coords, f = { t: pos.timestamp || Date.now(), w: LL(lon, lat), k: kmUnit(lon, lat), spd: pos.coords.speed, acc: pos.coords.accuracy };
         if (ONB.fixes.length && ONB.fixes[ONB.fixes.length - 1].t === f.t) return;
@@ -1574,9 +1574,13 @@ export function initRail(A) {
     const tr = t.tr, st = tr.pat.stops; let nx = t.real && t.v && t.v.next >= 0 ? t.v.next : (t.p && t.p.next >= 0 ? t.p.next : null);
     if (nx == null) { const h = activeTrips(S).out.find(x => x.tr && String(x.tr.num) === ONB.tid); nx = h && h.p && h.p.next >= 0 ? h.p.next : 1; }   /* sin «siguiente parada» fiable (parado o recién localizado): la tarjeta sale igual */
     const d = delayOf(tr), dl = typeof d === 'number' ? Math.max(0, d / 60) : 0, k = R.days.indexOf(S.ymd), off = tr.day === k - 1 ? 1440 : 0;
-    let j = ALARM && ALARM.num === ONB.tid ? st.indexOf(SID.get(ALARM.sid)) : -1; if (j < nx) j = st.length - 1;
+    /* tu GPS manda sobre la posición de Renfe (que llega tarde y a veces marca ya la estación siguiente) */
+    const fx = ONB.fixes[ONB.fixes.length - 1], gpsSt = fx && Date.now() - fx.t < 90000 && (fx.acc == null || fx.acc < 150) ? (() => { let b = -1, bd = 0.35; st.forEach((si, q) => { const d = Math.hypot(ST[si].w[0] - fx.w[0], ST[si].w[1] - fx.w[1]) * fx.k; if (d < bd) { bd = d; b = q; } }); return b; })() : -1;
+    let j = ALARM && ALARM.num === ONB.tid ? st.indexOf(SID.get(ALARM.sid)) : -1;
+    if (j > 0 && j < nx && gpsSt !== j && !(gpsSt >= 0 && gpsSt < j)) { setTimeout(() => { if (!ONB.tid) return; const n = ONB.tid; ONB.tid = ''; ONB.lock = false; ONB.manual = 0; ONB.quiet = Date.now() + 10 * 60000; if (follow && String(follow.num) === n) follow = null; [...PIN].forEach(([k2, v]) => { if (String(v) === n) pinSet(k2, null); }); if (LASTPIN.num === n) LASTPIN.num = ''; renderHome(true); }, 0); return ''; }   /* ya has llegado a tu estación: el viaje termina solo */
+    if (j < nx) j = st.length - 1;
     const eta = cardEta(tr, t.real ? t.v : null, j, tr.t0 + tr.pat.t[2 * j] + dl - off), left = eta - S.min, at = t.real && t.v.atStop >= 0 ? t.v.atStop : -1;
-    const where = trainWhere(tr.num) || 'Hacia ' + ST[st[nx]].n;
+    const where = gpsSt >= 0 ? `${'Estás en'} ${ST[st[gpsSt]].n}` : trainWhere(tr.num) || 'Hacia ' + ST[st[nx]].n;
     return `<div class="hplace onbc"><button type="button" class="hhead" data-onbgo><span class="hico">🚆</span><span class="htit"><b>${chipL(tr.fam)} ${'tren\u00a0'}${esc(tr.num)}${ONB.lock ? ` <span class="hlk">${'fijado'}</span>` : ''}</b><small class="nofit cok">${esc(where)} · <span class="nw">${'llegas a'} ${esc(ST[st[j]].n)}</span> <span class="nw">${left >= 1 ? 'en ' + mins(left) + ' · ' : ''}<b>${hhmm(eta)}</b>${dl >= 1 ? ` <em class="dl ${dlCls(dl)}">+${Math.round(dl)}</em>` : ''}</span></small></span><span class="hchev">›</span></button><button type="button" class="hpn onbx" data-onbx aria-label="${'No es este'}" title="${'No es este'}">✕</button>${(alts => alts.length && !(ONB.manual && Date.now() < ONB.manual) ? `<div class="onbch">${alts.map(t => `<button type="button" class="onbalt" data-onbpick="${esc(t.num)}">${'¿Vas en el'} ${esc(t.num)}?</button>`).join('')}</div>` : '')(onbAlt(tr))}</div>`;
   }
   const HOLD = { until: 0 };   // mientras tocas Ahora no se repinta (si no, el toque se pierde)
@@ -1589,7 +1593,7 @@ export function initRail(A) {
     const el = $('#home'); if (!el) return;
     const now = performance.now(); if (!force && now - homeT < 4000) return; if (!force && HOLD.until > Date.now()) return; homeT = now;
     const S = nowState(), DK = [], tg = pushTarget(), far = P => { const i = curSt(P); return i == null || !NEAR.w ? 1 : Math.hypot(ST[i].w[0] - NEAR.w[0], ST[i].w[1] - NEAR.w[1]); }, ORD = [NEAR, ...[HOME, WORK].sort((a, b) => far(a) - far(b))], html = (document.documentElement.classList.contains('tabmode') ? nowBlock(tg) : reducedHtml(tg)) + noPosHtml(tg) + onbHtml(S) + chosenHtml(S) + ORD.map(P => placeHtml(P, S, DK)).join('') + (PLACES.some(P => P.open) && tg.lines.length ? `${(() => { return ''; const srv = !!RT.repOk, on = srv ? PUSH.on : LN.on; return `<div class="hpush"><span>🔔 Avisos de ${tg.lines.join(', ')}<small>${srv ? (on ? 'Activados: incidencias oficiales, de Adif y de viajeros' : 'Te llegan aunque tengas la app cerrada') : (on ? 'Activados mientras la app esté abierta' : 'Incidencias nuevas de tus líneas mientras la app esté abierta')}</small></span><button type="button" data-push class="${on ? 'on' : ''}">${on ? 'Desactivar' : 'Activar'}</button></div>`; })()}` : '');
-    el.className = PLACES.some(P => P.open) ? 'open' : '';
+    el.className = (PLACES.some(P => P.open) ? 'open' : '') + (ONB.tid ? ' onb' : '');   /* yendo en el tren, las demás tarjetas pasan a segundo plano */
     let bell = $('#bell'); if (!bell) { bell = document.createElement('button'); bell.type = 'button'; bell.id = 'bell'; bell.onclick = pushToggle; $('#inf .more').prepend(bell); }   // dentro del desplegable ▾
     { const on = RT.repOk && !document.documentElement.classList.contains('cap') ? PUSH.on : LN.on; bell.hidden = !tg.lines.length; bell.className = on ? 'on' : ''; bell.textContent = (on ? '🔔 Avisos activados · ' : '🔕 Activar avisos de ') + tg.lines.join(', '); bell.title = (on ? 'Avisos activados' : 'Activar avisos') + ' de ' + tg.lines.join(', ') + (RT.repOk ? '' : ' (mientras la app esté abierta)'); }
     if (el._h === html) return; el._h = html; el.innerHTML = html; fitHome();
