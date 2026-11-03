@@ -170,5 +170,9 @@
  "1.425": {
   "ca": "En posar-te en un tren (mantenint premut o amb «Vaig al tren») et quedes a Ara: les altres targetes es pleguen i queden gairebé transparents; al mapa el teu tren ja és obert quan hi vagis",
   "en": "When you board a train (press and hold or «I'm on the train») you stay in Now: other cards fold and fade; on the map your train is already open when you go there"
+ },
+ "1.428": {
+  "ca": "Línia i fitxes del mapa: en actualitzar-se les dades ja no tornen a dalt si estaves llegint més avall",
+  "en": "Line tab and map cards: when data refresh they no longer jump to the top while you're reading further down"
  }
 }
