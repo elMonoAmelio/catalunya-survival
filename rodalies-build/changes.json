@@ -166,5 +166,9 @@
  "1.423": {
   "ca": "La ✕ de «vas al tren» treu el tren de tot arreu: Ara, fitxa del mapa, tren triat i alarma d'arribada",
   "en": "The ✕ on «on the train» removes the train everywhere: Now, map card, chosen train and arrival alert"
+ },
+ "1.425": {
+  "ca": "En posar-te en un tren (mantenint premut o amb «Vaig al tren») et quedes a Ara: les altres targetes es pleguen i queden gairebé transparents; al mapa el teu tren ja és obert quan hi vagis",
+  "en": "When you board a train (press and hold or «I'm on the train») you stay in Now: other cards fold and fade; on the map your train is already open when you go there"
  }
 }

@@ -1137,9 +1137,10 @@ export function initRail(A) {
     if (how !== 'auto') { [...PIN].forEach(([k, v]) => { if (String(v) !== num) pinSet(k, null); }); }
     LASTPIN.num = num; LASTPIN.until = Date.now() + 90 * 60000;   // es tu tren elegido
     const here = new Set(); for (const P of PLACES) { const s = curSt(P); if (s != null && (P.platAt || P.goAt || (P === NEAR && NEAR.st && NEAR.st.length))) here.add(s); }   /* la estación donde estás no es la de bajar */
-    for (const P of PLACES) if (P.platAt || P.goAt) { P.platAt = 0; P.goAt = 0; saveP(P); }   // ya no estás en el andén ni de camino: vas dentro
+    for (const P of PLACES) if (P.platAt || P.goAt || (how !== 'auto' && P.open)) { P.platAt = 0; P.goAt = 0; if (how !== 'auto') P.open = false; saveP(P); }   // ya no estás en el andén ni de camino: vas dentro (y las tarjetas se pliegan)
+    window.__lpAt = Date.now();   /* el «clic» que sigue a mantener pulsado no debe hacer nada más (ni llevarte al mapa) */
     const t = act.find(y => y.tr && String(y.tr.num) === num) || activeTrips(nowState()).out.find(y => y.tr && String(y.tr.num) === num);
-    if (how !== 'auto') { const tr0 = t ? t.tr : tripByNum(num); if (tr0) { follow = tr0; selTrip = tr0; selStation = -1; selNews = selAlerts = selStats = false; mcs._h = ''; try { renderCard(); invalidate(); } catch (e) {} }   /* en el mapa: su ficha abierta */
+    if (how !== 'auto') { const tr0 = t ? t.tr : tripByNum(num); if (tr0) { follow = tr0; selTrip = tr0; selStation = -1; TAB.sk = 't' + (tr0.num || tr0.vtid);   /* queda abierto en el mapa, pero sin llevarte allí */ selNews = selAlerts = selStats = false; mcs._h = ''; try { renderCard(); invalidate(); } catch (e) {} }   /* en el mapa: su ficha abierta */
       if (![...PIN.values()].some(v => String(v) === num)) { let bp = pk || null, be = 1e9; if (!bp) for (const P of [HOME, WORK, NEAR]) { const s = curSt(P), y = s != null ? departuresFor(s).find(z => String(z.num) === num && !z.gone) : null; if (y && y.est < be) { be = y.est; bp = P.key; } } if (bp) pinSet(bp, num); } }   /* fijado = también tu tren elegido (un solo tren marcado) */
     if (t) { follow = t.tr; const st = t.tr.pat.stops, nx = t.real ? t.v.next : t.p.next, mine = [...HOME.st, ...WORK.st, ...XFS.keys()], j = st.findIndex((si, q) => q >= nx && !here.has(si) && mine.includes(ST[si].id)); if (j > 0 && !(ALARM && ALARM.num === num)) { ALARM = { num, sid: ST[st[j]].id, at: Date.now() }; saveAlarm(); } }
     return t;
@@ -1605,7 +1606,7 @@ export function initRail(A) {
     { const on = RT.repOk && !document.documentElement.classList.contains('cap') ? PUSH.on : LN.on; bell.hidden = !tg.lines.length; bell.className = on ? 'on' : ''; bell.textContent = (on ? '🔔 Avisos activados · ' : '🔕 Activar avisos de ') + tg.lines.join(', '); bell.title = (on ? 'Avisos activados' : 'Activar avisos') + ' de ' + tg.lines.join(', ') + (RT.repOk ? '' : ' (mientras la app esté abierta)'); }
     if (el._h === html) return; el._h = html; el.innerHTML = html; fitHome();
     if (!el._onbDel) { el._onbDel = 1; el.addEventListener('pointerdown', () => { HOLD.until = Date.now() + 1500; }, true); el.addEventListener('pointerup', () => { HOLD.until = Date.now() + 400; }, true);
-      el.addEventListener('click', e => { const x = e.target.closest && e.target.closest('[data-onbx],[data-onbpick]'); if (!x) return; e.stopPropagation(); HOLD.until = 0; onbAct(x); }, true); }
+      el.addEventListener('click', e => { if (window.__lpAt && Date.now() - window.__lpAt < 1000) { e.stopPropagation(); e.preventDefault(); return; } const x = e.target.closest && e.target.closest('[data-onbx],[data-onbpick]'); if (!x) return; e.stopPropagation(); HOLD.until = 0; onbAct(x); }, true); }
     { const g = el.querySelector('[data-onbgo]'); if (g) g.onclick = e => { if (e.target.closest('[data-onbx]')) { onbQuit(); return; }
       const pk = e.target.closest('[data-onbpick]'); if (pk) { onbAct(pk); return; } const t = act.find(x => x.tr && String(x.tr.num) === ONB.tid); if (t) { selNews = selAlerts = selStats = false; selStation = -1; selTrip = t.tr; mcs._h = ''; renderCard(); } }; }
     { const lead = [...el.children].find(c => c.classList.contains('hplace') && !c.querySelector('.hnew')); if (lead) lead.classList.add('lead'); }
