@@ -1816,7 +1816,7 @@ export function initRail(A) {
   }
   function setTab(k) {
     if (!TAB.on) return;
-    const was = TAB.cur; TAB.cur = k; document.documentElement.dataset.tab = k; window.__mapHidden = k !== 'map'; if (!window.__mapHidden && window.__wakeMap) window.__wakeMap();
+    const was = TAB.cur; TAB.cur = k; document.documentElement.dataset.tab = k; window.__mapHidden = k !== 'map'; if (k === 'line') mcs.classList.remove('peek');   /* en Línea la ficha nunca está encogida */ if (!window.__mapHidden && window.__wakeMap) window.__wakeMap();
     tabbar.querySelectorAll('[data-tab]').forEach(b => b.classList.toggle('on', b.dataset.tab === k)); tindOn();
     if (k === 'line') { if (selTrip || selStation >= 0) TAB.keep = { t: selTrip, s: selStation, sk: TAB.sk }; if (!selStats && !selAlerts && !selLine && !selNews) { selStats = true; HIST.at = 0; } selTrip = null; selStation = -1;   /* «novedades y fuentes» (desde Ajustes) se abre en Línea */ mcs._h = ''; renderCard(); renderLineaBar(); }
     else if (was === 'line') { selStats = selAlerts = selNews = false; selLine = ''; const kp = TAB.keep; TAB.keep = null; if (kp && k === 'map' && !selTrip && selStation < 0) { selTrip = kp.t; selStation = kp.s; TAB.sk = kp.sk; } mcs._h = ''; renderCard(); }

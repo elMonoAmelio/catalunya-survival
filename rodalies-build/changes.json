@@ -194,5 +194,9 @@
  "1.438": {
   "ca": "Targeta oberta sense informació repetida: la capçalera només mostra l'estació (i el transbord si n'hi ha) i el panell gran porta l'hora, la via i «sense posició de Renfe»",
   "en": "Open card without repeated info: the header shows only the station (and the transfer if any), and the big panel has the time, platform and «no Renfe position»"
+ },
+ "1.440": {
+  "ca": "Línia: els avisos emergents ja no tapen els botons de dalt (Puntualitat, Avisos, línies) i la fitxa mai queda encongida allà",
+  "en": "Line tab: pop-up messages no longer cover the top buttons (Punctuality, Alerts, lines) and the card is never shrunk there"
  }
 }
