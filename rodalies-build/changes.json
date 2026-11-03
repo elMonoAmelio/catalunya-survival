@@ -178,5 +178,9 @@
  "1.430": {
   "ca": "Els avisos que surten a dalt es treuen lliscant-los cap amunt (o tocant-los)",
   "en": "Pop-up messages at the top can be dismissed by swiping up (or tapping)"
+ },
+ "1.432": {
+  "ca": "Línia: ja no es mou de costat en arrossegar (el gest de tancar lliscant només existeix a la fitxa d'un tren al mapa)",
+  "en": "Line tab: no longer slides sideways when dragged (swipe-to-close only exists on a train card on the map)"
  }
 }

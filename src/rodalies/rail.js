@@ -1733,7 +1733,7 @@ export function initRail(A) {
   mcs.addEventListener('pointerdown', () => { mcs._touch = Date.now() + 2500; }, true); ['pointerup', 'pointercancel'].forEach(ev => mcs.addEventListener(ev, () => { mcs._touch = 0; }, true));
   /* deslizar la ficha de un tren a la izquierda: se cierra y, si era tu tren elegido, se quita (con «Deshacer») */
   { let sx = 0, sy = 0, dx = 0, on = 0;
-    mcs.addEventListener('touchstart', e => { on = innerWidth <= 640 && selTrip && e.touches.length === 1 && !e.target.closest('input') ? 1 : 0; if (!on) return; sx = e.touches[0].clientX; sy = e.touches[0].clientY; dx = 0; }, { passive: true });
+    mcs.addEventListener('touchstart', e => { on = innerWidth <= 640 && selTrip && (!TAB.on || TAB.cur === 'map') && e.touches.length === 1 && !e.target.closest('input') ? 1 : 0; if (!on) return; sx = e.touches[0].clientX; sy = e.touches[0].clientY; dx = 0; }, { passive: true });
     mcs.addEventListener('touchmove', e => { if (!on) return; const ddx = e.touches[0].clientX - sx, ddy = e.touches[0].clientY - sy; if (on === 1) { if (Math.abs(ddx) < 12 && Math.abs(ddy) < 12) return; on = Math.abs(ddx) > Math.abs(ddy) * 1.3 && ddx < 0 ? 2 : 0; if (!on) return; } e.preventDefault(); dx = Math.min(0, ddx); mcs.style.transition = 'none'; mcs.style.transform = `translateX(${dx}px)`; mcs.style.opacity = String(Math.max(.3, 1 + dx / 300)); }, { passive: false });
     mcs.addEventListener('touchend', () => { if (on !== 2) { on = 0; return; } on = 0; mcs.style.transition = 'transform .18s,opacity .18s';
       if (dx > -90) { mcs.style.transform = ''; mcs.style.opacity = ''; return; }
