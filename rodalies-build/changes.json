@@ -218,5 +218,9 @@
  "1.451": {
   "ca": "Ara: «Vaig al…» proposa l'últim tren que ha sortit (o el que surt ja en estació d'origen); amb tren fixat els botons caben en una línia i «📍 Aturat a…» obre el mapa",
   "en": "Now: «I'm on…» suggests the last train that left (or the one leaving now at its origin); with a pinned train the buttons fit on one line and «📍 Stopped at…» opens the map"
+ },
+ "1.453": {
+  "ca": "Ara: lluny de l'estació ja no surten dues rodes d'ajustos; la roda va al costat de l'avís «Ets a … km»",
+  "en": "Now: away from the station there is no longer a duplicated settings cog; it sits next to the «You are … km away» notice"
  }
 }

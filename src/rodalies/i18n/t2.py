@@ -310,6 +310,8 @@ T = {
 "A pie hasta la estación": ("A peu fins a l'estació", "Walk to the station"),
 "Ver la estación en el mapa": ("Veure l'estació al mapa", "See the station on the map"),
 "Ajustes de la estación": ("Ajustos de l'estació", "Station settings"),
+"Estás a": ("Ets a", "You are"),
+"horas de salida del tren, sin contar el camino": ("hores de sortida del tren, sense comptar el camí", "train departure times, not counting the walk"),
 "Voy en el": ("Vaig al", "I'm on"),
 "sin posición de Renfe": ("sense posició de Renfe", "no Renfe position"),
 "Aún no ha salido de": ("Encara no ha sortit de", "Not yet departed from"),
