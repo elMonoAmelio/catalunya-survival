@@ -182,5 +182,9 @@
  "1.432": {
   "ca": "Línia: ja no es mou de costat en arrossegar (el gest de tancar lliscant només existeix a la fitxa d'un tren al mapa)",
   "en": "Line tab: no longer slides sideways when dragged (swipe-to-close only exists on a train card on the map)"
+ },
+ "1.434": {
+  "ca": "Anant en un tren: tancar-ne la fitxa al mapa també et treu del tren, i no pot quedar triat un altre tren alhora",
+  "en": "On a train: closing its card on the map also takes you off it, and no other train can stay chosen at the same time"
  }
 }

@@ -1130,7 +1130,7 @@ export function initRail(A) {
   // tren elegido y tren en el que vas son el MISMO tren en dos momentos: antes de subir (elegido) y después (vas en él).
   // Si has elegido uno, la detección automática solo acepta ese (hasta 90 min después de que salga); otro solo si tú lo confirmas.
   const LASTPIN = { num: '', until: 0 };
-  function isChosenT(tr) { return !!tr && (follow === tr || tr.num != null && [...PIN.values()].some(v => String(v) === String(tr.num))); }   /* elegido en el mapa o en Ahora: el mismo botón lo quita */
+  function isChosenT(tr) { return !!tr && (follow === tr || tr.num != null && ([...PIN.values()].some(v => String(v) === String(tr.num)) || String(ONB.tid) === String(tr.num))); }   /* también el tren en el que vas */   /* elegido en el mapa o en Ahora: el mismo botón lo quita */
   const chosenNums = () => { const s = new Set([...PIN.values()].map(String)); if (LASTPIN.num && LASTPIN.until > Date.now()) s.add(LASTPIN.num); return s; };
   /* «voy en el tren» solo tiene sentido cuando el tren está en tu estación: desde 3 min antes de que salga hasta 20 min después */
   function boardOk(y, S) { return !!y && y.est - S.min <= 3 && S.min - y.est <= 20; }
@@ -1138,7 +1138,7 @@ export function initRail(A) {
   function boardTrain(num, how, pk) {   /* how: 'auto' | 'pick' | 'lock' */
     num = String(num); if (ONB.tid && ONB.tid !== num) ONB.no.set(ONB.tid, Date.now() + 20 * 60000);
     ONB.tid = num; ONB.cand = null; ONB.lock = how === 'lock'; ONB.manual = how === 'auto' ? 0 : Date.now() + (how === 'lock' ? 4 * 3600e3 : 90 * 60000);
-    if (how !== 'auto') { [...PIN].forEach(([k, v]) => { if (String(v) !== num) pinSet(k, null); }); }
+    [...PIN].forEach(([k, v]) => { if (String(v) !== num) pinSet(k, null); });   /* vas en este tren: ningún otro queda elegido */
     LASTPIN.num = num; LASTPIN.until = Date.now() + 90 * 60000;   // es tu tren elegido
     const here = new Set(); for (const P of PLACES) { const s = curSt(P); if (s != null && (P.platAt || P.goAt || (P === NEAR && NEAR.st && NEAR.st.length))) here.add(s); }   /* la estación donde estás no es la de bajar */
     for (const P of PLACES) if (P.platAt || P.goAt || (how !== 'auto' && P.open)) { P.platAt = 0; P.goAt = 0; if (how !== 'auto') P.open = false; saveP(P); }   // ya no estás en el andén ni de camino: vas dentro (y las tarjetas se pliegan)
@@ -1575,6 +1575,7 @@ export function initRail(A) {
   function onbHtml(S) { let r; try { r = onbHtml0(S); if (r != null) return r; } catch (e) { console.error(e); } const tr0 = ONB.tid ? tripByNum(ONB.tid) : null, sub = tr0 ? `${'Aún no ha salido de'} ${esc(ST[tr0.pat.stops[0]].n)} · ${hhmm(tr0.t0)}` : ''; return ONB.tid ? `<div class="hplace onbc"><div class="hhead"><span class="hico">🚆</span><span class="htit"><b>${'tren\u00a0'}${esc(ONB.tid)}${ONB.lock ? ` <span class="hlk">${'fijado'}</span>` : ''}</b>${sub ? `<small class="nofit">${sub}</small>` : ''}</span><button type="button" class="hpn onbx" data-onbx aria-label="${'Quitar'}">✕</button></div></div>` : ''; }   /* un fallo aquí no puede dejar Ahora sin repintar */
   function onbHtml0(S) {
     if (!ONB.tid) return '';
+    [...PIN].forEach(([k, v]) => { if (String(v) !== String(ONB.tid)) pinSet(k, null); });   /* un solo tren: el que llevas */
     const t = act.find(x => x.tr && String(x.tr.num) === ONB.tid) || activeTrips(S).out.find(x => x.tr && String(x.tr.num) === ONB.tid); if (!t) return null;
     const tr = t.tr, st = tr.pat.stops; let nx = t.real && t.v && t.v.next >= 0 ? t.v.next : (t.p && t.p.next >= 0 ? t.p.next : null);
     if (nx == null) { const h = activeTrips(S).out.find(x => x.tr && String(x.tr.num) === ONB.tid); nx = h && h.p && h.p.next >= 0 ? h.p.next : 1; }   /* sin «siguiente parada» fiable (parado o recién localizado): la tarjeta sale igual */
