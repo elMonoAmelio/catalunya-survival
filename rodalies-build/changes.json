@@ -206,5 +206,9 @@
  "1.444": {
   "ca": "Ara: les estacions i els minuts a peu caben en una sola línia; s'omet «Barcelona» als botons d'estació",
   "en": "Now: stations and walking minutes fit on one line; «Barcelona» is omitted on station buttons"
+ },
+ "1.447": {
+  "ca": "Ara: amb una sola direcció, primer el panell verd i després els botons, les estacions i «Cap a»; capçalera més compacta; botons en gris amb el número del tren («Vaig al 25637»)",
+  "en": "Now: with a single direction, the green panel comes first, then buttons, stations and «To»; compact header; grey buttons with the train number («I'm on 25637»)"
  }
 }
