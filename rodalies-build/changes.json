@@ -198,5 +198,9 @@
  "1.440": {
   "ca": "Línia: els avisos emergents ja no tapen els botons de dalt (Puntualitat, Avisos, línies) i la fitxa mai queda encongida allà",
   "en": "Line tab: pop-up messages no longer cover the top buttons (Punctuality, Alerts, lines) and the card is never shrunk there"
+ },
+ "1.442": {
+  "ca": "Ara: tocant l'estació marcada (ⓘ) s'obre la seva fitxa al mapa amb sortides i avisos; els minuts a peu passen a un botó «🚶 N min» que s'obre en tocar-lo",
+  "en": "Now: tap the highlighted station (ⓘ) to open its map card with departures and alerts; walking minutes move to a «🚶 N min» button you tap to adjust"
  }
 }
