@@ -230,5 +230,9 @@
  "1.457": {
   "ca": "El teu tren de cada dia es desa amb l'estació de Casa o Feina (no amb la que passa abans); es corregeixen els ja desats",
   "en": "Your daily train is saved with your Home or Work station (not an earlier stop); saved ones are fixed"
+ },
+ "1.459": {
+  "ca": "Ara: «Més trens» va abans de «Mostrar l'altra direcció»",
+  "en": "Now: «More trains» comes before «Show the other direction»"
  }
 }
