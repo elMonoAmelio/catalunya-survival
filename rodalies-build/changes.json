@@ -226,5 +226,9 @@
  "1.455": {
   "ca": "Línia: nou resum dels últims 30 dies (puntualitat, retard mitjà, cancel·lacions, posició davant d'altres línies) i els teus trens de cada dia per l'hora, amb «Compartir el meu mes»; «sol anar tard · 3 de 5 dies»",
   "en": "Line: new last-30-days summary (punctuality, average delay, cancellations, rank among lines) and your daily trains by time, with «Share my month»; «often late · 3 of 5 days»"
+ },
+ "1.457": {
+  "ca": "El teu tren de cada dia es desa amb l'estació de Casa o Feina (no amb la que passa abans); es corregeixen els ja desats",
+  "en": "Your daily train is saved with your Home or Work station (not an earlier stop); saved ones are fixed"
  }
 }

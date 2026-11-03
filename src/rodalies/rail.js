@@ -791,6 +791,8 @@ export function initRail(A) {
   const FAV = (() => { try { return JSON.parse(localStorage.getItem('rod_fav') || '[]'); } catch (e) { return []; } })();
   const saveFav = () => { try { localStorage.setItem('rod_fav', JSON.stringify(FAV)); } catch (e) {} };
   const favIs = (f, tr) => { if (f.num === String(tr.num)) return true; const k = R.days.indexOf(nowState().ymd); const t = k >= 0 ? favTrip(f, k) : null; return !!t && String(t.num) === String(tr.num); };   /* tu tren de cada día es el de esa hora, aunque hoy lleve otro número */
+  // estación de tu tren de cada día: primero Casa/Trabajo (no la estación «cerca de ti» por la que pasa antes), y la última de origen
+  const favSt = tr => { const st = tr.pat.stops.slice(0, -1), hw = [...HOME.st, ...WORK.st]; return st.find(x => hw.includes(ST[x].id)) ?? st.find(x => NEAR.st.includes(ST[x].id)) ?? tr.pat.stops[0]; };
   const isFav = tr => !!tr && FAV.some(f => favIs(f, tr));
   let ALARM = (() => { try { const a = JSON.parse(localStorage.getItem('rod_alarm') || 'null'); return a && Date.now() - a.at < 4 * 3600e3 ? a : null; } catch (e) { return null; } })();
   const saveAlarm = () => { try { localStorage.setItem('rod_alarm', JSON.stringify(ALARM)); } catch (e) {} };
@@ -960,7 +962,7 @@ export function initRail(A) {
       if (ALARM && ALARM.num === String(tr.num) && ALARM.sid === sid) { ALARM = null; if (window.__schedOff) window.__schedOff(7701); toast('Aviso de llegada quitado'); } else { ALARM = { num: String(tr.num), sid, at: Date.now() }; toast(`🔔 Te aviso 2 min antes de llegar a ${ST[tr.pat.stops[i]].n}`); if ('Notification' in window && Notification.permission === 'default') Notification.requestPermission(); }
       saveAlarm(); mcs._h = ''; renderCard(); });
     { const fb2 = mcs.querySelector('[data-fav]'); if (fb2) fb2.onclick = e => { e.stopPropagation(); const tr = selTrip && selTrip.pat ? selTrip : (TID.get(selTrip && selTrip.vtid) || null); if (!tr) return; const i = FAV.findIndex(f => favIs(f, tr));
-      if (i >= 0) { FAV.splice(i, 1); toast('Quitado de tus trenes de cada día'); } else { const mine = [...HOME.st, ...WORK.st, ...NEAR.st]; const si = tr.pat.stops.find(x => mine.includes(ST[x].id)) ?? tr.pat.stops[0]; FAV.push({ num: String(tr.num), fam: tr.fam, sid: ST[si].id, dest: ST[tr.pat.stops[tr.pat.stops.length - 1]].id, t: hhmm(tr.t0 + tr.pat.t[2 * tr.pat.stops.indexOf(si) + 1]) }); toast(`⭐ Te avisaré si el ${tr.fam} de las ${FAV[FAV.length - 1].t} desde ${ST[si].n} va con retraso`); if ('Notification' in window && Notification.permission === 'default') Notification.requestPermission(); }
+      if (i >= 0) { FAV.splice(i, 1); toast('Quitado de tus trenes de cada día'); } else { const si = favSt(tr); FAV.push({ num: String(tr.num), fam: tr.fam, sid: ST[si].id, dest: ST[tr.pat.stops[tr.pat.stops.length - 1]].id, t: hhmm(tr.t0 + tr.pat.t[2 * tr.pat.stops.indexOf(si) + 1]) }); toast(`⭐ Te avisaré si el ${tr.fam} de las ${FAV[FAV.length - 1].t} desde ${ST[si].n} va con retraso`); if ('Notification' in window && Notification.permission === 'default') Notification.requestPermission(); }
       saveFav(); mcs._h = ''; renderCard(); renderHome(true); }; }
     { const sb = mcs.querySelector('[data-share]'); if (sb) sb.onclick = () => { const f = selLine, A = act.filter(a => (a.fam || (a.tr && a.tr.fam)) === f), late = A.filter(a => a.dl >= 5).sort((a, b) => b.dl - a.dl); const al = RT.alerts.filter(a => a.fams.has(f));
       const txt = `${f} a las ${hhmm(nowState().min)}: ${A.length} trenes, ${late.length} con 5 min o más${late.length ? ' (' + late.slice(0, 4).map(a => `${a.tr ? a.tr.num : a.v.num} +${Math.round(a.dl)}`).join(', ') + ')' : ''}.${al.length ? ' Aviso: ' + al[0].txt : ' Sin avisos.'}`;
@@ -1145,6 +1147,7 @@ export function initRail(A) {
   const HOME = mkPlace('home', '🏠', 'Casa', null), WORK = mkPlace('work', '💼', 'Trabajo', null);
   // 📍 Cerca de ti: estación más cercana según el GPS; al abrir la app es el panel que se ve primero
   const NEAR = { key: 'near', ico: '📍', name: 'Cerca de ti', st: [], i: 0, walk: 0, open: false, dist: {}, fix: 0, err: '' };
+  try { const k = R.days.indexOf(nowState().ymd), hw = [...HOME.st, ...WORK.st]; let ch = false; if (k >= 0) for (const f of FAV) { if (hw.includes(f.sid)) continue; const tr = favTrip(f, k); if (!tr) continue; const si = favSt(tr); if (si == null || !hw.includes(ST[si].id)) continue; f.sid = ST[si].id; f.t = hhmm(tr.t0 + tr.pat.t[2 * tr.pat.stops.indexOf(si) + 1]); f.num = String(tr.num); ch = true; } if (ch) saveFav(); } catch (e) {}   /* corrige trenes de cada día guardados con la estación «cerca de ti» */
   const PLACES = [NEAR, HOME, WORK];
   try { NEAR.homeW = JSON.parse(localStorage.getItem('rod_homew') || 'null'); } catch (e) {}   // tu casa, si está pegada a la estación
   HOME.open = false; WORK.open = false;   // al arrancar, Casa y Trabajo plegados
