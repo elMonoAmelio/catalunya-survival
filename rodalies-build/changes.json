@@ -174,5 +174,9 @@
  "1.428": {
   "ca": "Línia i fitxes del mapa: en actualitzar-se les dades ja no tornen a dalt si estaves llegint més avall",
   "en": "Line tab and map cards: when data refresh they no longer jump to the top while you're reading further down"
+ },
+ "1.430": {
+  "ca": "Els avisos que surten a dalt es treuen lliscant-los cap amunt (o tocant-los)",
+  "en": "Pop-up messages at the top can be dismissed by swiping up (or tapping)"
  }
 }
