@@ -65,7 +65,8 @@ if not H or H.get('day') != day:
                 m = re.match(r'^\d+[A-Z](\d+)', t)
                 if m: obs.setdefault(m.group(1), []).append(max(0, sn.get('d', {}).get(t, 0)) / 60)
         tr = {k: round(sorted(v)[len(v) // 2]) for k, v in obs.items()}   # retraso típico del tren ese día (mediana de las fotos)
-        if tr: HI['days'] = [x for x in HI['days'] if x['day'] != H['day']] + [{'day': H['day'], 'tr': tr}]
+        cx = sorted({m.group(1) for sn in H['snaps'] for t in sn.get('x', []) for m in [re.match(r'^\d+[A-Z](\d+)', t)] if m})   # trenes cancelados ese día (por número)
+        if tr or cx: HI['days'] = [x for x in HI['days'] if x['day'] != H['day']] + [dict({'day': H['day'], 'tr': tr}, **({'cx': cx} if cx else {}))]
         HI['days'] = HI['days'][-30:]
         # resumen de cada día, para siempre (≈1 KB/día): sirve para los resúmenes semanal, mensual y anual
         DI = load('dias.json') or {'note': 'Resumen diario de Rodalies (MonkiSoft): fotos cada 15 min del tiempo real de Renfe; puntual = menos de 3 min de retraso; solo cuentan los trenes con dato de retraso.', 'days': []}

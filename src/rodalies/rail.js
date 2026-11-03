@@ -504,16 +504,41 @@ export function initRail(A) {
   const HURL = 'https://raw.githubusercontent.com/elMonoAmelio/catalunya-survival/stats/';
   function loadHist() {
     if (Date.now() - HIST.at < 5 * 60000) return; HIST.at = Date.now();
-    Promise.all(['hoy', 'ayer', 'hist'].map(n => fetch(HURL + n + '.json', { cache: 'no-store' }).then(r => r.ok ? r.json() : null).catch(() => null)))
-      .then(([h, a, hi]) => { HIST.hoy = h; HIST.ayer = a; HIST.hist = hi; HIST.tr = null; HIST.err = h ? '' : 'sin datos'; if (selStats) { mcs._h = ''; renderCard(); } renderHome(true); });
+    Promise.all(['hoy', 'ayer', 'hist', 'dias'].map(n => fetch(HURL + n + '.json', { cache: 'no-store' }).then(r => r.ok ? r.json() : null).catch(() => null)))
+      .then(([h, a, hi, di]) => { HIST.hoy = h; HIST.ayer = a; HIST.hist = hi; HIST.dias = di; HIST.tr = null; HIST.err = h ? '' : 'sin datos'; if (selStats || selLine) { mcs._h = ''; renderCard(); } renderHome(true); });
   }
   // ¿suele ir tarde este tren? retraso típico de cada día (mediana de las fotos) de los últimos 30 días + ayer + hoy
   function dayTr(H0) { const obs = {}; for (const sn of (H0 && H0.snaps) || []) for (const t of sn.r || []) { const m = /^\d+[A-Z](\d+)/.exec(t); if (m) (obs[m[1]] = obs[m[1]] || []).push(Math.max(0, (sn.d && sn.d[t]) || 0) / 60); } const tr = {}; for (const k in obs) { const v = obs[k].sort((a, b) => a - b); tr[k] = Math.round(v[v.length >> 1]); } return tr; }
   function trainHist(num) {
     if (!HIST.tr) { const days = new Map(); for (const d of (HIST.hist && HIST.hist.days) || []) days.set(d.day, d.tr); for (const H0 of [HIST.ayer, HIST.hoy]) if (H0 && H0.day && !days.has(H0.day)) { const t = dayTr(H0); if (Object.keys(t).length) days.set(H0.day, t); } HIST.tr = days; }
+    if (num === '') return null;
     const v = [...HIST.tr.values()].map(tr => tr[String(num)]).filter(x => x != null); if (!v.length) return null;
     return { n: v.length, late: v.filter(x => x >= 5).length, avg: v.reduce((a, b) => a + b, 0) / v.length };
   }
+  // ---------- últimos 30 días: tu línea y tus trenes de cada día (por la hora, aunque cambie el número) ----------
+  const wkd = ymd => new Date(+ymd.slice(0, 4), +ymd.slice(4, 6) - 1, +ymd.slice(6, 8)).getDay();
+  const dayK = ymd => { let best = -1, sc = 9; const b = wkd(ymd), lab = d => d === 0 || d === 6 ? d : 1; R.days.forEach((x, k) => { const a = wkd(x), q = x === ymd ? 0 : a === b ? 1 : lab(a) === lab(b) ? 2 : 9; if (q < sc) { sc = q; best = k; } }); return sc < 9 ? best : -1; };   /* el horario de ese mismo día de la semana */
+  const cxDays = () => { const m = new Map(); for (const d of (HIST.hist && HIST.hist.days) || []) if (d.cx) m.set(d.day, new Set(d.cx.map(String))); return m; };
+  const cxSince = () => { const d = ((HIST.hist && HIST.hist.days) || []).find(x => x.cx); return d ? d.day : null; };
+  function favStats(f) {
+    trainHist('');   /* prepara HIST.tr */
+    const cx = cxDays(); let n = 0, late = 0, sum = 0, nc = 0;
+    for (const [day, tr] of HIST.tr || []) { const k = dayK(day.replace(/-/g, '')); if (k < 0) continue; const t = favTrip(f, k); if (!t) continue; const num = String(t.num);
+      if (cx.get(day) && cx.get(day).has(num)) { nc++; n++; continue; } const v = tr[num]; if (v == null) continue; n++; sum += v; if (v >= 5) late++; }
+    return { n, late, sum, nc };
+  }
+  let NUMFAM = null;
+  const famOfNum = num => { if (!NUMFAM) { NUMFAM = new Map(); for (const arr of byDay) for (const t of arr || []) NUMFAM.set(String(t.num), t.fam); } return NUMFAM.get(String(num)); };
+  function line30(f) {
+    const D = ((HIST.dias && HIST.dias.days) || []).slice(-30); if (!D.length) return null;
+    const agg = new Map(); for (const d of D) for (const [g, L] of Object.entries(d.lines || {})) { const a = agg.get(g) || { n: 0, ok: 0, s: 0, max: 0, days: 0 }; a.n += L.n; a.ok += L.ok; a.s += L.avg * L.n; a.max = Math.max(a.max, L.max || 0); a.days++; agg.set(g, a); }
+    const me = agg.get(f); if (!me || me.n < 30) return null;
+    const rank = [...agg.entries()].filter(([g, a]) => FC[g] && a.n >= 30).sort((a, b) => a[1].ok / a[1].n - b[1].ok / b[1].n), pos = rank.findIndex(([g]) => g === f);
+    const cx = cxDays(); let nc = 0; for (const s0 of cx.values()) for (const num of s0) if (famOfNum(num) === f) nc++;
+    return { pct: me.ok / me.n * 100, avg: me.s / me.n, max: me.max, days: me.days, pos: pos + 1, of: rank.length, nc, since: cxSince() };
+  }
+  const isoD = d => d ? `${+d.slice(8, 10)}/${+d.slice(5, 7)}` : '';
+  const hDur = m => m >= 60 ? `${Math.floor(m / 60)} h ${String(Math.round(m % 60)).padStart(2, '0')} min` : `${Math.round(m)} min`;
   // gradación por resultado: verde bueno · amarillo regular · naranja malo · rojo muy malo
   const pctCls = p => p >= 90 ? 'g' : p >= 80 ? 'y' : p >= 65 ? 'w' : 'b';
   const PC = { g: '#16a34a', y: '#eab308', w: '#ea7a0c', b: '#dc2626' };
@@ -593,8 +618,22 @@ export function initRail(A) {
     return `<div class="tc sts" style="--c:${FC[f] || '#1d2330'}"><button class="x" data-cx>×</button><h3>${chipL(f)} Estado de la línea</h3><small>${S.live ? `Ahora · ${n} trenes${real.length < n ? ` (${real.length} con posición de Renfe)` : ''}` : `Según horario a las ${hhmm(S.min)}`}</small>
       <div class="kpis"><div class="kpi ${n ? pctCls(ok / n * 100) : ''}"><b>${n ? Math.round(ok / n * 100) + '%' : '—'}</b><span>a su hora<br>(−3 min)</span></div><div class="kpi ${late ? (late / Math.max(1, n) > 0.2 ? 'b' : 'w') : 'g'}"><b>${late}</b><span>5 min tarde<br>o más</span></div><div class="kpi ${stuck ? 'b' : 'g'}"><b>${stuck}</b><span>parados fuera<br>de estación</span></div></div>
       ${al.length ? alertHtmlL(al) : '<p class="snote">✓ Sin avisos de Rodalies para esta línea</p>'}${cv < 0.7 ? `<p class="snote">Renfe solo da posición de ${Math.round(cv * 100)} % de los trenes de esta línea: el resto se muestra según horario.</p>` : ''}
-      <small style="margin-top:6px">Trenes de más a menos retraso · toca uno para verlo</small><ol>${rows || '<li><span>No hay trenes de esta línea ahora</span></li>'}</ol>
-      <div class="rtb"><button type="button" data-share>📤 Compartir estado</button></div></div>`;
+      <small style="margin-top:6px">Trenes de más a menos retraso · toca uno para verlo</small><ol class="${LMORE.v ? '' : 'lshort'}">${rows || '<li><span>No hay trenes de esta línea ahora</span></li>'}</ol>${A.length > 6 ? `<button type="button" class="hmore" data-lmore>${LMORE.v ? '▴ Menos trenes' : `▾ ${'Ver los'} ${Math.min(40, A.length)} ${'trenes'}`}</button>` : ''}
+      <div class="rtb"><button type="button" data-share>📤 Compartir estado</button></div>${l30Html(f)}</div>`;
+  }
+  const LMORE = { v: false };
+  function l30Html(f) {
+    const L = line30(f), fv = FAV.filter(x => x.fam === f);
+    if (!L) return `<h4>${'Últimos 30 días'}</h4><p class="snote">${HIST.at ? 'El resumen de 30 días aún no tiene datos de esta línea: se va reuniendo cada día.' : 'Cargando…'}</p>`;
+    const cxTxt = L.since && L.since > (new Date(Date.now() - 29 * 864e5)).toISOString().slice(0, 10) ? `${'desde el'} ${isoD(L.since)}` : `${'en 30 días'}`, nd = Math.min(30, L.days), ttl = `${'Últimos'} ${nd} ${'días'}`;
+    const rk = L.of > 1 ? (L.pos <= L.of / 2 ? `${chipL(f)} ${'es la'} <b>${L.pos}.ª ${'línea con peor puntualidad'}</b> ${'de'} ${L.of}` : `${chipL(f)} ${'es la'} <b>${L.of - L.pos + 1}.ª ${'línea más puntual'}</b> ${'de'} ${L.of}`) + ' · ' : '';
+    const favRows = fv.map(x => { const st = favStats(x), si = SID.get(x.sid), di = x.dest && SID.get(x.dest); return `<li><b>${esc(x.t)}</b><span>${esc(si != null ? ST[si].n : '')}${di != null ? ' → ' + esc(ST[di].n) : ''}<small>${st.n ? `${'tarde'} <b>${st.late} ${'de'} ${st.n} ${'días'}</b>${st.nc ? ` · <b>${st.nc} ${st.nc === 1 ? 'cancelado' : 'cancelados'}</b>` : ''} · ${'retraso acumulado'} ≈ <b>${hDur(st.sum)}</b>` : 'aún sin datos de este tren'}</small></span></li>`; }).join('');
+    return `<h4>${ttl}</h4>
+      <div class="kpis"><div class="kpi ${pctCls(L.pct)}"><b>${Math.round(L.pct)}%</b><span>${'a su hora'}<br>(−3 min)</span></div><div class="kpi ${L.avg >= 4 ? 'b' : L.avg >= 2.5 ? 'w' : L.avg >= 1.5 ? 'y' : 'g'}"><b>${fmtMin(L.avg).replace(' min', '')}</b><span>${'min de retraso'}<br>${'medio'}</span></div>${L.since ? `<div class="kpi ${L.nc ? (L.nc >= 10 ? 'b' : 'w') : 'g'}"><b>${L.nc}</b><span>${L.nc === 1 ? 'tren cancelado' : 'trenes cancelados'}<br>${cxTxt}</span></div>` : `<div class="kpi nx"><b>—</b><span>${'cancelaciones'}<br>${'se cuentan desde hoy'}</span></div>`}</div>
+      <p class="snote">${rk}${'peor retraso'} +${L.max} min · ${L.days} ${'días con datos'}</p>
+      <h4>${'Tus trenes de cada día'}</h4>${fv.length ? `<ol class="l30f">${favRows}</ol>` : `<p class="snote">${'Abre tu tren en el mapa y toca «☆ Mi tren de cada día»: aquí verás cuántos días llega tarde, aunque cambie de número.'}</p>`}
+      <div class="rtb"><button type="button" data-share30>📤 ${'Compartir mi mes'}</button></div>
+      <small class="snote">${'Datos de Renfe guardados cada 15 min · «a su hora» = menos de 3 min tarde · «tarde» = 5 min o más · retraso típico de cada día'}</small>`;
   }
   const alertHtmlL = arr => `<div class="al">${arr.slice(0, 3).map(a => `<p>⚠️ ${srcB(a)} ${esc(a.txt)} <small>${whenTxt(a)}</small></p>`).join('')}</div>`;
   // ---------- columnas 3D: retraso medio por estación (hoy, o ahora si aún no hay histórico) ----------
@@ -751,7 +790,8 @@ export function initRail(A) {
   // ---------- tu tren de cada día y aviso al llegar ----------
   const FAV = (() => { try { return JSON.parse(localStorage.getItem('rod_fav') || '[]'); } catch (e) { return []; } })();
   const saveFav = () => { try { localStorage.setItem('rod_fav', JSON.stringify(FAV)); } catch (e) {} };
-  const isFav = tr => !!tr && FAV.some(f => f.num === String(tr.num));
+  const favIs = (f, tr) => { if (f.num === String(tr.num)) return true; const k = R.days.indexOf(nowState().ymd); const t = k >= 0 ? favTrip(f, k) : null; return !!t && String(t.num) === String(tr.num); };   /* tu tren de cada día es el de esa hora, aunque hoy lleve otro número */
+  const isFav = tr => !!tr && FAV.some(f => favIs(f, tr));
   let ALARM = (() => { try { const a = JSON.parse(localStorage.getItem('rod_alarm') || 'null'); return a && Date.now() - a.at < 4 * 3600e3 ? a : null; } catch (e) { return null; } })();
   const saveAlarm = () => { try { localStorage.setItem('rod_alarm', JSON.stringify(ALARM)); } catch (e) {} };
   const isAlarm = (tr, i) => !!(ALARM && tr && ALARM.num === String(tr.num) && ALARM.sid === ST[tr.pat.stops[i]].id);
@@ -919,11 +959,15 @@ export function initRail(A) {
     mcs.querySelectorAll('[data-alarm]').forEach(b => b.onclick = e => { e.stopPropagation(); const tr = selTrip && selTrip.pat ? selTrip : (TID.get(selTrip && selTrip.vtid) || null); if (!tr) return; const i = +b.dataset.alarm, sid = ST[tr.pat.stops[i]].id;
       if (ALARM && ALARM.num === String(tr.num) && ALARM.sid === sid) { ALARM = null; if (window.__schedOff) window.__schedOff(7701); toast('Aviso de llegada quitado'); } else { ALARM = { num: String(tr.num), sid, at: Date.now() }; toast(`🔔 Te aviso 2 min antes de llegar a ${ST[tr.pat.stops[i]].n}`); if ('Notification' in window && Notification.permission === 'default') Notification.requestPermission(); }
       saveAlarm(); mcs._h = ''; renderCard(); });
-    { const fb2 = mcs.querySelector('[data-fav]'); if (fb2) fb2.onclick = e => { e.stopPropagation(); const tr = selTrip && selTrip.pat ? selTrip : (TID.get(selTrip && selTrip.vtid) || null); if (!tr) return; const i = FAV.findIndex(f => f.num === String(tr.num));
+    { const fb2 = mcs.querySelector('[data-fav]'); if (fb2) fb2.onclick = e => { e.stopPropagation(); const tr = selTrip && selTrip.pat ? selTrip : (TID.get(selTrip && selTrip.vtid) || null); if (!tr) return; const i = FAV.findIndex(f => favIs(f, tr));
       if (i >= 0) { FAV.splice(i, 1); toast('Quitado de tus trenes de cada día'); } else { const mine = [...HOME.st, ...WORK.st, ...NEAR.st]; const si = tr.pat.stops.find(x => mine.includes(ST[x].id)) ?? tr.pat.stops[0]; FAV.push({ num: String(tr.num), fam: tr.fam, sid: ST[si].id, dest: ST[tr.pat.stops[tr.pat.stops.length - 1]].id, t: hhmm(tr.t0 + tr.pat.t[2 * tr.pat.stops.indexOf(si) + 1]) }); toast(`⭐ Te avisaré si el ${tr.fam} de las ${FAV[FAV.length - 1].t} desde ${ST[si].n} va con retraso`); if ('Notification' in window && Notification.permission === 'default') Notification.requestPermission(); }
       saveFav(); mcs._h = ''; renderCard(); renderHome(true); }; }
     { const sb = mcs.querySelector('[data-share]'); if (sb) sb.onclick = () => { const f = selLine, A = act.filter(a => (a.fam || (a.tr && a.tr.fam)) === f), late = A.filter(a => a.dl >= 5).sort((a, b) => b.dl - a.dl); const al = RT.alerts.filter(a => a.fams.has(f));
       const txt = `${f} a las ${hhmm(nowState().min)}: ${A.length} trenes, ${late.length} con 5 min o más${late.length ? ' (' + late.slice(0, 4).map(a => `${a.tr ? a.tr.num : a.v.num} +${Math.round(a.dl)}`).join(', ') + ')' : ''}.${al.length ? ' Aviso: ' + al[0].txt : ' Sin avisos.'}`;
+      if (navigator.share) navigator.share({ text: txt }).catch(() => {}); else { navigator.clipboard && navigator.clipboard.writeText(txt); toast('Copiado: ' + txt.slice(0, 60) + '…'); } }; }
+    { const lm = mcs.querySelector('[data-lmore]'); if (lm) lm.onclick = () => { LMORE.v = !LMORE.v; mcs._h = ''; renderCard(); }; }
+    { const s3 = mcs.querySelector('[data-share30]'); if (s3) s3.onclick = () => { const f = selLine, L = line30(f); if (!L) return; const fv = FAV.filter(x => x.fam === f).map(x => [x, favStats(x)]).filter(([, st]) => st.n);
+      const txt = `${'Mi'} ${f} ${'en los últimos'} ${Math.min(30, L.days)} ${'días'}: ${Math.round(L.pct)} % ${'de trenes a su hora'}, ${'retraso medio'} ${fmtMin(L.avg)}${L.nc ? `, ${L.nc} ${L.nc === 1 ? 'tren cancelado' : 'trenes cancelados'}` : ''}.${fv.map(([x, st]) => ` ${'Mi tren de las'} ${x.t} ${'llegó tarde'} ${st.late} ${'de'} ${st.n} ${'días'} (≈ ${hDur(st.sum)} ${'de retraso'}).`).join('')} ${'Datos de Renfe · Andana'}`;
       if (navigator.share) navigator.share({ text: txt }).catch(() => {}); else { navigator.clipboard && navigator.clipboard.writeText(txt); toast('Copiado: ' + txt.slice(0, 60) + '…'); } }; }
     { const cb = mcs.querySelector('[data-cols]'); if (cb) cb.onclick = () => { COLS.on = !COLS.on; buildCols(); mcs._h = ''; renderCard(); }; }
     mcs.querySelectorAll('[data-gs]').forEach(e => e.onclick = () => { const i = +e.dataset.gs; selStats = false; window.__rodPickStation(i); Object.assign(goal, { tx: ST[i].w[0], ty: ST[i].w[1], dist: Math.min(goal.dist, 20) }); invalidate(); });
@@ -1357,7 +1401,7 @@ export function initRail(A) {
       const miss = !x.cancel && x.est - S.min < W, r = repsFor(x.num, '');
       return `<li class="hr ${urg(x)}${x.live ? ' on' : ''}${x.ghost ? ' gh' : ''}${isSel(x) ? ' sel' : ''}${pn && String(x.num) === pn ? ' pin' : ''}${FAV.some(f => { const t = favTrip(f, R.days.indexOf(S.ymd)); return t && String(t.num) === String(x.num); }) ? ' fav' : ''} go" style="--lc:${FC[x.fam] || '#6b7385'}" data-dk="${DK.push(x) - 1}" title="${x.cancel ? 'Cancelado' : miss ? 'No llegas a pie' : 'Ver este tren en el mapa'}">`
         + `<span class="hrt"><b>${x.cancel ? '✕' : miss ? hhmm(x.est) : mins(x.est - S.min)}</b><small>${x.cancel ? 'cancelado' : x.late ? 'aún no ha salido' : miss ? 'no llegas' : x.ghost ? '<i class="ghs" title="Debería estar circulando y Renfe no da su posición">sin localizar</i>' : hhmm(x.est)}</small></span>`
-        + `<span class="hrd">${x.bus ? '<i class="bus" title="Autobús que sustituye al tren por obras">🚌</i>' : ''}${dstP((oneLine ? '' : x.fam + ' · ') + x.dest, x.fam)}${r.length ? `<i class="cr" title="${esc(r.map(y => tipo(y.kind)).join(' · '))}">${r.slice(0, 2).map(y => CK[y.kind]).join('')}</i>` : ''}${x.arr != null ? `<small class="hro hro1">llegas a las ${hhmm(x.arr)}${x.num ? ' · ' + 'tren\u00a0' + esc(x.num) : ''}${(() => { const th = x.num && trainHist(x.num); return th && th.n >= 3 && th.late / th.n >= 0.5 ? ` · <b class="slate">suele ir tarde (${th.late}/${th.n})</b>` : ''; })()}</small>` : ''}${x.obs ? `<small class="hro">${esc(x.obs)}</small>` : ''}${x.unconf ? `<small class="hro unc">${'según horario · Rodalies no lo anuncia'}</small>` : ''}</span>`
+        + `<span class="hrd">${x.bus ? '<i class="bus" title="Autobús que sustituye al tren por obras">🚌</i>' : ''}${dstP((oneLine ? '' : x.fam + ' · ') + x.dest, x.fam)}${r.length ? `<i class="cr" title="${esc(r.map(y => tipo(y.kind)).join(' · '))}">${r.slice(0, 2).map(y => CK[y.kind]).join('')}</i>` : ''}${x.arr != null ? `<small class="hro hro1">llegas a las ${hhmm(x.arr)}${x.num ? ' · ' + 'tren\u00a0' + esc(x.num) : ''}${(() => { const th = x.num && trainHist(x.num); return th && th.n >= 5 && th.late / th.n >= 0.5 ? ` · <b class="slate">${'suele ir tarde'} · ${th.late} ${'de'} ${th.n} ${'días'}</b>` : ''; })()}</small>` : ''}${x.obs ? `<small class="hro">${esc(x.obs)}</small>` : ''}${x.unconf ? `<small class="hro unc">${'según horario · Rodalies no lo anuncia'}</small>` : ''}</span>`
         + `<span class="hrm">${!x.cancel && x.dl >= 1 ? `<em class="dl ${dlCls(x.dl)}">+${Math.round(x.dl)}</em>` : ''}${x.plat ? `<i class="via">vía ${esc(x.plat)}</i>` : ''}</span></li>`; };
     const col = (g, v, hk) => `<div class="hcol"><div class="hdir">${label(g)}${hk ? `<button type="button" class="hhide" data-hhide="${P.key}:${hk}" title="${'Ocultar esta dirección'}">✕</button>` : ''}</div><div class="hv ${v.cls}${v.ghost || (v.pin && v.x && v.x.noPos && !noPosFams([v.x.fam]).length) ? ' gh' : ''}${v.x ? ' go' : ''}"${v.miss && v.nxt && v.nxt.num ? ` data-pinnext="${P.key}:${esc(v.nxt.num)}" title="${'Elegir el siguiente'}"` : v.x ? ` data-dk="${DK.push(v.x) - 1}"` : ''}><b>${v.big}</b>${v.pin ? `<button type="button" class="hunpin" data-unpin="${P.key}" title="${'Volver al próximo tren'}">📌 ${'Elegido'} ✕</button>` : ''}<small>${esc(v.small)}${v.soft ? ` · <span class="hsoft" title="${'Sin posición de Renfe · hora en directo de Rodalies'}">📡 ${esc(v.soft)}</span>` : ''}</small>${v.pin && v.x && v.x.num ? (w => w ? `<span class="hwhere">📍 ${esc(w)}</span>` : '')(trainWhere(v.x.num)) : ''}${v.warn ? `<span class="hvw">${esc(v.warn)}</span>` : ''}</div><ol>${groups[g].slice(0, (P.more ? (g === 'all' || P.hide ? 20 : 10) : g === 'all' ? 7 : P.hide ? 8 : 4) + groups[g].filter(x => x.gone).length).map(row).join('') || '<li><span>—</span></li>'}</ol></div>`;
     if (P === NEAR) { const va = verdict('all'); var sumN = va.x ? `<span class="nw">${va.big}</span> · <span class="nw"><b>${hhmm(va.x.est)}</b> ${esc(va.x.fam)}</span> a ${esc(va.x.dest)}${va.x.plat ? '<span class="nw">' + ' · vía ' + esc(va.x.plat) + '</span>' : ''}` : va.big; }
@@ -1864,7 +1908,7 @@ export function initRail(A) {
     '🌐': '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 010 18M12 3a14 14 0 000 18"/>', '🌙': '<path d="M20 14A8 8 0 1110 4a7 7 0 0010 10z"/>', '🔠': '<path d="M3 18l4-12 4 12M4.5 14h5M15 18V9h3.5a2.5 2.5 0 010 5H15M15 14h4a2 2 0 010 4h-4"/>',
     '🔔': '<path d="M6 16V11a6 6 0 0112 0v5l2 2H4z"/><path d="M10 21h4"/>', '🔕': '<path d="M6 16V11a6 6 0 0112 0v5l2 2H4z"/><path d="M10 21h4M3 3l18 18"/>', 'ℹ️': '<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/>',
     '📋': '<rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1M8 10h8M8 14h8M8 18h5"/>', '💬': '<path d="M4 5h16v11H9l-5 4z"/>', '⛔': '<circle cx="12" cy="12" r="9"/><path d="M7 12h10"/>',
-    '📶': '<path d="M4 20v-3M9 20v-7M14 20V9M19 20V5"/>', '⏳': '<path d="M7 3h10M7 21h10M8 3c0 6 8 6 8 9s-8 3-8 9M16 3c0 6-8 6-8 9s8 3 8 9"/>', '🏙️': '<path d="M3 21V9h6v12M9 21V4h6v17M15 21v-9h6v9M2 21h20"/>', '⭐': '<path d="M12 3l2.8 5.7 6.2.9-4.5 4.4 1.1 6.2L12 17.3 6.4 20.2l1.1-6.2L3 9.6l6.2-.9z"/>' };
+    '📶': '<path d="M4 20v-3M9 20v-7M14 20V9M19 20V5"/>', '⏳': '<path d="M7 3h10M7 21h10M8 3c0 6 8 6 8 9s-8 3-8 9M16 3c0 6-8 6-8 9s8 3 8 9"/>', '🏙️': '<path d="M3 21V9h6v12M9 21V4h6v17M15 21v-9h6v9M2 21h20"/>', '📤': '<path d="M12 15V3M7 8l5-5 5 5"/><path d="M5 12v8h14v-8"/>', '⭐': '<path d="M12 3l2.8 5.7 6.2.9-4.5 4.4 1.1 6.2L12 17.3 6.4 20.2l1.1-6.2L3 9.6l6.2-.9z"/>' };
   const ICRE = new RegExp('(' + Object.keys(ICP).map(k => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|') + ')️?', 'g');
   const icoSvg = k => `<span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ICP[k] || ICP[k + '️'] || ''}</svg></span>`;
   function iconize(root) {

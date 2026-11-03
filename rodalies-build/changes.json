@@ -222,5 +222,9 @@
  "1.453": {
   "ca": "Ara: lluny de l'estació ja no surten dues rodes d'ajustos; la roda va al costat de l'avís «Ets a … km»",
   "en": "Now: away from the station there is no longer a duplicated settings cog; it sits next to the «You are … km away» notice"
+ },
+ "1.455": {
+  "ca": "Línia: nou resum dels últims 30 dies (puntualitat, retard mitjà, cancel·lacions, posició davant d'altres línies) i els teus trens de cada dia per l'hora, amb «Compartir el meu mes»; «sol anar tard · 3 de 5 dies»",
+  "en": "Line: new last-30-days summary (punctuality, average delay, cancellations, rank among lines) and your daily trains by time, with «Share my month»; «often late · 3 of 5 days»"
  }
 }
