@@ -250,5 +250,9 @@
  "1.471": {
   "ca": "Avís en arribar: l'estació de baixada ja no s'escull malament quan Renfe no dona la propera parada; pantalla de càrrega clara en mode clar",
   "en": "Arrival alert: the stop to get off is no longer chosen wrongly when Renfe gives no next stop; light launch screen in light mode"
+ },
+ "1.475": {
+  "ca": "Tren on vas: toca'l per ampliar-lo amb les properes parades, el que diuen els viatgers i avisar els altres; plegat es veuen les icones dels avisos",
+  "en": "Train you're on: tap it to expand with next stops, what travellers say and report to others; collapsed it shows the report icons"
  }
 }
