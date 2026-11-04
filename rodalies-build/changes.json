@@ -270,5 +270,9 @@
  "1.486": {
   "ca": "Ara: si ets lluny de l'estació (i no t'hi apropes), l'avís de sortida compta els minuts a peu des d'on ets; a la roda, «Des d'aquí» al costat dels teus minuts a peu amb «Fer servir»",
   "en": "Now: if you're far from the station (and not getting closer), when to leave counts the walk from where you are; in the cog, «From here» next to your walking minutes with «Use»"
+ },
+ "1.488": {
+  "ca": "A peu des d'on ets: s'hi sumen 3 min fixos (sortir de l'edifici, semàfors i baixar a l'andana)",
+  "en": "Walking from where you are: 3 fixed minutes added (leaving the building, crossings and getting to the platform)"
  }
 }

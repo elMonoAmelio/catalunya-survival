@@ -1179,7 +1179,7 @@ export function initRail(A) {
       renderHome(true);
     }, e => { NEAR.err = e.code === 1 ? 'Sin permiso de ubicación' : 'No se ha podido obtener la ubicación'; renderHome(true); }, { enableHighAccuracy: false, maximumAge: 60000, timeout: 12000 });
   }
-  const walkMin = km => Math.max(1, Math.round(km * 1.3 / 0.08));   // 4,8 km/h y un 30 % más por las calles
+  const walkMin = km => Math.max(1, Math.round(km * 1.3 / 0.08)) + 3;   /* +3 min fijos: salir del edificio, semáforos y bajar hasta el andén (la línea recta no los cuenta) */   // 4,8 km/h y un 30 % más por las calles
   setTimeout(() => locate(true), 400);
   // ---------- ¿vas en un tren? si te mueves por la vía a velocidad de tren, la app lo busca y lo sigue ----------
   const ONB = { fixes: [], tid: '', no: new Map(), shown: '' };
