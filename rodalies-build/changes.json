@@ -262,5 +262,9 @@
  "1.481": {
   "ca": "Avisos de viatgers: el nom de l'avís en una línia i «N ho confirmen · fa X» a sota; amb lletra gran els botons passen a sota; xifres grans com «99+»",
   "en": "Traveller reports: report name on one line with «N confirm it · X ago» below; with large text the buttons move below; large numbers as «99+»"
+ },
+ "1.484": {
+  "ca": "Línia: text «Trens de més a menys retard» traduït al català i a l'anglès",
+  "en": "Line: «Trains from most to least delayed» translated into Catalan and English"
  }
 }

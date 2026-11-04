@@ -380,6 +380,7 @@ T = {
 "Confirmo": ("Confirmo", "Confirm"),
 "Ya no es así": ("Ja no és així", "No longer the case"),
 "Gracias: si más gente dice que ya no, el aviso se quita": ("Gràcies: si més gent diu que ja no, l'avís es treu", "Thanks: if more people say it's over, the report is removed"),
+"Trenes de más a menos retraso · toca uno para verlo": ("Trens de més a menys retard · toca'n un per veure'l", "Trains from most to least delayed · tap one to see it"),
 "Voy en el": ("Vaig al", "I'm on"),
 "sin posición de Renfe": ("sense posició de Renfe", "no Renfe position"),
 "Aún no ha salido de": ("Encara no ha sortit de", "Not yet departed from"),
