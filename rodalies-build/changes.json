@@ -254,5 +254,9 @@
  "1.475": {
   "ca": "Tren on vas: toca'l per ampliar-lo amb les properes parades, el que diuen els viatgers i avisar els altres; plegat es veuen les icones dels avisos",
   "en": "Train you're on: tap it to expand with next stops, what travellers say and report to others; collapsed it shows the report icons"
+ },
+ "1.479": {
+  "ca": "Avisos de viatgers més clars: «✓ Confirmo» / «✕ Ja no», «N ho confirmen» i «ja has votat»",
+  "en": "Clearer traveller reports: «✓ Confirm» / «✕ No longer», «N confirm it» and «you voted»"
  }
 }
