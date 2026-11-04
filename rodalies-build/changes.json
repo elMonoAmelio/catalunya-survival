@@ -266,5 +266,9 @@
  "1.484": {
   "ca": "Línia: text «Trens de més a menys retard» traduït al català i a l'anglès",
   "en": "Line: «Trains from most to least delayed» translated into Catalan and English"
+ },
+ "1.486": {
+  "ca": "Ara: si ets lluny de l'estació (i no t'hi apropes), l'avís de sortida compta els minuts a peu des d'on ets; a la roda, «Des d'aquí» al costat dels teus minuts a peu amb «Fer servir»",
+  "en": "Now: if you're far from the station (and not getting closer), when to leave counts the walk from where you are; in the cog, «From here» next to your walking minutes with «Use»"
  }
 }
