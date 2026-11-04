@@ -274,5 +274,9 @@
  "1.488": {
   "ca": "A peu des d'on ets: s'hi sumen 3 min fixos (sortir de l'edifici, semàfors i baixar a l'andana)",
   "en": "Walking from where you are: 3 fixed minutes added (leaving the building, crossings and getting to the platform)"
+ },
+ "1.490": {
+  "ca": "Configuració amb estil d'iOS: títol gran, grups, icones de color i selectors segmentats",
+  "en": "Settings in iOS style: large title, grouped sections, coloured icons and segmented controls"
  }
 }

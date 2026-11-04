@@ -389,6 +389,7 @@ T = {
 "El aviso de salida se calcula desde donde estás": ("L'avís de sortida es calcula des d'on ets", "When to leave is worked out from where you are"),
 "a pie desde aquí": ("a peu des d'aquí", "on foot from here"),
 "Desde aquí": ("Des d'aquí", "From here"),
+"Avisos al móvil": ("Avisos al mòbil", "Phone alerts"),
 "Voy en el": ("Vaig al", "I'm on"),
 "sin posición de Renfe": ("sense posició de Renfe", "no Renfe position"),
 "Aún no ha salido de": ("Encara no ha sortit de", "Not yet departed from"),

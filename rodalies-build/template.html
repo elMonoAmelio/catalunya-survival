@@ -705,6 +705,31 @@ html:not(.dark) #home .hcfgp .hpos button{background:#141414;color:#fff}
 html:not(.dark) #home .hposc .hpv button{background:#141414;color:#fff}
 #home .hposc .hcl .ico{width:12px;height:12px;vertical-align:-1px}
 #home .hv .hfar2 .ico{width:13px;height:13px;vertical-align:-2px}
+
+/* ===== estilo iOS · Ajustes ===== */
+:root{--ibg:#000;--icell:#1c1c1e;--icell2:#2c2c2e;--isep:#38383a;--isec:rgba(235,235,245,.6)}
+html:not(.dark){--ibg:#f2f2f7;--icell:#fff;--icell2:#e5e5ea;--isep:#c6c6c8;--isec:rgba(60,60,67,.6)}
+html.tabmode[data-tab=set] #tabA{background:var(--ibg)!important;font-family:-apple-system,BlinkMacSystemFont,'Andana',system-ui,sans-serif}
+#tabA h3.ilt{font-size:34px!important;font-weight:700!important;letter-spacing:.01em;margin:6px 4px 14px!important;text-transform:none!important}
+#tabA .icard{background:var(--icell);border-radius:14px;overflow:hidden;margin:0 0 8px;padding:0}
+#tabA .ihd{font-size:15px;color:var(--isec);margin:18px 16px 7px}
+#tabA .irow{display:flex;align-items:center;gap:12px;padding:10px 14px;min-height:46px;position:relative}
+#tabA .irow+.irow::before,#tabA .iseg+.irow::before,#tabA .ibody+.irow::before{content:"";position:absolute;top:0;left:56px;right:0;height:.5px;background:var(--isep)}
+#tabA .iic{width:30px;height:30px;border-radius:7px;background:var(--ic);display:grid;place-items:center;flex:none;color:#fff}
+#tabA .iic .ico{width:18px!important;height:18px!important;margin:0!important;color:#fff}
+#tabA .ilab{flex:1;font-size:17px;font-weight:500}
+#tabA .isub .ilab{font-size:14px;color:var(--isec);padding-left:42px}
+#tabA .iseg{margin:0 14px 12px 56px!important;background:var(--icell2)!important;border-radius:9px!important;padding:2px!important;border:0!important;gap:0!important}
+#tabA .iseg button{border:0!important;border-radius:7px!important;background:transparent!important;color:inherit!important;font-weight:600!important;font-size:13.5px!important;min-height:30px}
+#tabA .iseg button.on{background:#636366!important;color:#fff!important}
+html:not(.dark) #tabA .iseg button.on{background:#fff!important;color:#000!important;box-shadow:0 1px 3px rgba(0,0,0,.15)}
+#tabA .ifoot{display:block;font-size:13px!important;color:var(--isec)!important;margin:4px 16px 14px!important;line-height:1.35}
+#tabA .alch{padding:0 14px 12px 56px}
+#tabA .ibody{padding:0 14px 12px 56px;font-size:14px;color:var(--isec)}
+#tabA #tabAbell{flex:none}#tabA #tabAbell #bell{border:0!important;background:transparent!important;color:var(--acc2,#ffb000)!important;font-weight:600;padding:0!important;box-shadow:none!important}
+#tabA .tabAfoot{text-align:center;color:var(--isec)}
+#tabA h4{display:none}
+#tabA #tabAbell{flex:initial}#tabA #tabAbell #bell{white-space:normal!important;text-align:left;font-size:15px!important;line-height:1.3;width:auto!important;height:auto!important;display:inline-flex;gap:6px;align-items:center}
 </style>
 </head>
 <body>
