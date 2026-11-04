@@ -1206,7 +1206,11 @@ export function initRail(A) {
     const t = act.find(y => y.tr && String(y.tr.num) === num) || activeTrips(nowState()).out.find(y => y.tr && String(y.tr.num) === num);
     if (how !== 'auto') { const tr0 = t ? t.tr : tripByNum(num); if (tr0) { follow = tr0; selTrip = tr0; selStation = -1; TAB.sk = 't' + (tr0.num || tr0.vtid);   /* queda abierto en el mapa, pero sin llevarte allí */ selNews = selAlerts = selStats = false; mcs._h = ''; try { renderCard(); invalidate(); } catch (e) {} }   /* en el mapa: su ficha abierta */
       if (![...PIN.values()].some(v => String(v) === num)) { let bp = pk || null, be = 1e9; if (!bp) for (const P of [HOME, WORK, NEAR]) { const s = curSt(P), y = s != null ? departuresFor(s).find(z => String(z.num) === num && !z.gone) : null; if (y && y.est < be) { be = y.est; bp = P.key; } } if (bp) pinSet(bp, num); } }   /* fijado = también tu tren elegido (un solo tren marcado) */
-    if (t) { follow = t.tr; const st = t.tr.pat.stops, nx = t.real ? t.v.next : t.p.next, mine = [...HOME.st, ...WORK.st, ...XFS.keys()], j = st.findIndex((si, q) => q >= nx && !here.has(si) && mine.includes(ST[si].id)); if (j > 0 && !(ALARM && ALARM.num === num)) { ALARM = { num, sid: ST[st[j]].id, at: Date.now() }; saveAlarm(); } }
+    if (t) { follow = t.tr; const st = t.tr.pat.stops, nx = (() => {   /* la próxima parada de verdad: Renfe a veces no la da (-1) y entonces se cogía una estación ya pasada como destino (sin aviso al llegar) */
+        let n = Math.max(t.real && t.v && t.v.next >= 0 ? t.v.next : -1, t.p && t.p.next >= 0 ? t.p.next : -1);
+        const fx = ONB.fixes[ONB.fixes.length - 1]; if (fx && Date.now() - fx.t < 120000) { let b = -1, bd = 0.6; st.forEach((si, q) => { const d = Math.hypot(ST[si].w[0] - fx.w[0], ST[si].w[1] - fx.w[1]) * fx.k; if (d < bd) { bd = d; b = q; } }); if (b >= 0) n = Math.max(n, b); }
+        for (const si of here) { const q = st.indexOf(si); if (q >= 0) n = Math.max(n, q); }
+        return n < 0 ? 1 : n; })(), mine = [...HOME.st, ...WORK.st, ...XFS.keys()], j = st.findIndex((si, q) => q >= nx && !here.has(si) && mine.includes(ST[si].id)); if (j > 0 && !(ALARM && ALARM.num === num)) { ALARM = { num, sid: ST[st[j]].id, at: Date.now() }; saveAlarm(); } }
     return t;
   }
   function onboardCheck() {

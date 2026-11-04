@@ -246,5 +246,9 @@
  "1.468": {
   "ca": "Avisos de viatgers: «Continua» / «Ja no» a Ara; «Vas al…?» només quan hi ha dubte real, amb destinació i «Desfer»; detecció del tren en obrir l'app més ràpida; el viatge acaba sol en baixar encara que el fixessis; «Els teus viatges» registra bé on puges i baixes i cada viatge es pot treure",
   "en": "Traveller reports: «Still» / «No longer» in Now; «Are you on…?» only when truly unsure, with destination and «Undo»; faster train detection when opening the app; the trip ends on its own when you get off even if pinned; «Your trips» records where you board and alight, and each trip can be removed"
+ },
+ "1.471": {
+  "ca": "Avís en arribar: l'estació de baixada ja no s'escull malament quan Renfe no dona la propera parada; pantalla de càrrega clara en mode clar",
+  "en": "Arrival alert: the stop to get off is no longer chosen wrongly when Renfe gives no next stop; light launch screen in light mode"
  }
 }
