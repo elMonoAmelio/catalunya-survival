@@ -61,4 +61,5 @@ jobs:
           if git diff --cached --quiet; then echo "Sin cambios"; exit 0; fi
           git commit -m "Horarios de Rodalies $(TZ=Europe/Madrid date +%d/%m/%Y)"
           # si mientras tanto se ha subido otra versión, esa ejecución ya publicará: esta no falla
-          if ! git push; then git fetch origin main; if [ "$(git rev-parse origin/main)" != "$(git rev-parse HEAD~1)" ]; then echo "Hay una versión más nueva en main; la publicará su propia ejecución"; exit 0; fi; exit 1; fi
+          # GitHub a veces responde «Internal Server Error» al subir: se reintenta 3 veces antes de dar error
+          ok=0; for i in 1 2 3; do if git push; then ok=1; break; fi; sleep 20; git fetch origin main; if [ "$(git rev-parse FETCH_HEAD)" != "$(git rev-parse HEAD~1)" ]; then echo "Hay una versión más nueva en main; la publicará su propia ejecución"; exit 0; fi; done; [ "$ok" = 1 ] || exit 1
