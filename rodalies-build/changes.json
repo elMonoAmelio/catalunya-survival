@@ -258,5 +258,9 @@
  "1.479": {
   "ca": "Avisos de viatgers més clars: «✓ Confirmo» / «✕ Ja no», «N ho confirmen» i «ja has votat»",
   "en": "Clearer traveller reports: «✓ Confirm» / «✕ No longer», «N confirm it» and «you voted»"
+ },
+ "1.481": {
+  "ca": "Avisos de viatgers: el nom de l'avís en una línia i «N ho confirmen · fa X» a sota; amb lletra gran els botons passen a sota; xifres grans com «99+»",
+  "en": "Traveller reports: report name on one line with «N confirm it · X ago» below; with large text the buttons move below; large numbers as «99+»"
  }
 }

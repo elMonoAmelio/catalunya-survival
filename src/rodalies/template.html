@@ -671,6 +671,19 @@ html:not(.dark) #home .onbst li.dst,html:not(.dark) #home .onbst li i{color:#158
 #home .onbst li.gap{color:var(--mut);font-size:12.5px;padding:2px 0}
 
 .crowd .cvok,#home .hcr .hcrok{color:#4ade80;font-size:12.5px;font-weight:600;white-space:nowrap}html:not(.dark) .crowd .cvok,html:not(.dark) #home .hcr .hcrok{color:#15803d}
+
+/* avisos: nombre arriba, «N lo confirman · hace X» debajo (nunca a media línea) */
+.crowd p>span:first-child,#home .hcr p>span:first-child{display:flex;flex-direction:column;align-items:flex-start;gap:1px;min-width:0}
+.crowd p>span:first-child>b,#home .hcr p>span:first-child>b{display:inline}
+.crowd small.cmeta,#home .hcr small.cmeta{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+#home .onbc .onbrep{flex-wrap:nowrap;overflow:hidden;white-space:nowrap}
+.crowd .cname,#home .hcr .cname{display:flex;align-items:center;gap:5px}.crowd small.cmeta,#home .hcr small.cmeta{margin-left:23px}
+
+/* si no cabe (pantalla estrecha o letra grande), los botones pasan debajo en vez de partir el nombre */
+.crowd p,#home .hcr p{flex-wrap:wrap!important;row-gap:6px}
+.crowd p>span:first-child,#home .hcr p>span:first-child{flex:1 1 170px}
+.crowd .cvb,#home .hcr .hcrv{display:flex;gap:6px;flex:none;margin-left:auto}
+#home .onbc .onbrep span:nth-child(n+4){display:none}
 </style>
 </head>
 <body>
