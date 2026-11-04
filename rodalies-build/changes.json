@@ -278,5 +278,9 @@
  "1.490": {
   "ca": "Configuració amb estil d'iOS: títol gran, grups, icones de color i selectors segmentats",
   "en": "Settings in iOS style: large title, grouped sections, coloured icons and segmented controls"
+ },
+ "1.492": {
+  "ca": "Configuració: mateixa lletra que la resta de l'app i botó d'avisos més fàcil de tocar",
+  "en": "Settings: same typeface as the rest of the app and easier-to-tap alerts button"
  }
 }
