@@ -286,5 +286,9 @@
  "1.497": {
   "ca": "Configuració: selectors i línies alineats a l'esquerra; el botó d'avisos diu només «Activar» / «Activats»",
   "en": "Settings: controls and lines left-aligned; the alerts button just says «Turn on» / «On»"
+ },
+ "1.499": {
+  "ca": "Línia amb selector «Ara · 30 dies · Els teus viatges» i títol gran; a Configuració la campana d'avisos va al costat d'«Avisos al mòbil» (Activats / Desactivats)",
+  "en": "Line with «Now · 30 days · Your trips» selector and large title; in Settings the alerts bell sits next to «Phone alerts» (On / Off)"
  }
 }
