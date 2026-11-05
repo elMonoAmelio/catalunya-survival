@@ -342,5 +342,9 @@
  "1.527": {
   "ca": "Avisos: «Anuncien trens cancel·lats» · els tipus d'avís surten en el teu idioma · botó d'avisar més fàcil de tocar",
   "en": "Reports: «Cancelled trains announced» · report types shown in your language · easier-to-tap report button"
+ },
+ "1.529": {
+  "ca": "Avisos d'ascensor avariat: duren 30 dies des de l'última confirmació, mostren des de quan i es treuen amb 2 «Ja funciona»",
+  "en": "Broken lift reports: last 30 days from the last confirmation, show since when, and are removed by 2 «Working again»"
  }
 }

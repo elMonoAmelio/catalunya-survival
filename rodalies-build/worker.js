@@ -8,12 +8,14 @@ const PERMITIDOS = ['https://elmonoamelio.github.io', 'null', 'capacitor://local
 const APP = 'https://elmonoamelio.github.io/catalunya-survival/rodalies.html';
 // tipos de aviso de viajeros (solo botones, sin texto libre)
 const TIPOS = { vacio: 'Va con sitio', lleno: 'Va lleno', petado: 'Muy lleno, cuesta subir', parado: 'Parado sin moverse', calor: 'Sin aire acondicionado', abordo: 'Incidencia a bordo',
-  gente: 'Mucha gente esperando', retraso: 'Anuncian retraso por megafonía', cancel: 'Anuncian tren cancelado', ascensor: 'Ascensor o escalera averiados', via: 'Incidencia en la estación' };
+  gente: 'Mucha gente esperando', retraso: 'Anuncian retraso por megafonía', cancel: 'Anuncian trenes cancelados', ascensor: 'Ascensor o escalera averiados', via: 'Incidencia en la estación' };
 const CROWD = ['vacio', 'lleno', 'petado'];
+// averías que duran (ascensores): el aviso vive 30 días desde la última confirmación; 2 «ya funciona» lo quitan
+const LARGO = 'ascensor', LARGO_MS = 30 * 864e5;
 // avisos de los últimos 90 min y ocupación de los últimos 20 min (por tren: cuántos dicen cada cosa y cuándo fue la última vez)
 async function repPayload(env) {
   const D = await db(env), now = Date.now();
-  const r = (await D.prepare('SELECT id, kind, sid, num, line, up, down, at FROM reports WHERE at > ? AND up > down ORDER BY at DESC LIMIT 300').bind(now - 90 * 60e3).all()).results || [];
+  const r = (await D.prepare('SELECT id, kind, sid, num, line, up, down, at, t0 FROM reports WHERE ((kind <> ? AND at > ? AND up > down) OR (kind = ? AND at > ? AND down < 2)) ORDER BY at DESC LIMIT 300').bind(LARGO, now - 90 * 60e3, LARGO, now - LARGO_MS).all()).results || [];
   const c = (await D.prepare('SELECT num, lvl, COUNT(*) AS n, MAX(at) AS at FROM crowd WHERE at > ? GROUP BY num, lvl LIMIT 600').bind(now - 20 * 60e3).all()).results || [];
   return { now, tipos: TIPOS, items: r.filter(x => !CROWD.includes(x.kind)), crowd: c };
 }
@@ -45,6 +47,7 @@ async function db(env) {
       env.DB.prepare('CREATE TABLE IF NOT EXISTS votes (rid INTEGER, iph TEXT, PRIMARY KEY (rid, iph))'),
       env.DB.prepare('CREATE TABLE IF NOT EXISTS crowd (num TEXT, iph TEXT, lvl TEXT, line TEXT, at INTEGER, PRIMARY KEY (num, iph))'),   // ocupación: una respuesta por persona y tren
     ]);
+    try { await env.DB.prepare('ALTER TABLE reports ADD COLUMN t0 INTEGER').run(); } catch (e) {}   // desde cuándo (ya existe = sin cambios)
     listo = true;
   }
   return env.DB;
@@ -110,7 +113,8 @@ async function revisar(env) {
   await D.batch([
     D.prepare('DELETE FROM seen WHERE at < ?').bind(now - 7 * 864e5),
     D.prepare('DELETE FROM inbox WHERE at < ?').bind(now - 864e5),
-    D.prepare('DELETE FROM reports WHERE at < ?').bind(now - 3 * 3600e3),
+    D.prepare('DELETE FROM reports WHERE at < ? AND kind <> ?').bind(now - 3 * 3600e3, LARGO),
+    D.prepare('DELETE FROM reports WHERE at < ? AND kind = ?').bind(now - LARGO_MS, LARGO),
     D.prepare('DELETE FROM votes WHERE rid NOT IN (SELECT id FROM reports)'),
     D.prepare('DELETE FROM crowd WHERE at < ?').bind(now - 3600e3),
   ]);
@@ -169,8 +173,11 @@ export default {
         }
         if (p === '/vote') {
           const rid = +b.id, v = b.v > 0 ? 'up' : 'down'; if (!rid) return J({ ok: false }, cors, 400);
+          const rep = await D.prepare('SELECT kind, down FROM reports WHERE id=?').bind(rid).first(); if (!rep) return J({ ok: false, err: 'Este aviso ya no existe' }, cors, 404);
           const r = await D.prepare('INSERT OR IGNORE INTO votes (rid, iph) VALUES (?, ?)').bind(rid, iph).run();
           if (r.meta.changes) await D.prepare(`UPDATE reports SET ${v} = ${v} + 1 WHERE id=?`).bind(rid).run();
+          if (rep.kind === LARGO && v === 'up') await D.prepare('UPDATE reports SET at = ? WHERE id=?').bind(now, rid).run();
+          if (rep.kind === LARGO && v === 'down' && r.meta.changes && rep.down + 1 >= 2) await D.prepare('DELETE FROM reports WHERE id=?').bind(rid).run();
           return J({ ok: true, dup: !r.meta.changes }, cors);
         }
         if (b.retract) {
@@ -183,14 +190,14 @@ export default {
         if (!TIPOS[kind] || !(sid || num)) return J({ ok: false, err: 'aviso no válido' }, cors, 400);
         if (await D.prepare('SELECT id FROM reports WHERE iph=? AND at > ?').bind(iph, now - 90e3).first()) return J({ ok: false, err: 'Espera un momento antes de enviar otro aviso' }, cors, 429);
         // si otro viajero ya avisó de lo mismo hace poco, se suma a su aviso
-        const same = await D.prepare('SELECT id, up FROM reports WHERE kind=? AND sid=? AND num=? AND at > ? ORDER BY at DESC LIMIT 1').bind(kind, sid, num, now - 20 * 60e3).first();
+        const same = await D.prepare('SELECT id, up FROM reports WHERE kind=? AND sid=? AND num=? AND at > ? ORDER BY at DESC LIMIT 1').bind(kind, sid, num, now - (kind === LARGO ? LARGO_MS : 20 * 60e3)).first();
         let id, n = 1;
         if (same) {
           const v = await D.prepare('INSERT OR IGNORE INTO votes (rid, iph) VALUES (?, ?)').bind(same.id, iph).run();
           await D.prepare(`UPDATE reports SET ${v.meta.changes ? 'up = up + 1, ' : ''}at = ? WHERE id=?`).bind(now, same.id).run();
           id = same.id; n = same.up + (v.meta.changes ? 1 : 0);
         } else {
-          id = (await D.prepare('INSERT INTO reports (kind, sid, num, line, iph, at) VALUES (?, ?, ?, ?, ?, ?)').bind(kind, sid, num, line, iph, now).run()).meta.last_row_id;
+          id = (await D.prepare('INSERT INTO reports (kind, sid, num, line, iph, at, t0) VALUES (?, ?, ?, ?, ?, ?, ?)').bind(kind, sid, num, line, iph, now, now).run()).meta.last_row_id;
           await D.prepare('INSERT OR IGNORE INTO votes (rid, iph) VALUES (?, ?)').bind(id, iph).run();
         }
         if (AVISAN.has(kind) && n === 2) await avisar(env, { lines: line ? [line] : [], sts: sid ? [sid] : [], title: 'Viajeros' + (line ? ' · ' + line : ''), body: TIPOS[kind] + (num ? ' · tren ' + num : '') + ' (lo confirman 2 viajeros)' });
