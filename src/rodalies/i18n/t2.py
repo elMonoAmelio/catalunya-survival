@@ -390,6 +390,8 @@ T = {
 "a pie desde aquí": ("a peu des d'aquí", "on foot from here"),
 "Desde aquí": ("Des d'aquí", "From here"),
 "Avisos al móvil": ("Avisos al mòbil", "Phone alerts"),
+"🔔 Activados": ("🔔 Activats", "🔔 On"),
+"🔕 Activar": ("🔕 Activar", "🔕 Turn on"),
 "Voy en el": ("Vaig al", "I'm on"),
 "sin posición de Renfe": ("sense posició de Renfe", "no Renfe position"),
 "Aún no ha salido de": ("Encara no ha sortit de", "Not yet departed from"),
