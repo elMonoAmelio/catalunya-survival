@@ -294,5 +294,9 @@
  "1.501": {
   "ca": "Línia amb estil iOS: títol gran «Línia», Puntualitat i Avisos amb el mateix disseny (avisos complets, agrupats) en mode clar i fosc",
   "en": "Line in iOS style: large «Line» title, Punctuality and Alerts with the same design (full alerts, grouped) in light and dark mode"
+ },
+ "1.503": {
+  "ca": "Ara amb estil iOS: fons i grups com a Línia i Configuració, noms sense majúscules, sense vores innecessàries; es manté el color de sortida i la marca blava de tren localitzat",
+  "en": "Now in iOS style: background and groups as in Line and Settings, names without capitals, no unnecessary borders; the departure colour and blue located-train mark stay"
  }
 }
