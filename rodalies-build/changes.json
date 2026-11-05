@@ -310,5 +310,9 @@
  "1.510": {
   "ca": "Línia: la fitxa ja no s'arrossega i els botons tornen a funcionar · el cercador d'estacions, translúcid i separat · al mapa, un tren damunt d'una estació guanya sempre el toc",
   "en": "Line: the card no longer drags and the buttons work again · station search is translucent and separated · on the map, a train on top of a station always wins the tap"
+ },
+ "1.512": {
+  "ca": "Avisos: el mateix avís ja no surt repetit en català (Rodalies) i castellà (Renfe)",
+  "en": "Alerts: the same alert no longer appears twice in Catalan (Rodalies) and Spanish (Renfe)"
  }
 }

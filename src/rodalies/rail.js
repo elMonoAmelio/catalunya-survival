@@ -150,7 +150,7 @@ export function initRail(A) {
         if (!fams.size && !stops.size) continue;
         const tr = (a.descriptionText || a.headerText || { translation: [] }).translation || [], tx = ((tr.find(t => t.language === 'es') || tr[0] || {}).text || '').trim();
         const st = +((a.activePeriod || [])[0] || {}).start || 0;
-        if (!out.some(x => x.txt === tx)) out.push({ id: e.id, fams, stops, txt: tx, when: st ? new Date(st * 1000).toISOString().slice(0, 19) : '', src: 'Renfe' });
+        const nz = t => String(t || '').toLowerCase().replace(/&#?\w+;/g, '').replace(/[^a-z0-9áéíóúàèòïüñç]+/g, ''); if (!out.some(x => x.txt === tx || nz(x.txt) === nz(tx) || (x.es && nz(x.es) === nz(tx)))) out.push({ id: e.id, fams, stops, txt: tx, when: st ? new Date(st * 1000).toISOString().slice(0, 19) : '', src: 'Renfe' });
       }
     }
     // 3) Adif (gestor de la vía): incidencias en la infraestructura de Cataluña; a veces llegan antes que el aviso del operador
