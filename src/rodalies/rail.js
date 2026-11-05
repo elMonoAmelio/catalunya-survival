@@ -95,13 +95,13 @@ export function initRail(A) {
   function rtBase() { return (RT.url === DEF_RT && RT.altUntil > Date.now() ? ALT_RT : RT.url).replace(/\/+$/, ''); }
   const isRod = id => /^51/.test(id || '');
   // arranque: la pantalla de inicio se queda hasta que hay tiempo real y salidas oficiales de tus estaciones (máx. 4 s)
-  const BOOT = { t0: Date.now(), done: !document.documentElement.classList.contains('splash') };
+  const BOOT = { t0: Date.now(), done: !(document.documentElement.classList.contains('splash') || window.__natBoot) };   // en la app, la pantalla nativa (LaunchScreen) se queda hasta aquí
   function bootReady() {
     if (BOOT.done) return; const ids = [...HOME.st, ...WORK.st];
     const ok = (RT.ok || RT.err || !RT.url) && ids.every(id => { const d = DEPS.get(id); return d && d.at > 0 && !d.loading; });
     if (!ok && Date.now() - BOOT.t0 < 4000) { setTimeout(bootReady, 120); return; }
     BOOT.done = true; try { renderHome(true); } catch (e) {}
-    requestAnimationFrame(() => requestAnimationFrame(() => { const s = document.getElementById('splash'); if (s) { s.classList.add('out'); setTimeout(() => s.remove(), 400); } document.documentElement.classList.remove('splash'); }));
+    requestAnimationFrame(() => requestAnimationFrame(() => { window.__splashOff && window.__splashOff(); const s = document.getElementById('splash'); if (s) { s.classList.add('out'); setTimeout(() => s.remove(), 400); } document.documentElement.classList.remove('splash'); }));
   }
   setTimeout(bootReady, 150);
   async function pollRT() {
@@ -470,7 +470,7 @@ export function initRail(A) {
     if (S.live) { const v = Math.round(S.min); const sl = $('#tsl'); if (document.activeElement !== sl) sl.value = v < 240 ? v + 1440 : v; }
     { const k = selTrip ? String(selTrip.num || selTrip.vtid || '') : ''; if (k !== tick._sk) { tick._sk = k; renderHome(true); } }
     renderHome();
-    if (!tick._sp && (useLive || !S.live || rtDown() || !RT.url)) { tick._sp = 1; window.__splashOff && window.__splashOff(); } /* icono de carga fuera cuando ya hay datos (máx. 4 s) */
+    /* la pantalla de inicio la quita bootReady() */
     if (now - lastCard > 3000 && (selTrip || selStation >= 0 || selAlerts || selStats || selLine)) { lastCard = now; renderCard(); }
     renderRT();
     return true;

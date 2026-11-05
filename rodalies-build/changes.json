@@ -326,5 +326,9 @@
  "1.518": {
   "ca": "Arrencada: s'obre directament a Ara amb l'horari en directe, sense veure el mapa ni dades velles",
   "en": "Startup: opens straight on Now with live times, without flashing the map or stale data"
+ },
+ "1.520": {
+  "ca": "Arrencada a l'app: la pantalla d'inici nativa es queda fins que Ara és a punt, sense parpelleigs",
+  "en": "App startup: the native launch screen stays until Now is ready, no flashes"
  }
 }
