@@ -350,5 +350,9 @@
  "1.531": {
   "ca": "Ara: el número del tren es veu sencer al costat del megàfon · finestra d'avisos més senzilla",
   "en": "Now: the train number shows in full next to the megaphone · simpler report sheet"
+ },
+ "1.533": {
+  "ca": "Català: la ela geminada (l·l) es veu bé a tota l'app · «Anònim» traduït",
+  "en": "Catalan: the l·l now displays correctly across the app · «Anònim» translated"
  }
 }

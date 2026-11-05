@@ -432,6 +432,7 @@ T = {
 "meses": ("mesos", "months"),
 "años": ("anys", "years"),
 "hoy": ("avui", "today"),
+"Anónimo": ("Anònim", "Anonymous"),
 "Voy en el": ("Vaig al", "I'm on"),
 "sin posición de Renfe": ("sense posició de Renfe", "no Renfe position"),
 "Aún no ha salido de": ("Encara no ha sortit de", "Not yet departed from"),
