@@ -346,5 +346,9 @@
  "1.529": {
   "ca": "Avisos d'ascensor avariat: duren 30 dies des de l'última confirmació, mostren des de quan i es treuen amb 2 «Ja funciona»",
   "en": "Broken lift reports: last 30 days from the last confirmation, show since when, and are removed by 2 «Working again»"
+ },
+ "1.531": {
+  "ca": "Ara: el número del tren es veu sencer al costat del megàfon · finestra d'avisos més senzilla",
+  "en": "Now: the train number shows in full next to the megaphone · simpler report sheet"
  }
 }
