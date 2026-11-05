@@ -9,6 +9,14 @@ const APP = 'https://elmonoamelio.github.io/catalunya-survival/rodalies.html';
 // tipos de aviso de viajeros (solo botones, sin texto libre)
 const TIPOS = { vacio: 'Va con sitio', lleno: 'Va lleno', petado: 'Muy lleno, cuesta subir', parado: 'Parado sin moverse', calor: 'Sin aire acondicionado', abordo: 'Incidencia a bordo',
   gente: 'Mucha gente esperando', retraso: 'Anuncian retraso por megafonía', cancel: 'Anuncian tren cancelado', ascensor: 'Ascensor o escalera averiados', via: 'Incidencia en la estación' };
+const CROWD = ['vacio', 'lleno', 'petado'];
+// avisos de los últimos 90 min y ocupación de los últimos 20 min (por tren: cuántos dicen cada cosa y cuándo fue la última vez)
+async function repPayload(env) {
+  const D = await db(env), now = Date.now();
+  const r = (await D.prepare('SELECT id, kind, sid, num, line, up, down, at FROM reports WHERE at > ? AND up > down ORDER BY at DESC LIMIT 300').bind(now - 90 * 60e3).all()).results || [];
+  const c = (await D.prepare('SELECT num, lvl, COUNT(*) AS n, MAX(at) AS at FROM crowd WHERE at > ? GROUP BY num, lvl LIMIT 600').bind(now - 20 * 60e3).all()).results || [];
+  return { now, tipos: TIPOS, items: r.filter(x => !CROWD.includes(x.kind)), crowd: c };
+}
 const AVISAN = new Set(['parado', 'abordo', 'cancel', 'via']);   // con 2 viajeros distintos se manda aviso al móvil
 
 function destino(url) {
@@ -35,6 +43,7 @@ async function db(env) {
       env.DB.prepare('CREATE TABLE IF NOT EXISTS inbox (n INTEGER PRIMARY KEY AUTOINCREMENT, sub TEXT, title TEXT, body TEXT, url TEXT, at INTEGER)'),
       env.DB.prepare('CREATE TABLE IF NOT EXISTS reports (id INTEGER PRIMARY KEY AUTOINCREMENT, kind TEXT, sid TEXT, num TEXT, line TEXT, iph TEXT, up INTEGER DEFAULT 1, down INTEGER DEFAULT 0, at INTEGER)'),
       env.DB.prepare('CREATE TABLE IF NOT EXISTS votes (rid INTEGER, iph TEXT, PRIMARY KEY (rid, iph))'),
+      env.DB.prepare('CREATE TABLE IF NOT EXISTS crowd (num TEXT, iph TEXT, lvl TEXT, line TEXT, at INTEGER, PRIMARY KEY (num, iph))'),   // ocupación: una respuesta por persona y tren
     ]);
     listo = true;
   }
@@ -103,6 +112,7 @@ async function revisar(env) {
     D.prepare('DELETE FROM inbox WHERE at < ?').bind(now - 864e5),
     D.prepare('DELETE FROM reports WHERE at < ?').bind(now - 3 * 3600e3),
     D.prepare('DELETE FROM votes WHERE rid NOT IN (SELECT id FROM reports)'),
+    D.prepare('DELETE FROM crowd WHERE at < ?').bind(now - 3600e3),
   ]);
 }
 
@@ -121,7 +131,7 @@ export default {
         const part = pr => pr.then(t => /^\s*[{\[]/.test(t || '') ? t : '{"__err":"formato"}', e => JSON.stringify({ __err: String(e && e.message || e) }));   // sin analizar el JSON: no gasta CPU
         const [tu, vp, al, nt, ad, rp] = await Promise.all([part(up(RENFE + '/trip_updates.json', 15)), part(up(RENFE + '/vehicle_positions.json', 15)), part(up(RENFE + '/alerts.json', 15)), part(up(NOTICES, 60)),
           adif().then(x => JSON.stringify(x)).catch(e => JSON.stringify({ ok: false, err: String(e.message || e) })),
-          (async () => { const r = (await (await db(env)).prepare('SELECT id, kind, sid, num, line, up, down, at FROM reports WHERE at > ? AND up > down ORDER BY at DESC LIMIT 300').bind(Date.now() - 90 * 60e3).all()).results || []; return JSON.stringify({ now: Date.now(), tipos: TIPOS, items: r }); })().catch(() => 'null')]);
+          (async () => JSON.stringify(await repPayload(env)))().catch(() => 'null')]);
         const body = `{"v":1,"now":${Date.now()},"tu":${tu},"vp":${vp},"al":${al},"nt":${nt},"ad":${ad},"rep":${rp}}`;
         if (ctx) ctx.waitUntil(cache.put(key, new Response(body, { headers: { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'public, max-age=15' } })));
         return new Response(body, { headers: H });
@@ -144,16 +154,30 @@ export default {
       }
       // --- avisos de viajeros ---
       if (p === '/reports.json') {
-        const r = (await (await db(env)).prepare('SELECT id, kind, sid, num, line, up, down, at FROM reports WHERE at > ? AND up > down ORDER BY at DESC LIMIT 300').bind(Date.now() - 90 * 60e3).all()).results || [];
-        return J({ now: Date.now(), tipos: TIPOS, items: r }, cors);
+        return J(await repPayload(env), cors);
       }
-      if ((p === '/report' || p === '/vote') && req.method === 'POST') {
-        const ip = req.headers.get('CF-Connecting-IP') || '', iph = await sha('rod|' + ip + '|' + new Date().toISOString().slice(0, 10)), b = await req.json(), D = await db(env), now = Date.now();
+      if ((p === '/report' || p === '/vote' || p === '/crowd') && req.method === 'POST') {
+        const b = await req.json(), D = await db(env), now = Date.now(), dev = /^[a-f0-9]{32}$/.test(b.dev || '') ? b.dev : '';
+        const ip = req.headers.get('CF-Connecting-IP') || '', iph = await sha(dev ? 'rod|dev|' + dev : 'rod|' + ip + '|' + new Date().toISOString().slice(0, 10));   // cada móvil cuenta una vez (en 4G muchos comparten IP)
+        // ocupación: tu respuesta sustituye a la anterior; sin nivel = la quitas
+        if (p === '/crowd') {
+          const num = /^\w{1,8}$/.test(b.num || '') ? b.num : '', lvl = CROWD.includes(b.lvl) ? b.lvl : '', line = /^\w{1,4}$/.test(b.line || '') ? b.line : '';
+          if (!num) return J({ ok: false, err: 'aviso no válido' }, cors, 400);
+          if (lvl) await D.prepare('INSERT INTO crowd (num, iph, lvl, line, at) VALUES (?, ?, ?, ?, ?) ON CONFLICT(num, iph) DO UPDATE SET lvl=excluded.lvl, line=excluded.line, at=excluded.at').bind(num, iph, lvl, line, now).run();
+          else await D.prepare('DELETE FROM crowd WHERE num=? AND iph=?').bind(num, iph).run();
+          return J({ ok: true }, cors);
+        }
         if (p === '/vote') {
           const rid = +b.id, v = b.v > 0 ? 'up' : 'down'; if (!rid) return J({ ok: false }, cors, 400);
           const r = await D.prepare('INSERT OR IGNORE INTO votes (rid, iph) VALUES (?, ?)').bind(rid, iph).run();
           if (r.meta.changes) await D.prepare(`UPDATE reports SET ${v} = ${v} + 1 WHERE id=?`).bind(rid).run();
           return J({ ok: true, dup: !r.meta.changes }, cors);
+        }
+        if (b.retract) {
+          const rid = +b.id; if (!rid) return J({ ok: false }, cors, 400);
+          const v = await D.prepare('DELETE FROM votes WHERE rid=? AND iph=?').bind(rid, iph).run();
+          if (v.meta.changes) { await D.prepare('UPDATE reports SET up = up - 1 WHERE id=?').bind(rid).run(); await D.prepare('DELETE FROM reports WHERE id=? AND up <= 0').bind(rid).run(); }
+          return J({ ok: true, gone: !!v.meta.changes }, cors);
         }
         const kind = String(b.kind || ''), sid = /^\d{4,6}$/.test(b.sid || '') ? b.sid : '', num = /^\w{1,8}$/.test(b.num || '') ? b.num : '', line = /^\w{1,4}$/.test(b.line || '') ? b.line : '';
         if (!TIPOS[kind] || !(sid || num)) return J({ ok: false, err: 'aviso no válido' }, cors, 400);
@@ -163,7 +187,7 @@ export default {
         let id, n = 1;
         if (same) {
           const v = await D.prepare('INSERT OR IGNORE INTO votes (rid, iph) VALUES (?, ?)').bind(same.id, iph).run();
-          if (v.meta.changes) await D.prepare('UPDATE reports SET up = up + 1, at = ? WHERE id=?').bind(now, same.id).run();
+          await D.prepare(`UPDATE reports SET ${v.meta.changes ? 'up = up + 1, ' : ''}at = ? WHERE id=?`).bind(now, same.id).run();
           id = same.id; n = same.up + (v.meta.changes ? 1 : 0);
         } else {
           id = (await D.prepare('INSERT INTO reports (kind, sid, num, line, iph, at) VALUES (?, ?, ?, ?, ?, ?)').bind(kind, sid, num, line, iph, now).run()).meta.last_row_id;
