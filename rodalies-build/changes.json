@@ -334,5 +334,9 @@
  "1.522": {
   "ca": "Viatgers: l'ocupació del tren és una sola resposta per persona que pots canviar o treure; els teus avisos es poden retirar",
   "en": "Riders: train crowding is one answer per person that you can change or remove; your reports can be withdrawn"
+ },
+ "1.525": {
+  "ca": "Ara: botó de megàfon a la targeta de l'estació per avisar (es converteix en «Avisar» en ambre quan hi ets)",
+  "en": "Now: megaphone button on the station card to report (turns into an amber «Report» when you're there)"
  }
 }
