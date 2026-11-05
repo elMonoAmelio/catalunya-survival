@@ -318,5 +318,9 @@
  "1.514": {
   "ca": "Avisos d'Ara amb el mateix disseny que els de Línia",
   "en": "Now-tab alerts share the Line-tab design"
+ },
+ "1.516": {
+  "ca": "Avisos: apòstrofs trencats arreglats · oberts, sense repetir les línies a la capçalera",
+  "en": "Alerts: broken apostrophes fixed · when open, lines no longer repeated in the header"
  }
 }

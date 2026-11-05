@@ -818,6 +818,8 @@ html.tabmode[data-tab=map] #mcs .tc{background:transparent!important;border:0!im
 <style>/* 05/11: buscador separado y translúcido */html.tabmode[data-tab=now] #hfind{margin-top:24px!important;background:color-mix(in srgb,var(--icell) 55%,transparent)!important;-webkit-backdrop-filter:blur(14px) saturate(1.4);backdrop-filter:blur(14px) saturate(1.4);border:1px solid color-mix(in srgb,var(--isep) 60%,transparent)!important;color:var(--isec,inherit)!important;font-weight:500!important}</style>
 
 <style>/* 05/11: avisos de Ahora con el mismo diseño que los de Línea */#home .hnow .igl{display:flex;flex-direction:column;margin:8px -4px 0}#home .hnow .igc{padding:12px 4px;position:relative}#home .hnow .igc+.igc::before{content:"";position:absolute;top:0;left:4px;right:0;height:.5px;background:var(--isep)}#home .hnow .igh{margin:0 0 6px;display:flex;flex-wrap:wrap;align-items:center;gap:5px;font-size:13px}#home .hnow .igh small{color:var(--isec);margin-left:auto;font-size:13px}#home .hnow .igt{margin:0;font-size:15px;line-height:1.4;white-space:normal;color:var(--ink)}#home .hnow .igc p{padding:0;border:0;background:none}#home .hnow .igh .ico,#home .hnow .igh .ico svg{color:#ff9f0a!important;width:17px;height:17px}#home .hnow .igc.sv3 .igh .ico,#home .hnow .igc.sv3 .igh .ico svg{color:#ff453a!important}#home .hnow .igc.sv1 .igh .ico,#home .hnow .igc.sv1 .igh .ico svg{color:#0a84ff!important}</style>
+
+<style>/* 05/11: abierto, cada aviso ya lleva sus líneas: fuera las de la cabecera */#home .hnow:not(.col) .hnowc{display:none}#home .hnow .hnowc{display:contents}</style>
 </head>
 <body>
 <canvas id="c"></canvas>
