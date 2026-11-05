@@ -398,6 +398,7 @@ T = {
 "avisos activos para las líneas que tienes visibles": ("avisos actius per a les línies que tens visibles", "active alerts for the lines you have visible"),
 "Sin avisos activos.": ("Sense avisos actius.", "No active alerts."),
 "Todas las líneas": ("Totes les línies", "All lines"),
+"1 aviso activo para las líneas que tienes visibles": ("1 avís actiu per a les línies que tens visibles", "1 active alert for the lines you have visible"),
 "Voy en el": ("Vaig al", "I'm on"),
 "sin posición de Renfe": ("sense posició de Renfe", "no Renfe position"),
 "Aún no ha salido de": ("Encara no ha sortit de", "Not yet departed from"),

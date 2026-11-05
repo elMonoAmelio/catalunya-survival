@@ -314,5 +314,9 @@
  "1.512": {
   "ca": "Avisos: el mateix avís ja no surt repetit en català (Rodalies) i castellà (Renfe)",
   "en": "Alerts: the same alert no longer appears twice in Catalan (Rodalies) and Spanish (Renfe)"
+ },
+ "1.514": {
+  "ca": "Avisos d'Ara amb el mateix disseny que els de Línia",
+  "en": "Now-tab alerts share the Line-tab design"
  }
 }
