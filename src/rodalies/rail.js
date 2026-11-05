@@ -160,6 +160,10 @@ export function initRail(A) {
       ST.forEach((st, i) => { if (st.fams.size && st.n.length > 4 && nt2.includes(norm(st.n))) { stops.add(i); if (!fams.size) st.fams.forEach(f => fams.add(f)); } });
       if (!out.some(x => x.txt === tx)) out.push({ id: 'A' + k, fams, stops, txt: tx, when: RT.adif.upd || '', src: 'Adif', lvl: it.lvl });
     }
+    const unEnt = t => String(t || '').replace(/&#x([0-9a-f]+);/gi, (m, h) => String.fromCodePoint(parseInt(h, 16))).replace(/&#(\d+);/g, (m, d) => String.fromCodePoint(+d)).replace(/&nbsp;/g, ' ').replace(/&quot;/g, '"').replace(/&apos;|&#39;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&').replace(/[\u200B-\u200D\uFEFF]/g, '').replace(/\s+/g, ' ').trim();   /* Renfe a veces manda «09.&#8203;11 h» */
+    for (const a of out) { a.txt = unEnt(a.txt); if (a.es) a.es = unEnt(a.es);
+      /* Renfe marca a veces el aviso de UN tren con todas las líneas: si el texto nombra el tren, se deja solo su línea */
+      if (a.fams && a.fams.size > 3) { const m = a.txt.match(/\bTren\s+(\d{4,6})\b/i); if (m) { let f = null; try { f = famOfNum(m[1]); } catch (e) {} if (f) a.fams = new Set([f]); } } }
     if (nt.status === 'fulfilled' || al.status === 'fulfilled') { RT.alerts = out.sort((a, b) => (b.when > a.when ? 1 : -1)); try { localNotify(); } catch (e) {} }
     renderRT(); renderAlerts(); lastT = 0; invalidate();
   }
@@ -892,7 +896,7 @@ export function initRail(A) {
         </ul><small>Los datos se muestran tal como los publican sus fuentes. Ante cualquier duda, manda lo que diga el operador en la estación.</small></div>`;
     } else if (selAlerts) {
       const arr = RT.alerts.filter(a => [...a.fams].some(f => famOn.has(f)) || !a.fams.size);
-      h = `<div class="tc alrl" style="--c:#c2410c"><button class="x" data-cx>×</button><h3 class="ilt sm">${'Avisos'}</h3><small class="ifoot0">${arr.length} ${'avisos activos para las líneas que tienes visibles'}</small>${arr.length ? `<div class="igl">${arr.map(a => `<div class="igc"><p class="igh">⚠️ ${srcB(a)} ${[...a.fams].sort(natural).map(chipL).join(' ')} <small>${whenTxt(a)}</small></p><p class="igt">${esc(a.txt)}</p></div>`).join('')}</div>` : `<p>${'Sin avisos activos.'}</p>`}<small>Fuente: avisos oficiales de Rodalies de Catalunya, incidencias en la vía de Adif (gestor de la infraestructura)${RT.alertsTs && Date.now() / 1000 - RT.alertsTs < 6 * 3600 ? ' y de Renfe' : ` · los avisos GTFS de Renfe no se muestran: Renfe no los actualiza desde el ${RT.alertsTs ? new Date(RT.alertsTs * 1000).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' }) : '—'}`}</small></div>`;
+      h = `<div class="tc alrl" style="--c:#c2410c"><button class="x" data-cx>×</button><h3 class="ilt sm">${'Avisos'}</h3><small class="ifoot0">${arr.length} ${'avisos activos para las líneas que tienes visibles'}</small>${arr.length ? `<div class="igl">${arr.map(a => `<div class="igc"><p class="igh">⚠️ ${srcB(a)} ${a.fams.size > 6 ? `<span class="igall">${'Todas las líneas'}</span>` : [...a.fams].sort(natural).map(chipL).join(' ')} <small>${whenTxt(a)}</small></p><p class="igt">${esc(a.txt)}</p></div>`).join('')}</div>` : `<p>${'Sin avisos activos.'}</p>`}<small>Fuente: avisos oficiales de Rodalies de Catalunya, incidencias en la vía de Adif (gestor de la infraestructura)${RT.alertsTs && Date.now() / 1000 - RT.alertsTs < 6 * 3600 ? ' y de Renfe' : ` · los avisos GTFS de Renfe no se muestran: Renfe no los actualiza desde el ${RT.alertsTs ? new Date(RT.alertsTs * 1000).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' }) : '—'}`}</small></div>`;
     } else if (la) {
       const v = la.v, tr = la.tr, nm = i => esc(ST[tr.pat.stops[i]].n), n = tr ? tr.pat.stops.length : 0, sidx = SID.get(v.sid), sName = sidx != null ? esc(ST[sidx].n) : esc(v.sid);
       const near = tr && v.atStop >= 0 ? nm(v.atStop) : '', nxt = tr && v.next >= 0 ? nm(v.next) : sName, prv = tr && v.next > 0 ? nm(v.next - 1) : '';

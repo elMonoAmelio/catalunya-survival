@@ -298,5 +298,9 @@
  "1.503": {
   "ca": "Ara amb estil iOS: fons i grups com a Línia i Configuració, noms sense majúscules, sense vores innecessàries; es manté el color de sortida i la marca blava de tren localitzat",
   "en": "Now in iOS style: background and groups as in Line and Settings, names without capitals, no unnecessary borders; the departure colour and blue located-train mark stay"
+ },
+ "1.506": {
+  "ca": "Avisos: es neteja el text que Renfe envia amb codis estranys («09.&#8203;11 h» passa a «09.11 h») i un avís d'un tren concret ja no surt a totes les línies; Configuració: el títol es queda a dalt en baixar",
+  "en": "Alerts: Renfe's garbled text is cleaned up («09.&#8203;11 h» becomes «09.11 h») and an alert about one train no longer shows on every line; Settings: the title stays on top when scrolling"
  }
 }
