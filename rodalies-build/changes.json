@@ -322,5 +322,9 @@
  "1.516": {
   "ca": "Avisos: apòstrofs trencats arreglats · oberts, sense repetir les línies a la capçalera",
   "en": "Alerts: broken apostrophes fixed · when open, lines no longer repeated in the header"
+ },
+ "1.518": {
+  "ca": "Arrencada: s'obre directament a Ara amb l'horari en directe, sense veure el mapa ni dades velles",
+  "en": "Startup: opens straight on Now with live times, without flashing the map or stale data"
  }
 }

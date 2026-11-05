@@ -94,6 +94,16 @@ export function initRail(A) {
   const ALT_RT = 'https://rodalies.jhmuyo.workers.dev';
   function rtBase() { return (RT.url === DEF_RT && RT.altUntil > Date.now() ? ALT_RT : RT.url).replace(/\/+$/, ''); }
   const isRod = id => /^51/.test(id || '');
+  // arranque: la pantalla de inicio se queda hasta que hay tiempo real y salidas oficiales de tus estaciones (máx. 4 s)
+  const BOOT = { t0: Date.now(), done: !document.documentElement.classList.contains('splash') };
+  function bootReady() {
+    if (BOOT.done) return; const ids = [...HOME.st, ...WORK.st];
+    const ok = (RT.ok || RT.err || !RT.url) && ids.every(id => { const d = DEPS.get(id); return d && d.at > 0 && !d.loading; });
+    if (!ok && Date.now() - BOOT.t0 < 4000) { setTimeout(bootReady, 120); return; }
+    BOOT.done = true; try { renderHome(true); } catch (e) {}
+    requestAnimationFrame(() => requestAnimationFrame(() => { const s = document.getElementById('splash'); if (s) { s.classList.add('out'); setTimeout(() => s.remove(), 400); } document.documentElement.classList.remove('splash'); }));
+  }
+  setTimeout(bootReady, 150);
   async function pollRT() {
     if (!RT.url) { renderRT(); return; }
     const base = rtBase();
