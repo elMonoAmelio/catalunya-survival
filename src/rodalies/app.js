@@ -468,9 +468,11 @@ requestAnimationFrame(() => document.documentElement.classList.remove('boot')); 
 const land = () => innerWidth > 640;
 swipe(rcEl, { axis: 'y', onEnd: (dx, dy) => { if (land()) return; if (dy > 40 && !rcEl.classList.contains('min')) { const sc = $('#dp.open #dbody'); if (!sc || sc.scrollTop <= 0 || dy > 120) rcMin(true); } else if (dy < -30 && rcEl.classList.contains('min')) rcMin(false); } });
 swipe(rcEl, { axis: 'x', onEnd: dx => { if (!land()) return; if (dx > 50) rcMin(true); else if (dx < -30 && rcEl.classList.contains('min')) rcMin(false); } });
-swipe(mcs, { axis: 'x', onMove: dx => { if (dx < 0) { mcs.classList.add('sw'); mcs.style.transform = `translateX(${dx}px)`; mcs.style.opacity = Math.max(0.2, 1 + dx / 300); } },
-  onEnd: dx => { mcs.classList.remove('sw'); if (dx < -60) { mcsMin(true); if (window.__rodHide && !sels.length) window.__rodHide(); } else { mcs.style.transform = ''; mcs.style.opacity = ''; } } });
+const mcsSw = () => { const t = document.documentElement.dataset.tab; return !t || t === 'map'; };   // en Línea/Ahora/Ajustes la ficha no se arrastra
+swipe(mcs, { axis: 'x', onMove: dx => { if (dx < 0 && mcsSw()) { mcs.classList.add('sw'); mcs.style.transform = `translateX(${dx}px)`; mcs.style.opacity = Math.max(0.2, 1 + dx / 300); } },
+  onEnd: dx => { mcs.classList.remove('sw'); if (dx < -60 && mcsSw()) { mcsMin(true); if (window.__rodHide && !sels.length) window.__rodHide(); } else { mcs.style.transform = ''; mcs.style.opacity = ''; } } });
 mtab.onclick = () => { mcsMin(false); renderCards(); };
+window.__mcsMin = on => mcsMin(on);
 $('#dtoggle').onclick = () => { const o = $('#dp').classList.toggle('open'); $('#rc').classList.toggle('dopen', o); $('#dtoggle').textContent = o ? (MQ.matches && innerWidth <= 640 ? '← Controles' : 'Datos en directo ▴') : 'Datos en directo ▾'; if (window.__rodCard) window.__rodCard(); };
 const MQ = matchMedia('(max-width:640px), (max-height:500px)');
 function placeLeg() { const l = $('#leg'); if (MQ.matches) $('#rc').insertBefore(l, $('#dtoggle')); else document.body.appendChild(l); if (sels.length) renderCards(); }

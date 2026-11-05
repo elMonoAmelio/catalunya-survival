@@ -724,6 +724,8 @@ export function initRail(A) {
   window.__rodHide = () => { CARDHID = true; };
   document.addEventListener('click', e => { if (CARDHID && !e.target.closest('#mcs, canvas')) CARDHID = false; }, true);
   window.__rodTap = (x, y) => {
+    const ht = nearest(x, y, 20, 0);   // regla fija: un tren a menos de 20 px del dedo gana siempre; el nombre de la estación, solo si no hay tren debajo
+    if (ht && ht.a) { CARDHID = false; BACK.st = -1; selNews = false; selAlerts = false; selStats = false; selTrip = ht.a.tr || { vtid: ht.a.v.tid }; selStation = -1; follow = null; closeHome(); styleStations(); renderCard(); lastT = 0; invalidate(); return true; }
     let lb = null, ld = 1e9; for (const el of pool) { if (el.style.display === 'none') continue; const r = el.getBoundingClientRect(); if (x >= r.left - 4 && x <= r.right + 4 && y >= r.top - 4 && y <= r.bottom + 4) { const d = Math.abs(y - (r.top + r.bottom) / 2) * 4 + (x - r.left); if (d < ld) { ld = d; lb = el; } } } if (lb) { window.__rodPickStation(+lb.dataset.i); return true; }   // tocar el nombre = tocar la estación
     const h = nearest(x, y, 24, 18);
     if (h && (h.a || h.s != null)) CARDHID = false;
@@ -1936,7 +1938,7 @@ export function initRail(A) {
   }
   function setTab(k) {
     if (!TAB.on) return;
-    const was = TAB.cur; TAB.cur = k; document.documentElement.dataset.tab = k; window.__mapHidden = k !== 'map'; if (k === 'line') mcs.classList.remove('peek');   /* en Línea la ficha nunca está encogida */ if (!window.__mapHidden && window.__wakeMap) window.__wakeMap();
+    const was = TAB.cur; TAB.cur = k; document.documentElement.dataset.tab = k; window.__mapHidden = k !== 'map'; if (k !== 'map') { mcs.classList.remove('peek', 'sw'); if (mcs.classList.contains('min') && window.__mcsMin) window.__mcsMin(false); mcs.style.transform = ''; mcs.style.opacity = ''; }   /* en Línea la ficha nunca está encogida */ if (!window.__mapHidden && window.__wakeMap) window.__wakeMap();
     tabbar.querySelectorAll('[data-tab]').forEach(b => b.classList.toggle('on', b.dataset.tab === k)); tindOn();
     if (k === 'line') { if (selTrip || selStation >= 0) TAB.keep = { t: selTrip, s: selStation, sk: TAB.sk }; if (!selStats && !selAlerts && !selLine && !selNews) { selStats = true; HIST.at = 0; } selTrip = null; selStation = -1;   /* «novedades y fuentes» (desde Ajustes) se abre en Línea */ mcs._h = ''; renderCard(); renderLineaBar(); }
     else if (was === 'line') { selStats = selAlerts = selNews = false; selLine = ''; const kp = TAB.keep; TAB.keep = null; if (kp && k === 'map' && !selTrip && selStation < 0) { selTrip = kp.t; selStation = kp.s; TAB.sk = kp.sk; } mcs._h = ''; renderCard(); }
