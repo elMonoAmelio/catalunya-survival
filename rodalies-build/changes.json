@@ -354,5 +354,9 @@
  "1.533": {
   "ca": "Català: la ela geminada (l·l) es veu bé a tota l'app · «Anònim» traduït",
   "en": "Catalan: the l·l now displays correctly across the app · «Anònim» translated"
+ },
+ "1.535": {
+  "ca": "Ara: els avisos de l'estació són icones discretes al costat del nom (els urgents en color); en tocar-les es veuen i es voten",
+  "en": "Now: station reports are subtle icons next to the name (urgent ones in colour); tap to see and vote"
  }
 }
