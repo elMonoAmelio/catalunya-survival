@@ -800,6 +800,19 @@ html.tabmode[data-tab=now] #home .hplace:not(.pinned):not(.onbc)>.hhead{box-shad
 .tc.alrl .igall{font-size:13px;font-weight:600;color:var(--isec)}
 .tc.alrl .igl{width:100%}
 #tabA h3.ilt{box-shadow:0 -30px 0 30px var(--ibg)}
+/* ===== estilo iOS · Mapa (controles flotantes translúcidos, como Mapas de Apple) ===== */
+:root{--iglass:rgba(28,28,30,.78)}html:not(.dark){--iglass:rgba(255,255,255,.82)}
+html.tabmode[data-tab=map] #s,html.tabmode[data-tab=map] #z,html.tabmode[data-tab=map] #north,html.tabmode[data-tab=map] #mbtn,html.tabmode[data-tab=map] #rc,html.tabmode[data-tab=map] #mcs{background:var(--iglass)!important;-webkit-backdrop-filter:blur(20px) saturate(1.4);backdrop-filter:blur(20px) saturate(1.4);border:0!important;box-shadow:0 6px 24px rgba(0,0,0,.28)!important}
+html.tabmode[data-tab=map] #s{border-radius:22px!important}
+html.tabmode[data-tab=map] #s input{background:transparent!important;border:0!important}
+html.tabmode[data-tab=map] #z{border-radius:21px!important;overflow:hidden}
+html.tabmode[data-tab=map] #z button{background:transparent!important;border:0!important}
+html.tabmode[data-tab=map] #north,html.tabmode[data-tab=map] #mbtn{border-radius:50%!important}
+html.tabmode[data-tab=map] #rc{border-radius:22px!important}
+html.tabmode[data-tab=map] #mcs{border-radius:22px!important}
+html.tabmode[data-tab=map] #mcs .tc{background:transparent!important;border:0!important}
+/* ficha de estación: las líneas en una sola fila (si no caben, se desliza en lugar de partirse) */
+#mcs .tc .sfc{clear:both;flex-wrap:nowrap!important;overflow-x:auto;scrollbar-width:none;max-width:none!important;width:auto!important;margin-right:0!important;-webkit-overflow-scrolling:touch}#mcs .tc .sfc::-webkit-scrollbar{display:none}#mcs .tc .sfc{gap:4px!important}#mcs .tc .sfc button{flex:none;padding:3px 7px!important}@media (max-width:340px){#mcs .tc .sfc{gap:3px!important}#mcs .tc .sfc button{padding:3px 4px!important;font-size:11.5px!important}}
 </style>
 </head>
 <body>

@@ -302,5 +302,9 @@
  "1.506": {
   "ca": "Avisos: es neteja el text que Renfe envia amb codis estranys («09.&#8203;11 h» passa a «09.11 h») i un avís d'un tren concret ja no surt a totes les línies; Configuració: el títol es queda a dalt en baixar",
   "en": "Alerts: Renfe's garbled text is cleaned up («09.&#8203;11 h» becomes «09.11 h») and an alert about one train no longer shows on every line; Settings: the title stays on top when scrolling"
+ },
+ "1.508": {
+  "ca": "Mapa amb estil iOS: cercador, controls, fitxa i «Més opcions» flotants i translúcids; a la fitxa d'estació les línies caben en una sola fila",
+  "en": "Map in iOS style: search, controls, card and «More options» floating and translucent; on the station card the lines fit on one row"
  }
 }
