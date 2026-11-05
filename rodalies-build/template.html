@@ -746,6 +746,26 @@ html:not(.dark) #tabA .iseg button.on{background:#fff!important;color:#000!impor
 .tc.sts .lseg button{flex:1;border:0!important;border-radius:7px!important;background:transparent!important;color:inherit!important;font-weight:600!important;font-size:13.5px!important;min-height:32px}
 .tc.sts .lseg button.on{background:#636366!important;color:#fff!important}
 html:not(.dark) .tc.sts .lseg button.on{background:#fff!important;color:#000!important;box-shadow:0 1px 3px rgba(0,0,0,.15)}
+/* ===== estilo iOS · pestaña Línea completa ===== */
+#tabLt{display:none}
+html.tabmode[data-tab=line] #tabLt{display:block;position:fixed;left:calc(18px + var(--sal0));top:calc(4px + var(--sat0));z-index:22;font-size:34px;font-weight:700;letter-spacing:.01em;color:var(--ink);line-height:1.2}
+html.tabmode[data-tab=line] #tabL{top:calc(54px + var(--sat0))!important}
+html.tabmode[data-tab=line] #mcs{top:calc(102px + var(--sat0))!important}
+html.tabmode[data-tab=line] #mcs .tc{background:var(--ibg)!important;border:0!important;box-shadow:none!important}
+.tc h3.ilt.sm{font-size:22px!important;margin:2px 0 10px!important}
+.tc.sts h4{text-transform:none!important;letter-spacing:0!important;font-size:15px!important;color:var(--isec)!important;font-weight:600!important;margin:18px 4px 7px!important}
+html.tabmode[data-tab=line] #mcs .sbars,html.tabmode[data-tab=line] #mcs .tc.sts>ol,html.tabmode[data-tab=line] #mcs .l30f{background:var(--icell);border-radius:14px;padding:6px 12px!important}
+html.tabmode[data-tab=line] #mcs .tc.sts>ol>li{border-color:var(--isep)!important}
+html.tabmode[data-tab=line] #mcs .tc .al{background:var(--icell)!important;border-radius:14px!important;border-left:0!important;padding:10px 12px!important}
+.tc.alrl .igl{display:flex;flex-direction:column;background:var(--icell);border-radius:14px;overflow:hidden;margin-top:10px}
+.tc.alrl .igc{padding:12px 14px;position:relative}
+.tc.alrl .igc+.igc::before{content:"";position:absolute;top:0;left:14px;right:0;height:.5px;background:var(--isep)}
+.tc.alrl .igh{margin:0 0 6px;display:flex;flex-wrap:wrap;align-items:center;gap:5px;font-size:13px}.tc.alrl .igh small{color:var(--isec);margin-left:auto}
+.tc.alrl .igh .ico{color:var(--o,#ff9f0a);width:17px;height:17px}
+.tc.alrl .igt{margin:0;font-size:15px;line-height:1.4;white-space:normal}
+.tc.alrl .ifoot0{color:var(--isec)}
+html.tabmode[data-tab=line] #mcs{background:var(--ibg)!important;border:0!important;box-shadow:none!important}
+html.tabmode[data-tab=line] body,html.tabmode[data-tab=line] #map{background:var(--ibg)}
 </style>
 </head>
 <body>

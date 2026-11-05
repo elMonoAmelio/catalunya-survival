@@ -395,6 +395,8 @@ T = {
 "🔕 Desactivados": ("🔕 Desactivats", "🔕 Off"),
 "Estado": ("Estat", "Status"),
 "30 días": ("30 dies", "30 days"),
+"avisos activos para las líneas que tienes visibles": ("avisos actius per a les línies que tens visibles", "active alerts for the lines you have visible"),
+"Sin avisos activos.": ("Sense avisos actius.", "No active alerts."),
 "Voy en el": ("Vaig al", "I'm on"),
 "sin posición de Renfe": ("sense posició de Renfe", "no Renfe position"),
 "Aún no ha salido de": ("Encara no ha sortit de", "Not yet departed from"),

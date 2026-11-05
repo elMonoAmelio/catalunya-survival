@@ -290,5 +290,9 @@
  "1.499": {
   "ca": "Línia amb selector «Ara · 30 dies · Els teus viatges» i títol gran; a Configuració la campana d'avisos va al costat d'«Avisos al mòbil» (Activats / Desactivats)",
   "en": "Line with «Now · 30 days · Your trips» selector and large title; in Settings the alerts bell sits next to «Phone alerts» (On / Off)"
+ },
+ "1.501": {
+  "ca": "Línia amb estil iOS: títol gran «Línia», Puntualitat i Avisos amb el mateix disseny (avisos complets, agrupats) en mode clar i fosc",
+  "en": "Line in iOS style: large «Line» title, Punctuality and Alerts with the same design (full alerts, grouped) in light and dark mode"
  }
 }
