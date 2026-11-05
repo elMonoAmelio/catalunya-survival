@@ -1020,8 +1020,8 @@ export function initRail(A) {
   const CK = new Proxy({}, { get: (o, k) => ckIcon(k) });
   let CKOPEN = '';   // menú «Avisa a los demás» abierto: sigue abierto aunque la ficha se repinte
   const TK = ['vacio', 'lleno', 'petado', 'parado', 'calor', 'abordo'], SK = ['gente', 'retraso', 'cancel', 'ascensor', 'via'];
-  const TIPOS0 = { vacio: 'Va con sitio', lleno: 'Va lleno', petado: 'Muy lleno, cuesta subir', parado: 'Parado sin moverse', calor: 'Sin aire acondicionado', abordo: 'Incidencia a bordo', gente: 'Mucha gente esperando', retraso: 'Anuncian retraso por megafonía', cancel: 'Anuncian tren cancelado', ascensor: 'Ascensor o escalera averiados', via: 'Incidencia en la estación' };
-  const tipo = k => (RT.tipos || TIPOS0)[k] || k;
+  const TIPOS0 = { vacio: 'Va con sitio', lleno: 'Va lleno', petado: 'Muy lleno, cuesta subir', parado: 'Parado sin moverse', calor: 'Sin aire acondicionado', abordo: 'Incidencia a bordo', gente: 'Mucha gente esperando', retraso: 'Anuncian retraso por megafonía', cancel: 'Anuncian trenes cancelados', ascensor: 'Ascensor o escalera averiados', via: 'Incidencia en la estación' };
+  const tipo = k => TIPOS0[k] || (RT.tipos || {})[k] || k;   // los textos de la app (traducidos) mandan; los del servidor solo para tipos nuevos
   const repsFor = (num, sid) => (RT.rep || []).filter(r => (num && r.num === String(num) && !r.sid) || (sid && r.sid === String(sid) && !r.num) || (num && sid && r.num === String(num) && r.sid === String(sid)));
   const repAge = r => { const m = Math.round((Date.now() + (RT.repSkew || 0) - r.at) / 60000); return m < 1 ? 'ahora' : ago(m + ' min'); };
   // ocupación del tren: una respuesta por persona (código anónimo del móvil), se puede cambiar o quitar; caduca a los 20 min

@@ -426,6 +426,7 @@ T = {
 "Avisar de algo en la estación": ("Avisar d'alguna cosa a l'estació", "Report something at the station"),
 "Cancelar": ("Cancel·lar", "Cancel"),
 "Avisar": ("Avisar", "Report"),
+"Anuncian trenes cancelados": ("Anuncien trens cancel·lats", "Cancelled trains announced"),
 "Voy en el": ("Vaig al", "I'm on"),
 "sin posición de Renfe": ("sense posició de Renfe", "no Renfe position"),
 "Aún no ha salido de": ("Encara no ha sortit de", "Not yet departed from"),

@@ -338,5 +338,9 @@
  "1.525": {
   "ca": "Ara: botó de megàfon a la targeta de l'estació per avisar (es converteix en «Avisar» en ambre quan hi ets)",
   "en": "Now: megaphone button on the station card to report (turns into an amber «Report» when you're there)"
+ },
+ "1.527": {
+  "ca": "Avisos: «Anuncien trens cancel·lats» · els tipus d'avís surten en el teu idioma · botó d'avisar més fàcil de tocar",
+  "en": "Reports: «Cancelled trains announced» · report types shown in your language · easier-to-tap report button"
  }
 }
