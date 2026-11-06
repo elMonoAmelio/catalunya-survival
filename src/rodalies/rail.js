@@ -1305,7 +1305,7 @@ export function initRail(A) {
     if (a.acc != null && a.acc > 50) return; if (!ONB.cand || ONB.cand.k !== key) { ONB.cand = { k: key, t: a.t }; return; } if (a.t - ONB.cand.t < 20000) return;   // siempre dos lecturas seguidas (≥ 20 s) en marcha y con buen GPS: en el andén pasan trenes al lado
     onbFound(best);
   }
-  const TRZ = 6;   // zoom al seguir un tren: el máximo, para ver por dónde vas
+  const TRZ = 9;   // zoom al seguir un tren: cerca, con 2-3 estaciones a la vista, para ver por dónde vas
   function onbFound(best) {
     const key = String(best.tr.num); boardTrain(key, 'auto');
     selNews = selAlerts = selStats = false; selStation = -1; selTrip = best.tr; follow = best.tr;

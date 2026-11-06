@@ -366,5 +366,9 @@
  "1.542": {
   "ca": "Mapa: en entrar amb el teu tren (o en triar-ne un) la fitxa surt plegada i el mapa amb el zoom màxim seguint-lo",
   "en": "Map: when you open it with your train (or pick one) the card is collapsed and the map is fully zoomed in following it"
+ },
+ "1.544": {
+  "ca": "Mapa: zoom en seguir un tren una mica més allunyat",
+  "en": "Map: slightly wider zoom when following a train"
  }
 }
