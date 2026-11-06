@@ -11,17 +11,17 @@
   "theme_color": "#0a0a0a",
   "icons": [
     {
-      "src": "icons/andana-192.png",
+      "src": "icons/arasurto-192.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "icons/andana-512.png",
+      "src": "icons/arasurto-512.png",
       "sizes": "512x512",
       "type": "image/png"
     },
     {
-      "src": "icons/andana-maskable-512.png",
+      "src": "icons/arasurto-maskable-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"

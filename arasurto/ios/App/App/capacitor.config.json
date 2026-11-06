@@ -1,0 +1,25 @@
+{
+	"appId": "com.monkisoft.arasurto",
+	"appName": "Arasurto",
+	"webDir": "www",
+	"ios": {
+		"contentInset": "never"
+	},
+	"plugins": {
+		"CapacitorHttp": {
+			"enabled": true
+		},
+		"SplashScreen": {
+			"launchAutoHide": false,
+			"launchShowDuration": 30000,
+			"showSpinner": false
+		}
+	},
+	"packageClassList": [
+		"GeolocationPlugin",
+		"HapticsPlugin",
+		"LocalNotificationsPlugin",
+		"SplashScreenPlugin"
+	],
+	"loggingBehavior": "none"
+}

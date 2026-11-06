@@ -156,8 +156,8 @@
   "en": "Pressing and holding the Home or Work card with your chosen train also puts you «on the train» (when the train is at your station)"
  },
  "1.416": {
-  "ca": "Etiquetes amb fets, no promeses: Localitzat, Per sortir, Sense localitzar i Cancel·lat. A Configuració, avís que les dades són de Renfe i Rodalies i Andana no garanteix que els trens passin",
-  "en": "Tags state facts, not promises: Located, Not departed, Not located and Cancelled. Settings notes that data come from Renfe and Rodalies and Andana does not guarantee trains will run"
+  "ca": "Etiquetes amb fets, no promeses: Localitzat, Per sortir, Sense localitzar i Cancel·lat. A Configuració, avís que les dades són de Renfe i Rodalies i Arasurto no garanteix que els trens passin",
+  "en": "Tags state facts, not promises: Located, Not departed, Not located and Cancelled. Settings notes that data come from Renfe and Rodalies and Arasurto does not guarantee trains will run"
  },
  "1.421": {
   "ca": "Anant al tren: vora verda també en mode fosc i les altres targetes en segon pla; el teu GPS indica a quina estació ets; el viatge acaba sol en passar l'estació de destinació; menys escalfor i bateria amb el tren fixat. La fitxa del tren torna a dalt i tanca el menú d'avisos en encongir-la",
@@ -378,5 +378,9 @@
  "1.548": {
   "ca": "Auditoria: noms d'estació mai tallats amb lletra gran · botons d'avisos i línies més fàcils de tocar",
   "en": "Audit: station names never cut with large text · report and line buttons easier to tap"
+ },
+ "1.550": {
+  "ca": "L'app passa a dir-se Arasurto: nom, icona nova i pantalla d'inici",
+  "en": "The app is now called Arasurto: name, new icon and launch screen"
  }
 }

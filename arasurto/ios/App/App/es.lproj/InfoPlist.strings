@@ -1,0 +1,3 @@
+/* MonkiSoft · Arasurto */
+"NSLocationWhenInUseUsageDescription" = "Arasurto usa tu ubicación para encontrar la estación más cercana, calcular cuándo debes salir y detectar el tren en el que vas.";
+"CFBundleDisplayName" = "Arasurto";
