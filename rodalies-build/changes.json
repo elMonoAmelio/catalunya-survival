@@ -374,5 +374,9 @@
  "1.546": {
   "ca": "Mode clar: «El tren surt d'aquí a…» torna a veure's en blau",
   "en": "Light mode: «Train leaves in…» shows in blue again"
+ },
+ "1.548": {
+  "ca": "Auditoria: noms d'estació mai tallats amb lletra gran · botons d'avisos i línies més fàcils de tocar",
+  "en": "Audit: station names never cut with large text · report and line buttons easier to tap"
  }
 }

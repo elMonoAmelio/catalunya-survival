@@ -161,7 +161,7 @@ export default {
         return J(await repPayload(env), cors);
       }
       if ((p === '/report' || p === '/vote' || p === '/crowd') && req.method === 'POST') {
-        const b = await req.json(), D = await db(env), now = Date.now(), dev = /^[a-f0-9]{32}$/.test(b.dev || '') ? b.dev : '';
+        let b; try { b = await req.json(); } catch (e) { return J({ ok: false, err: 'petición no válida' }, cors, 400); } const D = await db(env), now = Date.now(), dev = /^[a-f0-9]{32}$/.test(b.dev || '') ? b.dev : '';
         const ip = req.headers.get('CF-Connecting-IP') || '', iph = await sha(dev ? 'rod|dev|' + dev : 'rod|' + ip + '|' + new Date().toISOString().slice(0, 10));   // cada móvil cuenta una vez (en 4G muchos comparten IP)
         // ocupación: tu respuesta sustituye a la anterior; sin nivel = la quitas
         if (p === '/crowd') {

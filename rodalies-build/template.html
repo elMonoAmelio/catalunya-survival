@@ -865,6 +865,11 @@ html.dark #rsheet .rsh,html.dark #rsheet .rsl,html.dark #rsheet .rsc{background:
 #toast:not(.on){pointer-events:none!important;visibility:hidden;transition:opacity .2s,transform .2s,visibility 0s .2s}
 </style>
 <style>/* 06/11: «El tren sale en…» también azul en modo claro */html:not(.dark) #home .htit small.cinfo,html:not(.dark) #home .htit small.cinfo b{color:#1d4ed8!important}</style>
+
+<style>/* 06/11 auditoría: nombres de estación nunca cortados; botones de al menos 40 px */
+#mcs .rt .o,#mcs .tc li span,#home .hrd .dst{white-space:normal!important;overflow:visible!important;text-overflow:clip!important;overflow-wrap:anywhere;line-height:1.2}
+.ckb button{min-height:40px;padding:8px 12px}#tabA .ln{min-height:40px!important;min-width:40px}#mcs .abtn{min-width:40px!important;min-height:40px!important}
+</style>
 </head>
 <body>
 <canvas id="c"></canvas>
