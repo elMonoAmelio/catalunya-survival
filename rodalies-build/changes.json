@@ -362,5 +362,9 @@
  "1.540": {
   "ca": "Arranjaments: els botons de dalt tornen a funcionar · no es deixa anar el teu tren en desbloquejar el mòbil i es recupera sol · targeta del tren més clara · icones d'avís sempre visibles · s'avisa quan les dades de Renfe es contradiuen",
   "en": "Fixes: top buttons work again · your train is kept when unlocking the phone and recovers by itself · clearer train card · report icons always visible · conflicting Renfe data is flagged"
+ },
+ "1.542": {
+  "ca": "Mapa: en entrar amb el teu tren (o en triar-ne un) la fitxa surt plegada i el mapa amb el zoom màxim seguint-lo",
+  "en": "Map: when you open it with your train (or pick one) the card is collapsed and the map is fully zoomed in following it"
  }
 }

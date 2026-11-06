@@ -1305,10 +1305,11 @@ export function initRail(A) {
     if (a.acc != null && a.acc > 50) return; if (!ONB.cand || ONB.cand.k !== key) { ONB.cand = { k: key, t: a.t }; return; } if (a.t - ONB.cand.t < 20000) return;   // siempre dos lecturas seguidas (≥ 20 s) en marcha y con buen GPS: en el andén pasan trenes al lado
     onbFound(best);
   }
+  const TRZ = 6;   // zoom al seguir un tren: el máximo, para ver por dónde vas
   function onbFound(best) {
     const key = String(best.tr.num); boardTrain(key, 'auto');
     selNews = selAlerts = selStats = false; selStation = -1; selTrip = best.tr; follow = best.tr;
-    Object.assign(goal, { tx: best.p.w[0], ty: best.p.w[1], dist: Math.min(goal.dist, 22) });
+    Object.assign(goal, { tx: best.p.w[0], ty: best.p.w[1], dist: TRZ });
     if (innerWidth <= 640) { mcs.classList.add('peek'); const rc = $('#rc'); if (!rc.classList.contains('min')) $('#rcgrab').click(); }
     styleStations(); mcs._h = ''; renderCard(); lastT = 0; invalidate();
     let bn = $('#onb'); if (!bn) { bn = document.createElement('div'); bn.id = 'onb'; document.body.appendChild(bn); }
@@ -1848,7 +1849,7 @@ export function initRail(A) {
     if (quiet) TAB.sk = 't' + (selTrip.num || selTrip.vtid);   // seguido en el mapa, pero sin saltar a esa pestaña
     follow = a && a.tr ? a.tr : null;
     if (follow && innerWidth <= 640) { mcs.classList.add('peek'); const rc = $('#rc'); if (!rc.classList.contains('min')) $('#rcgrab').click(); }
-    const w = a ? a.p.w : null; if (w) Object.assign(goal, { tx: w[0], ty: w[1], dist: Math.min(goal.dist, 22) });
+    const w = a ? a.p.w : null; if (w) Object.assign(goal, { tx: w[0], ty: w[1], dist: TRZ });
     styleStations(); mcs._h = ''; renderCard(); lastT = 0; invalidate();
   }
   let pickHome = false;
@@ -2008,6 +2009,7 @@ export function initRail(A) {
     tabbar.querySelectorAll('[data-tab]').forEach(b => b.classList.toggle('on', b.dataset.tab === k)); tindOn();
     if (k === 'line') { if (selTrip || selStation >= 0) TAB.keep = { t: selTrip, s: selStation, sk: TAB.sk }; if (!selStats && !selAlerts && !selLine && !selNews) { selStats = true; HIST.at = 0; } selTrip = null; selStation = -1;   /* «novedades y fuentes» (desde Ajustes) se abre en Línea */ mcs._h = ''; renderCard(); renderLineaBar(); }
     else if (was === 'line') { selStats = selAlerts = selNews = false; selLine = ''; const kp = TAB.keep; TAB.keep = null; if (kp && k === 'map' && !selTrip && selStation < 0) { selTrip = kp.t; selStation = kp.s; TAB.sk = kp.sk; } mcs._h = ''; renderCard(); }
+    if (k === 'map' && was !== 'map') { const n = ONB.tid || (selTrip && selTrip.num != null ? String(selTrip.num) : ''), a = n && act.find(x => x.tr && String(x.tr.num) === n); if (a) { selNews = selAlerts = selStats = false; selStation = -1; selTrip = a.tr; follow = a.tr; const w = a.real && a.v && a.v.w ? a.v.w : a.p && a.p.w; if (w) Object.assign(goal, { tx: w[0], ty: w[1], dist: TRZ }); if (innerWidth <= 640) mcs.classList.add('peek'); mcs._h = ''; renderCard(); lastT = 0; invalidate(); } }
     if (k === 'map') requestAnimationFrame(() => requestAnimationFrame(() => { try { peekH(); } catch (e) {} dispatchEvent(new Event('resize')); }));   // al volver a verse el mapa, se recalcula la altura de la ficha (oculta medía mal)
     if (k === 'set') renderAjustes();
     if (k === 'now') { renderHome(true); requestAnimationFrame(fitHome); }
