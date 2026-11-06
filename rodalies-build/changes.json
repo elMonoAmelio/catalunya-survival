@@ -358,5 +358,9 @@
  "1.535": {
   "ca": "Ara: els avisos de l'estació són icones discretes al costat del nom (els urgents en color); en tocar-les es veuen i es voten",
   "en": "Now: station reports are subtle icons next to the name (urgent ones in colour); tap to see and vote"
+ },
+ "1.540": {
+  "ca": "Arranjaments: els botons de dalt tornen a funcionar · no es deixa anar el teu tren en desbloquejar el mòbil i es recupera sol · targeta del tren més clara · icones d'avís sempre visibles · s'avisa quan les dades de Renfe es contradiuen",
+  "en": "Fixes: top buttons work again · your train is kept when unlocking the phone and recovers by itself · clearer train card · report icons always visible · conflicting Renfe data is flagged"
  }
 }

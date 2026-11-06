@@ -433,6 +433,8 @@ T = {
 "años": ("anys", "years"),
 "hoy": ("avui", "today"),
 "Anónimo": ("Anònim", "Anonymous"),
+"Renfe se contradice: con su retraso aún estaría en": ("Renfe es contradiu: amb el seu retard encara seria a", "Renfe data conflicts: with its delay it would still be at"),
+"Llegas a": ("Arribes a", "Arriving at"),
 "Voy en el": ("Vaig al", "I'm on"),
 "sin posición de Renfe": ("sense posició de Renfe", "no Renfe position"),
 "Aún no ha salido de": ("Encara no ha sortit de", "Not yet departed from"),
