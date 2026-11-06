@@ -13,12 +13,13 @@ main{flex:1;display:flex;flex-direction:column;justify-content:center;max-width:
 h1{font-weight:700;font-size:clamp(52px,15vw,104px);line-height:.92;letter-spacing:-.01em}
 .lead{font-size:clamp(18px,5.3vw,30px);line-height:1.2;margin-top:18px;white-space:pre-line}
 .soon{margin-top:36px;font-size:18px;line-height:1.4;border-top:2px solid var(--ink);padding-top:14px;max-width:30ch}
-footer{max-width:640px;width:100%;margin:0 auto;font-size:14px;color:var(--soft);display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+footer{max-width:640px;width:100%;margin:0 auto;font-size:14px;color:var(--soft);display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:nowrap;white-space:nowrap}nav{margin-left:-6px}
 nav button{background:none;border:0;color:inherit;font:inherit;padding:10px 6px;min-height:44px;cursor:pointer}nav button[aria-pressed=true]{color:var(--ink);text-decoration:underline;text-underline-offset:4px}
 @media (min-width:900px){main,footer{max-width:min(1040px,80vw)}.logo{width:300px;margin-bottom:44px}h1{font-size:clamp(104px,10vw,168px)}.lead{font-size:clamp(30px,2.6vw,40px);margin-top:24px}.soon{font-size:22px;margin-top:48px;padding-top:18px;max-width:none;width:min(560px,100%)}footer{font-size:15px}}
+@media (max-width:360px){footer{font-size:12.5px}nav button{padding:10px 4px}}
 </style></head><body>
 <main><svg class="logo" viewBox="0 0 1024 1024" role="img" aria-label="Arasurto"><g transform="translate(512 512) scale(1.28) translate(-512 -512)"><rect x="212" y="412" width="200" height="36" class="a"/><rect x="212" y="412" width="36" height="200" class="a"/><rect x="212" y="576" width="200" height="36" class="a"/><rect x="296" y="494" width="316" height="36" class="b"/><rect x="612" y="412" width="200" height="200" class="b"/></g></svg><h1>Arasurto</h1><p class="lead" id="lead"></p><p class="soon" id="soon"></p></main>
-<footer><span>© 2026 MonkiSoft</span><nav aria-label="Idioma"><button data-l="ca">Català</button><button data-l="es">Castellano</button><button data-l="en">English</button></nav></footer>
+<footer><nav aria-label="Idioma"><button data-l="ca">Català</button><button data-l="es">Castellano</button><button data-l="en">English</button></nav><span>© 2026 MonkiSoft</span></footer>
 <script>
 const T={ca:["Quan sortir de casa per agafar\nel teu tren de Rodalies.","Aviat a l'App Store."],es:["Cuándo salir de casa para coger\ntu tren de Rodalies.","Pronto en el App Store."],en:["When to leave home to catch\nyour Rodalies train.","Coming soon to the App Store."]};
 function set(l){document.documentElement.lang=l;document.getElementById('lead').textContent=T[l][0];document.getElementById('soon').textContent=T[l][1];document.querySelectorAll('nav button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.l===l));try{localStorage.setItem('l',l)}catch(e){}}
