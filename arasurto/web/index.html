@@ -22,7 +22,7 @@ nav button{background:none;border:0;color:inherit;font:inherit;padding:10px 6px;
 <footer><nav aria-label="Idioma"><button data-l="ca">Català</button><button data-l="es">Castellano</button><button data-l="en">English</button></nav><span>© 2026 MonkiSoft</span></footer>
 <script>
 const T={ca:["Quan sortir de casa per agafar\nel teu tren de Rodalies.","Aviat a l'App Store."],es:["Cuándo salir de casa para coger\ntu tren de Rodalies.","Pronto en el App Store."],en:["When to leave home to catch\nyour Rodalies train.","Coming soon to the App Store."]};
-function set(l){document.documentElement.lang=l;document.getElementById('lead').textContent=T[l][0];document.getElementById('soon').textContent=T[l][1];document.querySelectorAll('nav button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.l===l));try{localStorage.setItem('l',l)}catch(e){}}
+function set(l){document.documentElement.lang=l;document.getElementById('lead').textContent=T[l][0];document.getElementById('soon').textContent=T[l][1];{const f=document.querySelector('.flinks');if(f){f.textContent={ca:'Privacitat',es:'Privacidad',en:'Privacy'}[l];f.href={ca:'/privacitat',es:'/privacidad',en:'/privacy'}[l]}}document.querySelectorAll('nav button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.l===l));try{localStorage.setItem('l',l)}catch(e){}}
 let l;try{l=localStorage.getItem('l')}catch(e){}if(!T[l]){const n=(navigator.language||'ca').slice(0,2);l=T[n]?n:'ca'}set(l);
 document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>set(b.dataset.l));
 </script></body></html>
