@@ -370,5 +370,9 @@
  "1.544": {
   "ca": "Mapa: zoom en seguir un tren una mica més allunyat",
   "en": "Map: slightly wider zoom when following a train"
+ },
+ "1.546": {
+  "ca": "Mode clar: «El tren surt d'aquí a…» torna a veure's en blau",
+  "en": "Light mode: «Train leaves in…» shows in blue again"
  }
 }
