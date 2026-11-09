@@ -5,10 +5,9 @@ on:
     - cron: '41 4 * * *'   # respaldo: GitHub a veces se salta la primera
   push:
     paths:
-      - 'rodalies-build/bundle.js'
-      - 'rodalies-build/template.html'
       - 'rodalies-build/build.py'
-      - 'rodalies.html'
+      - 'rodalies-build/route.py'
+      - 'rodalies-build/pack.py'
       - '.github/workflows/rodalies.yml'
   workflow_dispatch:
 permissions:
@@ -33,16 +32,14 @@ jobs:
           curl -fsSL --retry 3 --max-time 300 -o gtfs.zip https://ssl.renfe.com/ftransit/Fichero_CER_FOMENTO/fomento_transit.zip \
           || curl -fsSL --retry 3 --max-time 300 -o gtfs.zip https://files.mobilitydatabase.org/mdb-2653/latest.zip
           mkdir -p gtfs && unzip -o -q gtfs.zip -d gtfs && ls -la gtfs
-      - name: Construir rodalies.html (hoy + 9 días)
+      - name: Construir el horario (hoy + 9 días)
         working-directory: rodalies-build
         run: |
           python build.py "$(TZ=Europe/Madrid date +%F)" 9
           python route.py
           python pack.py
-          python assemble.py ../rodalies.html
-          python assemble.py ../rodalies-original.html original   # copia congelada del diseño de la v1.148, con horarios al día
       - name: Horario suelto para la app (rama horarios)
-        # la app Arasurto lo descarga al abrirse: así su horario no caduca aunque no se reinstale
+        # la app lo descarga al abrirse: así su horario no caduca aunque no se reinstale
         if: github.ref == 'refs/heads/main'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -51,15 +48,3 @@ jobs:
           cd /tmp/hor && git init -q && git add rod_pack.json \
             && git -c user.name=MonkiSoft -c user.email=elMonoAmelio@users.noreply.github.com commit -qm "Horario de Rodalies $(TZ=Europe/Madrid date +%d/%m/%Y)" \
             && git push -qf "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD:horarios || echo "subida del horario fallida"
-      - name: Publicar si ha cambiado
-        run: |
-          git config user.name "MonkiSoft"
-          git config user.email "elMonoAmelio@users.noreply.github.com"
-          # la app Arasurto lleva la misma web dentro: se actualiza a la vez
-          if [ -d arasurto/www ]; then cp rodalies.html arasurto/www/index.html; mkdir -p arasurto/ios/App/App/public && cp rodalies.html arasurto/ios/App/App/public/index.html; git add arasurto/www/index.html arasurto/ios/App/App/public/index.html; fi
-          git add rodalies.html rodalies-original.html
-          if git diff --cached --quiet; then echo "Sin cambios"; exit 0; fi
-          git commit -m "Horarios de Rodalies $(TZ=Europe/Madrid date +%d/%m/%Y)"
-          # si mientras tanto se ha subido otra versión, esa ejecución ya publicará: esta no falla
-          # GitHub a veces responde «Internal Server Error» al subir: se reintenta 3 veces antes de dar error
-          ok=0; for i in 1 2 3; do if git push; then ok=1; break; fi; sleep 20; git fetch origin main; if [ "$(git rev-parse FETCH_HEAD)" != "$(git rev-parse HEAD~1)" ]; then echo "Hay una versión más nueva en main; la publicará su propia ejecución"; exit 0; fi; done; [ "$ok" = 1 ] || exit 1
