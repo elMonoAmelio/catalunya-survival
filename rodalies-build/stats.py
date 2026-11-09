@@ -110,6 +110,50 @@ for (t, sid), d in zip(running, ds):
     if s:
         S = H['st'].setdefault(s, {'n': 0, 'sum': 0, 'max': 0, 'd5': 0})
         S['n'] += 1; S['sum'] += d; S['max'] = max(S['max'], d); S['d5'] += d >= 300
+# ---- por TRENES del horario (no por fotos): cada tren cuenta una vez, con el mayor retraso que llevó ----
+# base = trenes de hoy que ya deberían haber terminado su viaje (hora de llegada al final + 15 min)
+try:
+    PK = get('https://raw.githubusercontent.com/elMonoAmelio/catalunya-survival/horarios/rod_pack.json')
+except Exception:
+    PK = None
+TR = H.setdefault('tr', {})   # número → [línea, mayor retraso en s, cancelado 0/1]
+if not H.get('trb'):   # primera vez hoy con este cálculo: se rellena con las fotos ya tomadas
+    for sn in H['snaps']:
+        for t in sn.get('r', []):
+            m = re.match(r'^\d+[A-Z](\d+)', t); f = FAM.search(t)
+            if m: o = TR.setdefault(m.group(1), [f.group(1) if f else '?', 0, 0]); o[1] = max(o[1], max(0, (sn.get('d') or {}).get(t, 0)))
+        for t in sn.get('x', []):
+            m = re.match(r'^\d+[A-Z](\d+)', t); f = FAM.search(t)
+            if m: TR.setdefault(m.group(1), [f.group(1) if f else '?', 0, 0])[2] = 1
+    H['trb'] = 1
+mnow = now.hour * 60 + now.minute
+if PK and day.replace('-', '') in PK.get('days', []):
+    k = PK['days'].index(day.replace('-', ''))
+    sid = [x[3] for x in PK['stops']]
+    trips = {}
+    for i, t in enumerate(PK['trips']):
+        if t[0] != k: continue
+        st, tt = PK['pats'][t[1]][0], PK['pats'][t[1]][1]
+        trips[PK['tids'][i]] = (str(t[4]), PK['routes'][t[2]][0], t[3] + tt[1], t[3] + tt[-2], sid[st[0]])
+    for t, s0 in [(t, s) for t, s in running]:
+        if t not in trips: continue
+        num, fam, dep, end, org = trips[t]
+        d = max(0, delay.get(t, 0))
+        if s0 == org and mnow > dep: d = max(d, (mnow - dep) * 60)   # parado en su origen pasada su hora: el retraso real, no el 0 de Renfe
+        o = TR.setdefault(num, [fam, 0, 0]); o[1] = max(o[1], d)
+    for t in cancel:
+        if t in trips: o = TR.setdefault(trips[t][0], [trips[t][1], 0, 0]); o[2] = 1
+    R = {}
+    for t, (num, fam, dep, end, org) in trips.items():
+        if end + 15 > mnow: continue   # aún no ha terminado su viaje
+        r = R.setdefault(fam, {'prev': 0, 'ok': 0, 'late': 0, 'd5': 0, 'nv': 0, 'cx': 0}); r['prev'] += 1
+        o = TR.get(num)
+        if o and o[2]: r['cx'] += 1
+        elif not o: r['nv'] += 1   # Renfe no lo vio circular en ninguna foto
+        elif o[1] < 180: r['ok'] += 1
+        else: r['late'] += 1; r['d5'] += o[1] >= 300
+    H['res'] = R
+    H['note2'] = 'res: trenes del horario que ya debían haber terminado; ok = siempre menos de 3 min; late = 3 min o más alguna vez; nv = nunca visto circular; cx = cancelado.'
 H['upd'] = now.isoformat(timespec='minutes')
 with open(os.path.join(OUT, 'hoy.json'), 'w') as f:
     json.dump(H, f, ensure_ascii=False, separators=(',', ':'))
