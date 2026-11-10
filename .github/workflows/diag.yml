@@ -1,0 +1,31 @@
+name: Diagnóstico Renfe
+on:
+  push:
+    paths: ['.github/workflows/diag.yml']
+permissions:
+  contents: write
+jobs:
+  d:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          mkdir out && cd out
+          curl -s -m 30 https://gtfsrt.renfe.com/vehicle_positions.json -o vp.json
+          curl -s -m 30 https://gtfsrt.renfe.com/trip_updates.json -o tu.json
+          python3 - <<'P' > resumen.txt
+          import json,collections
+          for f in ['vp.json','tu.json']:
+              d=json.load(open(f));E=d.get('entity',[])
+              print(f,'cabecera',d.get('header'),'entidades',len(E))
+              c=collections.Counter()
+              for e in E:
+                  o=e.get('vehicle') or e.get('tripUpdate') or {}
+                  t=(o.get('trip') or {}).get('tripId','');c[t[:4]]+=1
+              print(' prefijos',c.most_common(15))
+              for e in E[:8]: print(' ',json.dumps(e)[:400])
+              for e in E:
+                  s=json.dumps(e)
+                  if '25600' in s or '25608' in s or '25703' in s: print(' COINCIDE',s[:500])
+          P
+          git init -q && git checkout -q -b diag && git add . && git -c user.name=MonkiSoft -c user.email=elMonoAmelio@users.noreply.github.com commit -qm diag
+          git push -qf "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" diag
