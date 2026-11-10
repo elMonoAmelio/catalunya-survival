@@ -1,0 +1,43 @@
+name: Diagnóstico servicios mínimos
+on:
+  push:
+    paths: ['.github/workflows/diag.yml']
+permissions:
+  contents: write
+jobs:
+  d:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          mkdir out && cd out
+          curl -s -m 60 https://raw.githubusercontent.com/elMonoAmelio/catalunya-survival/horarios/rod_pack.json -o pack.json
+          for s in 71801 78805 79009 78804 79500 79100 78704 78700 71700 79300 72209 78600 77109 71500; do curl -s -m 30 "https://serveisgrs.rodalies.gencat.cat/api/departures?lang=es&fullResponse=true&stationId=$s" -o d_$s.json; done
+          TZ=Europe/Madrid python3 - <<'P' > resumen.txt
+          import json,datetime,collections
+          P=json.load(open('pack.json')); now=datetime.datetime.now(); m=now.hour*60+now.minute; k=P['days'].index(now.strftime('%Y%m%d'))
+          sidx={s[3]:i for i,s in enumerate(P['stops'])}; fam={i:r[0] for i,r in enumerate(P['routes'])}
+          print('hora',now.strftime('%H:%M'))
+          tot=collections.Counter()
+          for f in sorted([x for x in __import__('os').listdir('.') if x.startswith('d_')]):
+              sid=f[2:-5]; si=sidx.get(sid); d=json.load(open(f)); T=d.get('trains') or []
+              ann=set(); cx=set()
+              for x in T:
+                  h=x.get('departureDateHourSelectedStation','')[11:16]
+                  if not h: continue
+                  mm=int(h[:2])*60+int(h[3:]); 
+                  if m<=mm<m+50:
+                      n=str(x.get('commercialNumber')); (cx if x.get('trainCancelled') else ann).add(n)
+              sch=set()
+              for t in P['trips']:
+                  if t[0]!=k: continue
+                  st,tt=P['pats'][t[1]][0],P['pats'][t[1]][1]
+                  if si in st and st.index(si)<len(st)-1:
+                      dep=t[3]+tt[2*st.index(si)+1]
+                      if m<=dep<m+50: sch.add(str(t[4]))
+              both=ann&sch
+              print(P['stops'][si][0],'| horario',len(sch),'| anunciados',len(ann),'(del horario',len(both),') | cancelados',len(cx),'| del horario sin anunciar',len(sch-ann-cx))
+              tot['sch']+=len(sch);tot['ann']+=len(both);tot['cx']+=len(cx&sch);tot['miss']+=len(sch-ann-cx)
+          print('TOTAL',dict(tot))
+          P
+          git init -q && git checkout -q -b diag && git add resumen.txt && git -c user.name=MonkiSoft -c user.email=elMonoAmelio@users.noreply.github.com commit -qm diag
+          git push -qf "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" diag
