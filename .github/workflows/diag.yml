@@ -10,26 +10,17 @@ jobs:
     steps:
       - run: |
           mkdir out && cd out
-          U=https://tiempo-real.renfe.com
-          for p in renfe-visor/flota.json renfe-visor/alerts.json renfe-visor/lineas.geojson data/estaciones.geojson renfe-json-cutter/write/salidas/estacion/79009.json renfe-json-cutter/write/salidas/estacion/79410.json; do
-            f=$(echo $p | tr '/' '_'); curl -s -m 30 -A "Mozilla/5.0" -D "$f.h" "$U/$p" -o "$f"; echo "$p $(head -1 $f.h) $(wc -c < $f)" >> resumen.txt; done
+          G=https://serveisgrs.rodalies.gencat.cat/api
+          for n in 25600 25608 25703 25610 25612; do curl -s -m 30 "$G/trains/$n?fullResponse=true&lang=es" -o t_$n.json; echo "train $n $(wc -c < t_$n.json)" >> resumen.txt; done
+          curl -s -m 30 "$G/departures?lang=es&fullResponse=true&stationId=79410" -o dep.json; echo "dep $(wc -c < dep.json)" >> resumen.txt
+          curl -s -m 30 "$G/init?lang=es" -o init.json; echo "init $(wc -c < init.json)" >> resumen.txt
           curl -s -m 30 https://gtfsrt.renfe.com/vehicle_positions.json -o gtfs_vp.json; echo "gtfs vp $(wc -c < gtfs_vp.json)" >> resumen.txt
           python3 - <<'P' >> resumen.txt
-          import json,collections
-          try:
-              d=json.load(open('renfe-visor_flota.json'))
-              T=d.get('trenes') if isinstance(d,dict) else d
-              print('flota claves', list(d)[:10] if isinstance(d,dict) else type(d).__name__, 'n', len(T or []))
-              for t in (T or [])[:4]: print(' ej', json.dumps(t)[:600])
-              c=collections.Counter(str(t.get('codLinea') or t.get('linea') or t.get('desCorLinea') or '?') for t in T or [])
-              print(' lineas', c.most_common(40))
-              for t in T or []:
-                  s=json.dumps(t)
-                  if any(n in s for n in ['25600','25608','25703','2560','2570']): print(' R1?', s[:500])
-          except Exception as e: print('flota error', e)
-          for f in ['renfe-json-cutter_write_salidas_estacion_79009.json','renfe-json-cutter_write_salidas_estacion_79410.json']:
-              try: print(f, open(f).read()[:1500])
-              except Exception as e: print(f, e)
+          import json
+          print(open('t_25600.json').read()[:2500])
+          d=json.load(open('dep.json')); T=d.get('trains') or []
+          print('dep trains', len(T)); print(json.dumps(T[0])[:1500] if T else '')
+          print('init', open('init.json').read()[:600])
           P
           git init -q && git checkout -q -b diag && git add . && git -c user.name=MonkiSoft -c user.email=elMonoAmelio@users.noreply.github.com commit -qm diag
           git push -qf "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" diag
