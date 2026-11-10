@@ -1,0 +1,26 @@
+name: Diagnóstico tren
+on:
+  push:
+    paths: ['.github/workflows/diag.yml']
+permissions:
+  contents: write
+jobs:
+  d:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          mkdir out && cd out
+          G=https://serveisgrs.rodalies.gencat.cat/api
+          curl -s -m 30 "$G/trains/25630?fullResponse=true&lang=es" -o t.json
+          curl -s -m 30 "$G/departures?lang=es&fullResponse=true&stationId=79009" -o d.json
+          python3 - <<'P' > resumen.txt
+          import json
+          t=json.load(open('t.json')).get('train',{})
+          print('dest',t.get('destinationStation'),'obs',repr(t.get('trainObservations')),'next',t.get('nextStation'))
+          for s in t.get('stations',[]): print(' ',s.get('name'),s.get('arrivalDateHour'),s.get('stopType'),repr(s.get('stationObservations')))
+          print('keys',list(t.keys()))
+          for x in json.load(open('d.json')).get('trains',[]):
+              if str(x.get('commercialNumber'))=='25630': print('dep',x.get('destinationStation'),repr(x.get('trainObservations')),[ (s['name'],s.get('stopType')) for s in x.get('stations',[])])
+          P
+          git init -q && git checkout -q -b diag && git add resumen.txt && git -c user.name=MonkiSoft -c user.email=elMonoAmelio@users.noreply.github.com commit -qm diag
+          git push -qf "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" diag
