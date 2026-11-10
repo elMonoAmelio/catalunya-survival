@@ -10,7 +10,7 @@ FAM = re.compile(r'(R\d{1,2}[A-Za-z]?|RG1|RL\d|RT\d)$')
 
 def get(u):
     req = urllib.request.Request(u, headers={'User-Agent': 'Mozilla/5.0', 'Accept': 'application/json'})
-    with urllib.request.urlopen(req, timeout=60) as r:
+    with urllib.request.urlopen(req, timeout=25) as r:
         return json.load(r)
 
 
@@ -22,8 +22,18 @@ def load(name):
         return None
 
 
-tu = get('https://gtfsrt.renfe.com/trip_updates.json')
-vp = get('https://gtfsrt.renfe.com/vehicle_positions.json')
+# Renfe directo; si no responde (a veces bloquea a GitHub), a través de nuestro puente; si tampoco, vacío y se usa Rodalies
+def renfe(p):
+    for u in ('https://gtfsrt.renfe.com/' + p, 'https://rodalies.erathegameoftime.com/' + p, 'https://rodalies.jhmuyo.workers.dev/' + p):
+        try:
+            d = get(u)
+            if isinstance(d, dict) and 'entity' in d:
+                return d
+        except Exception as e:
+            print('sin respuesta', u, e)
+    return {}
+tu = renfe('trip_updates.json')
+vp = renfe('vehicle_positions.json')
 rod = lambda t: (t or '').startswith('51')
 
 delay, nxt, cancel = {}, {}, set()
