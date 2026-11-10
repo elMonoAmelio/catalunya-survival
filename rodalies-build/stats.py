@@ -188,17 +188,25 @@ if PK and day.replace('-', '') in PK.get('days', []):
         o = TR.setdefault(num, [fam, 0, 0]); o[1] = max(o[1], d)
     for t in cancel:
         if t in trips: o = TR.setdefault(trips[t][0], [trips[t][1], 0, 0]); o[2] = 1
-    R = {}
+    R = {}; RH = {}
+    # fotos con datos (Renfe o Rodalies): un tren no visto mientras NO había datos no se sabe si circuló → «sin datos», fuera del %
+    good = []
+    for sn in H['snaps']:
+        if sn.get('n'):
+            hh, mm = map(int, sn['t'].split(':')); good.append(hh * 60 + mm)
     for t, (num, fam, dep, end, org) in trips.items():
         if end + 15 > mnow: continue   # aún no ha terminado su viaje
-        r = R.setdefault(fam, {'prev': 0, 'ok': 0, 'late': 0, 'd5': 0, 'nv': 0, 'cx': 0}); r['prev'] += 1
+        r = R.setdefault(fam, {'prev': 0, 'ok': 0, 'late': 0, 'd5': 0, 'nv': 0, 'cx': 0, 'sd': 0}); r['prev'] += 1
+        hr = RH.setdefault(fam, {}).setdefault(str(min(23, end // 60)), [0, 0, 0])   # por hora de llegada: [con dato, a su hora, sin datos]
         o = TR.get(num)
-        if o and o[2]: r['cx'] += 1
-        elif not o: r['nv'] += 1   # Renfe no lo vio circular en ninguna foto
-        elif o[1] < 180: r['ok'] += 1
-        else: r['late'] += 1; r['d5'] += o[1] >= 300
-    H['res'] = R
-    H['note2'] = 'res: trenes del horario que ya debían haber terminado; ok = siempre menos de 3 min; late = 3 min o más alguna vez; nv = nunca visto circular; cx = cancelado.'
+        if o and o[2]: r['cx'] += 1; hr[0] += 1
+        elif not o:
+            if any(dep <= g <= end for g in good): r['nv'] += 1; hr[0] += 1   # había datos y Renfe no lo vio circular
+            else: r['sd'] += 1; hr[2] += 1
+        elif o[1] < 180: r['ok'] += 1; hr[0] += 1; hr[1] += 1
+        else: r['late'] += 1; r['d5'] += o[1] >= 300; hr[0] += 1
+    H['res'] = R; H['resh'] = RH
+    H['note2'] = 'res: trenes del horario que ya debían haber terminado; ok = siempre menos de 3 min; late = 3 min o más alguna vez; nv = nunca visto circular habiendo datos; sd = sin datos de Renfe mientras debía circular (no cuenta en el %); cx = cancelado; resh = lo mismo por hora de llegada [con dato, a su hora, sin datos].'
 H['upd'] = now.isoformat(timespec='minutes')
 with open(os.path.join(OUT, 'hoy.json'), 'w') as f:
     json.dump(H, f, ensure_ascii=False, separators=(',', ':'))
