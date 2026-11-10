@@ -119,7 +119,7 @@ if not H or H.get('day') != day:
             if not N: return None
             return {'day': X['day'], 'fotos': len(sn), 'n': N, 'ok': sum(x.get('ok', 0) for x in sn), 'd5': sum(x.get('d5', 0) for x in sn),
                     'avg': round(sum(x.get('avg', 0) * x.get('n', 0) for x in sn) / N, 2), 'cx': len(set(t for x in sn for t in x.get('x', []))),
-                    'lines': {f: {'n': L['n'], 'ok': L['ok'], 'avg': round(L['sum'] / L['n'] / 60, 2), 'max': round(L['max'] / 60)} for f, L in (X.get('lines') or {}).items() if L.get('n')}}
+                    'lines': {f: {'n': L['n'], 'ok': L['ok'], 'avg': round(L['sum'] / L['n'] / 60, 2), 'max': round(L['max'] / 60)} for f, L in (X.get('lines') or {}).items() if L.get('n')}, **({'res': X['res']} if X.get('res') else {})}
         for X in (A0, H):   # también el día anterior, si aún no estaba guardado
             r = X and X.get('day') and not any(d['day'] == X['day'] for d in DI['days']) and resumen(X)
             if r: DI['days'].append(r)
