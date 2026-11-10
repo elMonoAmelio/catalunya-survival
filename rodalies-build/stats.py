@@ -50,6 +50,40 @@ for e in vp.get('entity', []):
     if rod(tid) and v.get('position'):
         running.append((tid, v.get('stopId') or ''))
 
+# ---- si Renfe no da posiciones, segunda fuente: Rodalies (salidas de estaciones repartidas por todas las líneas) ----
+SRC = 'renfe'
+HUBS = ['71801', '78805', '79009', '79500', '79600', '79606', '79200', '79100', '79104', '79300', '79309', '78704', '78700', '78600', '77109', '71700', '71600', '71500', '71400', '72209', '72305', '72503', '79006']
+if not running:
+    try:
+        PK0 = get('https://raw.githubusercontent.com/elMonoAmelio/catalunya-survival/horarios/rod_pack.json')
+        k0 = PK0['days'].index(now.strftime('%Y%m%d'))
+        bynum = {str(t[4]): PK0['tids'][i] for i, t in enumerate(PK0['trips']) if t[0] == k0}
+    except Exception:
+        bynum = {}
+    seen = {}
+    for sid in HUBS if bynum else []:
+        try:
+            dd = get('https://serveisgrs.rodalies.gencat.cat/api/departures?lang=es&fullResponse=true&stationId=' + sid)
+        except Exception:
+            continue
+        for x in dd.get('trains') or []:
+            seen.setdefault(str(x.get('commercialNumber') or x.get('technicalNumber') or ''), x)
+    hhmm = now.strftime('%Y-%m-%dT%H:%M')
+    for n, x in seen.items():
+        tid = bynum.get(n)
+        if not tid:
+            continue
+        if x.get('trainCancelled'):
+            cancel.add(tid); continue
+        live = bool(x.get('delay')) or any(re.search(r':\d\d:(?!00)\d\d$', z.get('arrivalDateHour') or '') for z in x.get('stations') or [])
+        o, nx = (x.get('originStation') or {}).get('id'), (x.get('nextStation') or {}).get('id')
+        if not live or not nx or (o == nx and (x.get('originDateHour') or '') > hhmm):
+            continue   # sin dato en directo, o aún no ha salido de su origen
+        delay[tid] = int(x.get('delay') or 0) * 60
+        running.append((tid, ''))
+    if running:
+        SRC = 'rodalies'
+
 day = now.strftime('%Y-%m-%d')
 H = load('hoy.json')
 if not H or H.get('day') != day:
@@ -98,7 +132,8 @@ snap = {'t': now.strftime('%H:%M'), 'n': n, 'ok': ok, 'd5': sum(1 for d in ds if
 # para el modo «repasar el día»: retraso de cada tren en esa foto (segundos) y cancelados
 snap['d'] = {t: delay[t] for t, _ in running if delay[t]}
 snap['x'] = sorted(cancel)
-snap['r'] = sorted(t for t, _ in running)   # trenes con posición: sirve para comprobar después si los «sin señal» pasaron
+snap['r'] = sorted(t for t, _ in running)
+snap['src'] = SRC   # de dónde salen las posiciones de esta foto   # trenes con posición: sirve para comprobar después si los «sin señal» pasaron
 H['snaps'].append(snap)
 
 for (t, sid), d in zip(running, ds):
