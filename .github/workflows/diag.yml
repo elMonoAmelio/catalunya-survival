@@ -6,7 +6,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: |
-          mkdir out; cd out; B=https://rodalies.erathegameoftime.com
+          mkdir out; cd out; B=https://rodalies.jhmuyo.workers.dev
           curl -s -m 40 "$B/live.json" -o live.json
           curl -s -m 20 "$B/estado.json" -o estado.json
           for s in 79009 79410; do curl -s -m 20 "$B/departures.json?stationId=$s" -o dep_$s.json; done
