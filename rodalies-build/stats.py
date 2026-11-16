@@ -136,7 +136,7 @@ nd = sum(1 for t, _ in running if t not in delay)
 running = [(t, s) for t, s in running if t in delay]
 n = len(running)
 ds = [max(0, delay[t]) for t, _ in running]
-ok = sum(1 for d in ds if d < 180)
+ok = sum(1 for d in ds if d < 300)
 snap = {'t': now.strftime('%H:%M'), 'n': n, 'ok': ok, 'd5': sum(1 for d in ds if d >= 300),
         'avg': round(sum(ds) / n / 60, 2) if n else 0, 'cx': len(cancel), 'nd': nd}
 # para el modo «repasar el día»: retraso de cada tren en esa foto (segundos) y cancelados
@@ -150,7 +150,7 @@ for (t, sid), d in zip(running, ds):
     m = FAM.search(t)
     f = m.group(1) if m else '?'
     L = H['lines'].setdefault(f, {'n': 0, 'ok': 0, 'sum': 0, 'max': 0})
-    L['n'] += 1; L['ok'] += d < 180; L['sum'] += d; L['max'] = max(L['max'], d)
+    L['n'] += 1; L['ok'] += d < 300; L['sum'] += d; L['max'] = max(L['max'], d)
     s = nxt.get(t) or sid
     if s:
         S = H['st'].setdefault(s, {'n': 0, 'sum': 0, 'max': 0, 'd5': 0})
@@ -203,10 +203,10 @@ if PK and day.replace('-', '') in PK.get('days', []):
         elif not o:
             if any(dep <= g <= end for g in good): r['nv'] += 1; hr[0] += 1   # había datos y Renfe no lo vio circular
             else: r['sd'] += 1; hr[2] += 1
-        elif o[1] < 180: r['ok'] += 1; hr[0] += 1; hr[1] += 1
+        elif o[1] < 300: r['ok'] += 1; hr[0] += 1; hr[1] += 1
         else: r['late'] += 1; r['d5'] += o[1] >= 300; hr[0] += 1
     H['res'] = R; H['resh'] = RH
-    H['note2'] = 'res: trenes del horario que ya debían haber terminado; ok = siempre menos de 3 min; late = 3 min o más alguna vez; nv = nunca visto circular habiendo datos; sd = sin datos de Renfe mientras debía circular (no cuenta en el %); cx = cancelado; resh = lo mismo por hora de llegada [con dato, a su hora, sin datos].'
+    H['note2'] = 'res: trenes del horario que ya debían haber terminado; ok = siempre menos de 5 min; late = 5 min o más alguna vez (hasta el 16/11/2026 el corte era 3 min); nv = nunca visto circular habiendo datos; sd = sin datos de Renfe mientras debía circular (no cuenta en el %); cx = cancelado; resh = lo mismo por hora de llegada [con dato, a su hora, sin datos].'
 H['upd'] = now.isoformat(timespec='minutes')
 with open(os.path.join(OUT, 'hoy.json'), 'w') as f:
     json.dump(H, f, ensure_ascii=False, separators=(',', ':'))
