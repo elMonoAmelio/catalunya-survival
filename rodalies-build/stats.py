@@ -196,17 +196,17 @@ if PK and day.replace('-', '') in PK.get('days', []):
             hh, mm = map(int, sn['t'].split(':')); good.append(hh * 60 + mm)
     for t, (num, fam, dep, end, org) in trips.items():
         if end + 15 > mnow: continue   # aún no ha terminado su viaje
-        r = R.setdefault(fam, {'prev': 0, 'ok': 0, 'late': 0, 'd5': 0, 'nv': 0, 'cx': 0, 'sd': 0}); r['prev'] += 1
+        r = R.setdefault(fam, {'prev': 0, 'ok': 0, 'late': 0, 'd5': 0, 'nv': 0, 'cx': 0, 'sd': 0, 'ds': 0, 'dn': 0}); r['prev'] += 1
         hr = RH.setdefault(fam, {}).setdefault(str(min(23, end // 60)), [0, 0, 0])   # por hora de llegada: [con dato, a su hora, sin datos]
         o = TR.get(num)
         if o and o[2]: r['cx'] += 1; hr[0] += 1
         elif not o:
             if any(dep <= g <= end for g in good): r['nv'] += 1; hr[0] += 1   # había datos y Renfe no lo vio circular
             else: r['sd'] += 1; hr[2] += 1
-        elif o[1] < 300: r['ok'] += 1; hr[0] += 1; hr[1] += 1
-        else: r['late'] += 1; r['d5'] += o[1] >= 300; hr[0] += 1
+        elif o[1] < 300: r['ok'] += 1; hr[0] += 1; hr[1] += 1; r['ds'] += int(o[1]); r['dn'] += 1
+        else: r['late'] += 1; r['d5'] += o[1] >= 300; hr[0] += 1; r['ds'] += int(o[1]); r['dn'] += 1
     H['res'] = R; H['resh'] = RH
-    H['note2'] = 'res: trenes del horario que ya debían haber terminado; ok = siempre menos de 5 min; late = 5 min o más alguna vez (hasta el 16/11/2026 el corte era 3 min); nv = nunca visto circular habiendo datos; sd = sin datos de Renfe mientras debía circular (no cuenta en el %); cx = cancelado; resh = lo mismo por hora de llegada [con dato, a su hora, sin datos].'
+    H['note2'] = 'res: trenes del horario que ya debían haber terminado; ok = siempre menos de 5 min; late = 5 min o más alguna vez (hasta el 16/11/2026 el corte era 3 min); nv = nunca visto circular habiendo datos; sd = sin datos de Renfe mientras debía circular (no cuenta en el %); cx = cancelado; ds/dn = suma (s) y número de trenes vistos, con el mayor retraso de cada uno (retraso medio por tren); resh = lo mismo por hora de llegada [con dato, a su hora, sin datos].'
 H['upd'] = now.isoformat(timespec='minutes')
 with open(os.path.join(OUT, 'hoy.json'), 'w') as f:
     json.dump(H, f, ensure_ascii=False, separators=(',', ':'))
